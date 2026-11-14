@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pico Computer 3 — mather.host</title>
+  <meta name="description" content="The Pico Computer 3: an RP2350B home computer with HDMI, USB, audio and PSRAM that runs MMBasic, MicroPython or FUZIX.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/" aria-current="page">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /pico-computer-3</p>
+        <h1>Pico Computer 3</h1>
+        <p class="lede">A complete home computer on one board, built around the Raspberry Pi RP2350B. Plug in an HDMI screen and a USB keyboard, then choose an operating system: MMBasic, MicroPython or the FUZIX Unix-like OS.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <figure class="photo">
+          <img src="https://raw.githubusercontent.com/UKTailwind/FUZIX/pc3/Kernel/platform/platform-rpipico/brochure/board.jpg" alt="The assembled Pico Computer 3 circuit board" width="820" height="763">
+          <figcaption>An assembled Pico Computer 3.</figcaption>
+        </figure>
+        <div>
+          <h2 style="margin:0 0 16px;font-size:1.5rem">Hardware</h2>
+          <dl class="spec">
+            <dt>CPU</dt><dd>RP2350B, the 80-pin RP2350 with 48 GPIO</dd>
+            <dt>Memory</dt><dd>8&nbsp;MB PSRAM plus on-board flash</dd>
+            <dt>Video</dt><dd>HDMI/DVI from the RP2350's HSTX</dd>
+            <dt>Audio</dt><dd>PCM5102 stereo DAC</dd>
+            <dt>USB</dt><dd>On-board hub for keyboard, mouse, gamepads and flash drives</dd>
+            <dt>Storage</dt><dd>SD card</dd>
+            <dt>Clock</dt><dd>DS3231 real-time clock</dd>
+            <dt>Console</dt><dd>USB-C serial</dd>
+          </dl>
+          <div class="links" style="margin-top:16px">
+            <a href="/pcb/#pico-computer-3">Board revisions and design files →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Software</h2>
+            <p>Three operating systems, a terminal, and a PC toolchain.</p>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">MMBasic</li><li>Firmware</li></ul>
+              <h3><a href="/picomite/">PicoMite PC3 build</a></h3>
+              <p>A dedicated PicoMite firmware build for the board. It gives MMBasic HDMI graphics, USB devices, sound and the SD card out of the box. The same build also runs on the Pico Computer 2 and the Olimex RP2350pc.</p>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/PicoMite/releases">Download</a>
+                <a href="/picomite/">About the PicoMite →</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="shot contain"><img src="https://raw.githubusercontent.com/UKTailwind/micropython/pico-computer-3/ports/rp2/boards/PICO_COMPUTER_3/book/cover.png" alt="Cover of the book Programming the Pico Computer 3" loading="lazy" width="2800" height="3960"></div>
+            <div class="body">
+              <ul class="tags"><li class="green">MicroPython</li><li>Port</li><li>Book</li></ul>
+              <h3><a href="https://github.com/UKTailwind/micropython/tree/pico-computer-3">MicroPython for the PC3</a></h3>
+              <p>A MicroPython board port that turns the PC3 into a self-contained Python computer. Much of its hardware support is carried over from the PicoMite.</p>
+              <ul>
+                <li>HDMI graphics with sprites, blitting, layers and 3D</li>
+                <li>USB keyboard, mouse, gamepad and drives</li>
+                <li>MOD player, synth, Wi-Fi, file manager and GUI library</li>
+                <li>A desktop emulator, and a beginner's book: <em>Programming the Pico Computer&nbsp;3</em></li>
+              </ul>
+              <p class="credit">Based on <a href="https://github.com/micropython/micropython">MicroPython</a>.</p>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/micropython/releases">Releases</a>
+                <a href="https://github.com/UKTailwind/micropython/tree/pico-computer-3/ports/rp2/boards/PICO_COMPUTER_3">Board, manual and book</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">FUZIX</li><li>Unix-like</li><li>C compiler</li></ul>
+              <h3><a href="https://github.com/UKTailwind/FUZIX/tree/pc3">FUZIX for the PC3</a></h3>
+              <p>A port of the FuzixOS small Unix-like operating system to the board, with an on-board C toolchain and an MMBasic-to-C translator.</p>
+              <ul>
+                <li>HDMI console, PSRAM, USB keyboard, sound, SD card and RTC</li>
+                <li>Wi-Fi networking with a TFTP server</li>
+                <li>New bytecode and ARM Thumb compiler back ends, so C compiles on the board</li>
+                <li><code>mmb2c</code>: translates MMBasic programs to C</li>
+                <li>BBC BASIC, awk and man pages</li>
+              </ul>
+              <p class="credit">Based on <a href="https://github.com/EtchedPixels/FUZIX">FuzixOS</a>.</p>
+              <div class="meta" data-repo="FUZIX"></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/FUZIX/releases">Releases with SD images</a>
+                <a href="https://github.com/UKTailwind/FUZIX/blob/pc3/Kernel/platform/platform-rpipico/FUZIX-PC3-MANUAL.pdf">Manual</a>
+                <a href="https://github.com/UKTailwind/FUZIX/blob/pc3/Kernel/platform/platform-rpipico/brochure/fuzix-pc3-brochure.pdf">Brochure</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Terminal</li><li>VT100</li></ul>
+              <h3><a href="https://github.com/UKTailwind/VT2350">VT2350</a></h3>
+              <p>The VT100-compatible terminal firmware has a PC3 board option. With it, the PC3 becomes an HDMI serial terminal for another computer, such as a PicoMite.</p>
+              <div class="meta" data-repo="VT2350"></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/VT2350/blob/main/docs/VT2350_User_Manual.pdf">User manual</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">PC toolchain</li><li>Linux</li><li>Windows</li></ul>
+              <h3><a href="https://github.com/UKTailwind/pc3host">pc3host</a></h3>
+              <p>The FUZIX-side MMBasic toolchain running natively on a PC. You can translate, compile and run PC3 programs in a desktop window. A device server stands in for the board's kernel.</p>
+              <ul>
+                <li>Graphics, keyboard, sound, and MP3/FLAC/MOD playback</li>
+                <li>Networking with TLS</li>
+                <li><code>.deb</code> package and a self-contained Windows zip</li>
+              </ul>
+              <div class="meta" data-repo="pc3host"></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/pc3host/releases">Releases</a>
+                <a href="https://github.com/UKTailwind/pc3host">Source</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

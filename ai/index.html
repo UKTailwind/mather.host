@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI — mather.host</title>
+  <meta name="description" content="Using AI as an engineering tool: AI-assisted OS and firmware ports, design documents written with AI, and benchmarks of local language models.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/" aria-current="page">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /ai</p>
+        <h1>AI as an engineering tool</h1>
+        <p class="lede">AI coding assistants have become part of the toolkit for much of the recent work here: planning interpreter changes, porting operating systems and writing documentation. This section collects the results, the design documents behind them, and tests of which models are actually useful.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Built with AI</h2>
+            <p>Large projects where an AI assistant was a working collaborator.</p>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Claude</li><li>OS port</li></ul>
+              <h3><a href="https://github.com/UKTailwind/FUZIX/tree/pc3">FUZIX on the Pico Computer 3</a></h3>
+              <p>More than a thousand commits porting FuzixOS to the RP2350B. They include new compiler back ends, a bytecode runner and the <code>mmb2c</code> MMBasic-to-C translator. Many of the commits are co-authored with Claude.</p>
+              <div class="links"><a href="/pico-computer-3/">More on the PC3 →</a></div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Claude</li><li>Port + book</li></ul>
+              <h3><a href="https://github.com/UKTailwind/micropython/tree/pico-computer-3">MicroPython on the Pico Computer 3</a></h3>
+              <p>A full board port, a desktop emulator, and a beginner's book, <em>Programming the Pico Computer&nbsp;3</em>, developed with Claude. The book credits that assistance.</p>
+              <div class="links"><a href="https://github.com/UKTailwind/micropython/tree/pico-computer-3/ports/rp2/boards/PICO_COMPUTER_3">Port and book</a></div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Copilot</li><li>Python</li></ul>
+              <h3><a href="https://github.com/UKTailwind/gcode-to-bambu-preset">gcode-to-bambu-preset</a></h3>
+              <p>A tool that converts settings from other slicers into Bambu Studio presets, written with GitHub Copilot.</p>
+              <div class="links"><a href="/projects/#gcode">On the projects page →</a></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Design documents</h2>
+            <p>Plans and reviews written before and during the work. They're published as web pages from the <a href="https://github.com/UKTailwind/AI-design-files">AI-design-files</a> repository.</p>
+          </div>
+        </div>
+        <h3 style="margin:0 0 10px;font-size:1.05rem">MMBasic interpreter</h3>
+        <ul class="doclist" style="margin-bottom:28px">
+          <li><a href="https://uktailwind.github.io/AI-design-files/Interpreter_Performance_Plan.html">Interpreter Performance Plan</a><span>How MMBasic spends its time, and a measured plan to make it faster</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Interpreter_RouteB_Design.html">Route B Design</a><span>A compiled statement stream instead of re-reading program text</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Interpreter_RouteB_VM_Review.html">Route B VM Review</a><span>Making each compiled statement cheaper to run</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Interpreter_RouteB_Coverage.html">Route B Coverage Census</a><span>What the on-board compiler still leaves as text</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Interpreter_S5S6_Symbols_Design.html">Symbols Design (S5/S6)</a><span>Binding names once instead of on every statement</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Variable_Table_Redesign.html">Compact Variable Table</a><span>Freeing tens of KB of RAM held by unused variable slots</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/SubFun_Label_Redesign.html">One Name Index</a><span>A single lookup for SUBs, FUNCTIONs and labels on both chips</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Main_Bug_Report_2026-09.html">Main Bug Report, September 2026</a><span>Bugs found during the performance work</span></li>
+        </ul>
+        <h3 style="margin:0 0 10px;font-size:1.05rem">Game ports for the Pico Computer 3</h3>
+        <ul class="doclist">
+          <li><a href="https://uktailwind.github.io/AI-design-files/Elite_Port_Plan.html">Elite</a><span>A phased plan for the 1984 BBC Micro original, on the Draw3D engine</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Thrust_Port_Plan.html">Thrust</a><span>A phased plan for the 1986 BBC Micro game</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Exile_Port_Design_Review.html">Exile</a><span>A design review for the 1988 BBC Micro game</span></li>
+          <li><a href="https://uktailwind.github.io/AI-design-files/Prince_of_Persia_Port_Review.html">Prince of Persia</a><span>What it would take, measured against the released source</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <div class="prose">
+          <h2 style="margin-top:0">Local language models</h2>
+          <p>Which AI models can you run on your own hardware that are actually useful for embedded C and MMBasic work? A benchmark harness is testing locally hosted models on a workstation GPU, using real tasks: writing and debugging C under AddressSanitizer, answering questions about the MMBasic source, and extending a BASIC interpreter.</p>
+          <p>A full write-up of the method, results and hardware recommendations is coming soon.</p>
+        </div>
+        <div class="note">
+          <strong>In progress.</strong> The results will be published here and on The Back Shed forum when the testing is complete.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

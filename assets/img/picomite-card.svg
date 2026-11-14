@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Illustration of a small microcontroller board">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123a2d"/>
+      <stop offset="1" stop-color="#0a2219"/>
+    </linearGradient>
+    <linearGradient id="pcb" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f8a63"/>
+      <stop offset="1" stop-color="#176b4d"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)"/>
+  <g stroke="#2fb07f" stroke-opacity="0.18" stroke-width="2" fill="none">
+    <path d="M0 60h120l30 30h160"/><path d="M640 330H500l-30-30H330"/>
+    <path d="M0 340h80l40-40"/><path d="M640 70H540l-40 40"/>
+  </g>
+  <!-- board -->
+  <g transform="translate(140 95)">
+    <rect width="360" height="210" rx="14" fill="url(#pcb)" stroke="#2fc48c" stroke-opacity="0.5"/>
+    <!-- castellated pins -->
+    <g fill="#e4b77a">
+      <circle cx="20" cy="14" r="6"/><circle cx="46" cy="14" r="6"/><circle cx="72" cy="14" r="6"/><circle cx="98" cy="14" r="6"/>
+      <circle cx="124" cy="14" r="6"/><circle cx="150" cy="14" r="6"/><circle cx="176" cy="14" r="6"/><circle cx="202" cy="14" r="6"/>
+      <circle cx="228" cy="14" r="6"/><circle cx="254" cy="14" r="6"/><circle cx="280" cy="14" r="6"/><circle cx="306" cy="14" r="6"/>
+      <circle cx="332" cy="14" r="6"/>
+      <circle cx="20" cy="196" r="6"/><circle cx="46" cy="196" r="6"/><circle cx="72" cy="196" r="6"/><circle cx="98" cy="196" r="6"/>
+      <circle cx="124" cy="196" r="6"/><circle cx="150" cy="196" r="6"/><circle cx="176" cy="196" r="6"/><circle cx="202" cy="196" r="6"/>
+      <circle cx="228" cy="196" r="6"/><circle cx="254" cy="196" r="6"/><circle cx="280" cy="196" r="6"/><circle cx="306" cy="196" r="6"/>
+      <circle cx="332" cy="196" r="6"/>
+    </g>
+    <!-- usb -->
+    <rect x="-14" y="80" width="40" height="50" rx="5" fill="#c9cfd2" stroke="#8a9296"/>
+    <!-- mcu -->
+    <rect x="140" y="62" width="86" height="86" rx="6" fill="#1b1f1e"/>
+    <g stroke="#b9bfc1" stroke-width="3">
+      <path d="M150 58v-8M164 58v-8M178 58v-8M192 58v-8M206 58v-8M216 58v-8"/>
+      <path d="M150 152v8M164 152v8M178 152v8M192 152v8M206 152v8M216 152v8"/>
+      <path d="M136 72h-8M136 86h-8M136 100h-8M136 114h-8M136 128h-8M136 140h-8"/>
+      <path d="M230 72h8M230 86h8M230 100h8M230 114h8M230 128h8M230 140h8"/>
+    </g>
+    <text x="183" y="110" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#9aa5a2">RP2350</text>
+    <!-- flash + crystal -->
+    <rect x="262" y="78" width="46" height="30" rx="3" fill="#1b1f1e"/>
+    <rect x="270" y="122" width="30" height="16" rx="8" fill="#c9cfd2"/>
+    <!-- traces -->
+    <g stroke="#e4b77a" stroke-opacity="0.55" stroke-width="2.2" fill="none" stroke-linecap="round">
+      <path d="M26 105h50l20-20h40"/><path d="M26 115h60l18 18h32"/>
+      <path d="M240 93h22"/><path d="M240 130h30"/>
+      <path d="M72 20v20l30 20h36"/><path d="M306 190v-24l-20-20"/>
+    </g>
+    <!-- button + led -->
+    <circle cx="96" cy="160" r="10" fill="#f2f2f2" stroke="#9aa"/>
+    <rect x="58" y="60" width="14" height="9" rx="2" fill="#4cff9a"/>
+  </g>
+  <!-- prompt -->
+  <text x="140" y="356" font-family="ui-monospace, Consolas, monospace" font-size="22" fill="#9cf0b8">&gt; RUN<tspan fill="#9cf0b8" opacity="0.7">_</tspan></text>
+</svg>

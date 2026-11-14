@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colour Maximite 2 — mather.host</title>
+  <meta name="description" content="MMBasic V7 firmware and design files for the Colour Maximite 2, the STM32H743 computer that boots straight into BASIC.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/" aria-current="page">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /cmm2</p>
+        <h1>Colour Maximite 2</h1>
+        <p class="lede">A 480&nbsp;MHz STM32H743 computer that boots straight into BASIC, with VGA graphics, sound and an SD card. The firmware is being brought up to the same V7 MMBasic interpreter as the PicoMite, and one firmware file runs on both the G1 and G2 boards.</p>
+        <div class="stats">
+          <div class="stat"><b>V7.00 RC6</b><span>latest release, Nov 2026</span></div>
+          <div class="stat"><b>18</b><span>video modes</span></div>
+          <div class="stat"><b>G1 + G2</b><span>one firmware file</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <div class="prose">
+          <h2 style="margin-top:0">MMBasic V7 for the CMM2</h2>
+          <p>The <a href="https://github.com/UKTailwind/CMM2V1.5">CMM2V1.5</a> tree ports the PicoMite's V7 interpreter back to the Colour Maximite 2, and adds features that make use of the STM32H7's speed and memory:</p>
+          <ul>
+            <li><strong>Loadable C/C++ programs</strong>: MicroPython, Doom, Heretic, ScummVM, a NES emulator and a 386 PC emulator that runs DOS and Windows 3.1</li>
+            <li><strong>A C compiler</strong> that runs on the machine</li>
+            <li><strong>SQL databases</strong> (SQLite) from BASIC</li>
+            <li><strong><code>OPTION PICOMITE</code></strong> runs PicoMite VGA and HDMI programs unchanged</li>
+            <li>USB touch screens with an on-screen keyboard, stepper-motor control, and an FM synth that plays MIDI</li>
+            <li>The CMM2's 18 video modes, 3D engine, sprites and CAN bus, all kept</li>
+          </ul>
+          <p>It builds with CMake, Ninja and the GCC from STM32CubeIDE, and is flashed with an ST-Link.</p>
+          <div class="links">
+            <a href="https://github.com/UKTailwind/CMM2V1.5/releases">Download firmware</a>
+            <a href="https://github.com/UKTailwind/CMM2V1.5">Source</a>
+          </div>
+          <div class="meta" data-repo="CMM2V1.5" style="margin-top:10px"></div>
+        </div>
+        <div class="gallery" style="grid-template-columns:1fr">
+          <figure class="pixel"><img src="https://raw.githubusercontent.com/UKTailwind/CMM2V1.5/main/docs/manual/images/editor.png" alt="The CMM2 built-in program editor" loading="lazy"><figcaption>The built-in editor</figcaption></figure>
+          <figure class="pixel"><img src="https://raw.githubusercontent.com/UKTailwind/CMM2V1.5/main/docs/manual/images/fm.png" alt="The CMM2 file manager" loading="lazy"><figcaption>The file manager</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Manuals</h2>
+            <p>PDFs in the CMM2V1.5 repository.</p>
+          </div>
+        </div>
+        <ul class="doclist">
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual</a><span>MMBasic V7 on the Colour Maximite 2</span></li>
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/cc/Colour_Maximite_2_C_Compiler.pdf">C Compiler</a><span>Compiling C on the machine</span></li>
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/loadable/Colour_Maximite_2_Loadable_Programs.pdf">Loadable Programs</a><span>Writing and running C/C++ programs</span></li>
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a><span>The bundled applications</span></li>
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC Emulator</a><span>Running DOS and Windows 3.1</span></li>
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/Stepper_Reference.pdf">Stepper Reference</a><span>Motor control commands</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Hardware and related work</h2>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">PCB</li><li>EasyEDA Pro</li><li>STM32H743</li></ul>
+              <h3><a href="https://github.com/UKTailwind/Colour-Maximite-2-G2-design-files">CMM2 G2 design files</a></h3>
+              <p>Manufacturing files for revision 2.0 of the Generation 2 board: the EasyEDA Pro project, Gerbers, bill of materials, placement file and a PDF.</p>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/Colour-Maximite-2-G2-design-files/blob/main/CMM2G2V2.0.pdf">PDF</a>
+                <a href="/pcb/#cmm2-g2">On the PCB page →</a>
+              </div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Forth</li><li>Cortex-M7</li><li>Upstream</li></ul>
+              <h3><a href="https://github.com/tabemann/zeptoforth">zeptoforth on the M7</a></h3>
+              <p>Contributions to <a href="https://github.com/tabemann/zeptoforth">zeptoforth</a>, a Forth for Cortex-M chips: double-precision floating-point instructions for its assembler, and cache cleaning after compiling on the Cortex-M7. Both changes were merged upstream.</p>
+              <div class="links">
+                <a href="https://github.com/tabemann/zeptoforth/pull/321">PR #321</a>
+                <a href="https://github.com/tabemann/zeptoforth/pull/322">PR #322</a>
+                <a href="https://github.com/tabemann/zeptoforth/issues/319">The proposal (#319)</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PicoMite — mather.host</title>
+  <meta name="description" content="MMBasic firmware for the Raspberry Pi RP2040 and RP2350: PicoMite, PicoMiteVGA, PicoMiteHDMI and WebMite builds, manuals and game ports.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/" aria-current="page">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /picomite</p>
+        <h1>PicoMite</h1>
+        <p class="lede">MMBasic for the Raspberry Pi RP2040 and RP2350. Flash one file onto a Pico and it becomes a self-contained computer with a full-screen editor, graphics, sound, a file system and hundreds of built-in commands for driving hardware.</p>
+        <div class="stats">
+          <div class="stat"><b>V7.00 RC9</b><span>latest release, Nov 2026</span></div>
+          <div class="stat"><b>20</b><span>firmware builds per release</span></div>
+          <div class="stat"><b>25+</b><span>manuals and guides</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Firmware</h2>
+            <p>One source tree builds every variant for both chips.</p>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="shot contain"><img src="/assets/img/picomite-card.svg" alt="" width="640" height="400"></div>
+            <div class="body">
+              <ul class="tags"><li class="green">Current</li><li>RP2040</li><li>RP2350</li><li>C</li></ul>
+              <h3><a href="https://github.com/UKTailwind/PicoMite">PicoMite</a></h3>
+              <p>The current MMBasic firmware, with the source split into folders by subsystem. All new development happens here.</p>
+              <ul>
+                <li>PicoMite, PicoMiteVGA, PicoMiteHDMI and WebMite (Wi-Fi) variants</li>
+                <li>USB host, Bluetooth and Pico Computer 3 builds</li>
+                <li>Patched TinyUSB host: fast flash drives, several devices on one hub</li>
+                <li>One script builds every variant on an unmodified Pico SDK 2.3.1</li>
+              </ul>
+              <div class="meta" data-repo="PicoMite"></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/PicoMite/releases">Download .uf2 files</a>
+                <a href="https://github.com/UKTailwind/PicoMite">Source</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li>Reference</li><li>V6.02</li></ul>
+              <h3><a href="https://github.com/UKTailwind/PicoMiteAllVersions">PicoMiteAllVersions</a></h3>
+              <p>The earlier tree that builds all variants from one flat folder. Development moved to <a href="https://github.com/UKTailwind/PicoMite">PicoMite</a> in June 2026, and this tree is kept as a reference for V6 and older versions.</p>
+              <ul>
+                <li>Releases up to PicoMite V6.02.01</li>
+                <li>Variant chosen in <code>CMakeLists.txt</code></li>
+                <li>Includes early Pico Computer board files</li>
+              </ul>
+              <div class="meta" data-repo="PicoMiteAllVersions"><span class="star">98</span><span>42 forks</span></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/PicoMiteAllVersions/releases">V6 releases</a>
+                <a href="https://github.com/UKTailwind/PicoMiteAllVersions">Source</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Companion</li><li>RP2350</li><li>HDMI</li></ul>
+              <h3><a href="https://github.com/UKTailwind/VT2350">VT2350 terminal</a></h3>
+              <p>A VT100-and-beyond terminal for a Pico 2: 640×480 HDMI, USB keyboard and mouse, and two UARTs or up to four USB serial devices. It's designed to sit in front of a PicoMite, and it answers the PicoMite's screen-size query by choosing a font to fit.</p>
+              <ul>
+                <li>xterm 256 colours, UTF-8 and VT52 (via libvterm)</li>
+                <li>Up to 128×59 characters, with scrollback</li>
+                <li>No data loss at 460,800 baud in testing</li>
+              </ul>
+              <div class="meta" data-repo="VT2350"></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/VT2350/blob/main/docs/VT2350_User_Manual.pdf">User manual</a>
+                <a href="https://github.com/UKTailwind/VT2350/releases">V1.00 RC1</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Manuals</h2>
+            <p>PDFs in the PicoMite repository. Open them on GitHub to read or download.</p>
+          </div>
+          <a class="more" href="https://github.com/UKTailwind/PicoMite/tree/main/PDF">All manuals →</a>
+        </div>
+        <ul class="doclist">
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PicoMite_User_Manual.pdf">PicoMite User Manual</a><span>The complete language and hardware reference</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/Game_Development_Guide.pdf">Game Development Guide</a><span>Structuring games in MMBasic</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/3D_Graphics_User_Manual.pdf">3D Graphics</a><span>The 3D engine and its commands</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/Advanced%20Graphics%20Functions.pdf">Advanced Graphics Functions</a><span>Beyond lines, boxes and text</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/BLIT_User_Manual.pdf">BLIT</a><span>Moving image data quickly</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/FRAME_User_Manual.pdf">FRAME</a><span>Frame buffers and layers</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/Game_Input_Devices_Manual.pdf">Game Input Devices</a><span>Gamepads, joysticks and keyboards</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PLAY_SAMPLE_User_Manual.pdf">PLAY SAMPLE</a><span>Sample playback</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/MMBasic_Performance_Guide.pdf">MMBasic Performance Guide</a><span>Writing faster BASIC</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/MMBasic_Structures_Manual.pdf">MMBasic Structures</a><span>Structured data types</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/Option_GPS_User_Manual.pdf">GPS</a><span>Using a GPS receiver</span></li>
+          <li><a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PicoMiteBT.pdf">PicoMite BT</a><span>The Bluetooth builds</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <div class="prose">
+          <h2 style="margin-top:0">Games in BASIC</h2>
+          <p>The <a href="https://github.com/UKTailwind/PicoMite/tree/main/Bas">Bas folder</a> holds full games written in MMBasic. They show how far the language and the graphics engine can be pushed. They include versions of Elite, Thrust, Exile and Chuckie Egg, plus Picanoid and "Prince of Pico".</p>
+          <p>Planning documents for several of these ports are on the <a href="/ai/">AI page</a>.</p>
+          <h2>Tools</h2>
+          <ul>
+            <li><strong>mmb2csub</strong>: builds CSUBs, compiled C routines that MMBasic programs can call.</li>
+            <li><strong>VS Code extension</strong>: syntax highlighting for MMBasic.</li>
+          </ul>
+          <p class="credit" style="color:var(--fg-faint);font-size:0.92rem">MMBasic was originally created by Geoff Graham.</p>
+        </div>
+        <figure class="photo">
+          <img src="https://raw.githubusercontent.com/UKTailwind/PicoMite/main/docs/Thrust_screenshot.jpg" alt="Screenshot of the Thrust port running in MMBasic on a PicoMite" loading="lazy" width="640" height="480">
+          <figcaption>The Thrust port running on a PicoMite.</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

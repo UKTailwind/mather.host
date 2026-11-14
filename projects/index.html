@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Other Projects — mather.host</title>
+  <meta name="description" content="Contributions to tiny386, zeptoforth and μSQLite, MMBasic for Windows, the Micromite eXtreme, and a G-code to Bambu Studio preset converter.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/" aria-current="page">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /projects</p>
+        <h1>Other Projects</h1>
+        <p class="lede">Fixes sent upstream to other people's projects, earlier MMBasic platforms, and tools written along the way.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Upstream contributions</h2>
+            <p>Changes offered back to open-source projects as pull requests.</p>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Emulator</li><li>x86</li><li>2 merged</li></ul>
+              <h3><a href="https://github.com/hchunhui/tiny386">tiny386</a></h3>
+              <p>Accuracy fixes for this small 386 PC emulator, which runs Windows 9x on an ESP32: IRETD in real mode, the single-step trap, triple-fault reset, the PS/2 mouse sample rate, the 8250 serial port's interrupts, and the memory size that Windows 95 Setup reads from CMOS.</p>
+              <div class="links">
+                <a href="https://github.com/hchunhui/tiny386/pulls?q=is%3Apr+author%3AUKTailwind">Pull requests</a>
+                <a href="https://github.com/UKTailwind/tiny386">Fork</a>
+              </div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Database</li><li>MicroPython</li></ul>
+              <h3><a href="https://github.com/spatialdude/usqlite">μSQLite</a></h3>
+              <p>Hardening for the SQLite module for MicroPython: a separate SQLite heap, garbage-collector-safe memory, 64-bit integers, recovery from power failure, and large sorts that spill to SD or flash. It's used by the Pico Computer&nbsp;3 MicroPython port.</p>
+              <div class="links">
+                <a href="https://github.com/spatialdude/usqlite/pulls?q=is%3Apr+author%3AUKTailwind">Pull requests</a>
+                <a href="https://github.com/UKTailwind/usqlite/tree/hardening">Fork</a>
+              </div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Forth</li><li>Cortex-M7</li><li>Merged</li></ul>
+              <h3><a href="https://github.com/tabemann/zeptoforth">zeptoforth</a></h3>
+              <p>Double-precision floating-point instructions for the assembler, and Cortex-M7 cache cleaning after compiling. Both were merged into upstream development branches.</p>
+              <div class="links">
+                <a href="https://github.com/tabemann/zeptoforth/pulls?q=is%3Apr+author%3AUKTailwind">Pull requests</a>
+                <a href="/cmm2/">On the CMM2 page →</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Earlier MMBasic platforms</h2>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Windows</li><li>C++</li><li>MMBasic 5.07</li></ul>
+              <h3><a href="https://github.com/UKTailwind/MMB4W">MMB4W: MMBasic for Windows</a></h3>
+              <p>MMBasic as a Windows program, built on the olcPixelGameEngine. It has graphics, sprites, turtle graphics and GUI controls, plus JPEG/PNG decoding and WAV, MP3, FLAC and MOD playback.</p>
+              <div class="meta" data-repo="MMB4W"></div>
+              <div class="links"><a href="https://github.com/UKTailwind/MMB4W">Source</a></div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">PIC32MZ</li><li>Micromite</li></ul>
+              <h3><a href="https://github.com/UKTailwind/MMX">MMX: Micromite eXtreme</a></h3>
+              <p>MMBasic for Microchip's PIC32MZ2048EF in 64-, 100- and 144-pin packages, running at 200 or 252&nbsp;MHz. The repository is a placeholder for the source.</p>
+              <div class="links"><a href="https://github.com/UKTailwind/MMX">Repository</a></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gcode">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Tools</h2>
+          </div>
+        </div>
+        <div class="projects">
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">3D printing</li><li>Python</li></ul>
+              <h3><a href="https://github.com/UKTailwind/gcode-to-bambu-preset">gcode-to-bambu-preset</a></h3>
+              <p>Reads the print settings from G-code or 3MF files made by Simplify3D, Cura or PrusaSlicer/SuperSlicer/OrcaSlicer, and writes Bambu Studio process and filament presets. It's a single Python script with no dependencies.</p>
+              <div class="meta" data-repo="gcode-to-bambu-preset"></div>
+              <div class="links">
+                <a href="https://github.com/UKTailwind/gcode-to-bambu-preset">Source</a>
+                <a href="https://github.com/UKTailwind/gcode-to-bambu-preset/blob/main/gcode_to_bambu_preset_manual.md">Manual</a>
+              </div>
+            </div>
+          </article>
+          <article class="project">
+            <div class="body">
+              <ul class="tags"><li class="green">Toolchain</li><li>Linux</li><li>Windows</li></ul>
+              <h3><a href="https://github.com/UKTailwind/pc3host">pc3host</a></h3>
+              <p>The Pico Computer&nbsp;3's FUZIX MMBasic toolchain running natively on a PC, with graphics, sound and networking.</p>
+              <div class="meta" data-repo="pc3host"></div>
+              <div class="links"><a href="/pico-computer-3/">On the PC3 page →</a></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

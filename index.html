@@ -3,48 +3,183 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mather.host</title>
-  <style>
-    :root {
-      --bg: #f6f5f1;
-      --fg: #1d1d1b;
-      --muted: #6b6a64;
-      --accent: #2f6f5e;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161615;
-        --fg: #ecebe6;
-        --muted: #9a9890;
-        --accent: #6fc2a8;
-      }
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
-    body {
-      display: grid;
-      place-items: center;
-      padding: 16px;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.5;
-    }
-    main { max-width: 32rem; text-align: center; }
-    h1 {
-      margin: 0 0 0.25em;
-      font-size: clamp(2rem, 8vw, 3.25rem);
-      font-weight: 650;
-      letter-spacing: -0.02em;
-    }
-    h1 span { color: var(--accent); }
-    p { margin: 0; color: var(--muted); font-size: 1.1rem; }
-  </style>
+  <title>mather.host — MMBasic firmware, PCB designs and AI experiments</title>
+  <meta name="description" content="MMBasic firmware for the PicoMite and Colour Maximite 2, the Pico Computer 3, open PCB designs and experiments with AI as an engineering tool.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <meta property="og:title" content="mather.host">
+  <meta property="og:description" content="MMBasic firmware, PCB designs and AI experiments.">
+  <meta property="og:url" content="https://mather.host/">
+  <meta property="og:type" content="website">
 </head>
 <body>
-  <main>
-    <h1>mather<span>.host</span></h1>
-    <p>Site under construction &mdash; check back soon.</p>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">// firmware · hardware · experiments</p>
+          <h1>Small computers, <em>running BASIC</em>, built from scratch.</h1>
+          <p class="lede">MMBasic firmware for the PicoMite and the Colour Maximite&nbsp;2, the Pico Computer&nbsp;3 and the other boards it runs on, and notes from using AI as an everyday engineering tool.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="/picomite/">Explore the PicoMite</a>
+            <a class="btn" href="https://github.com/UKTailwind">
+              <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              UKTailwind on GitHub
+            </a>
+          </div>
+        </div>
+        <div class="terminal" role="img" aria-label="An MMBasic prompt listing the sections of this site">
+          <div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="dim">&gt;</span> PRINT "Hello from mather.host"
+Hello from mather.host
+<span class="dim">&gt;</span> FILES
+  picomite/ ........ <span class="hl">RP2040 / RP2350</span>
+  pico-computer-3/ . <span class="hl">RP2350B + HDMI</span>
+  cmm2/ ............ <span class="hl">STM32H743</span>
+  pcb/ ............. <span class="hl">EasyEDA Pro</span>
+  ai/ .............. <span class="hl">tools &amp; experiments</span>
+<span class="dim">&gt;</span> _</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Explore</h2>
+            <p>Each section collects the firmware, hardware and write-ups for one area.</p>
+          </div>
+        </div>
+        <div class="topics">
+          <a class="topic" href="/picomite/">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></span>
+            <h3>PicoMite</h3>
+            <p>MMBasic for the Raspberry Pi RP2040 and RP2350: VGA, HDMI, WebMite and USB builds, with manuals and game ports.</p>
+            <span class="go">cd /picomite →</span>
+          </a>
+          <a class="topic" href="/pico-computer-3/">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h2M6 14h2M11 10h7v4h-7z"/></svg></span>
+            <h3>Pico Computer 3</h3>
+            <p>An RP2350B home computer with HDMI, USB, audio and PSRAM. It runs MMBasic, MicroPython or FUZIX.</p>
+            <span class="go">cd /pico-computer-3 →</span>
+          </a>
+          <a class="topic" href="/cmm2/">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6 8.5h4M6 11.5h7"/></svg></span>
+            <h3>Colour Maximite 2</h3>
+            <p>MMBasic V7 for the STM32H743 CMM2, with a C compiler, loadable programs, a 386 PC emulator and design files.</p>
+            <span class="go">cd /cmm2 →</span>
+          </a>
+          <a class="topic" href="/pcb/">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="16" r="1.5"/><circle cx="16" cy="8" r="1.5"/><path d="M9.5 8h5M8 9.5V13l3 3h3.5M16 9.5v5"/></svg></span>
+            <h3>PCB Designs</h3>
+            <p>Open hardware in EasyEDA Pro, with Gerbers, bills of materials and placement files ready for a board house.</p>
+            <span class="go">cd /pcb →</span>
+          </a>
+          <a class="topic" href="/ai/">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/><path d="M5 16l.6 1.4L7 18l-1.4.6L5 20l-.6-1.4L3 18l1.4-.6z"/></svg></span>
+            <h3>AI</h3>
+            <p>AI-assisted firmware and OS ports, design documents written with AI, and local language-model benchmarks.</p>
+            <span class="go">cd /ai →</span>
+          </a>
+          <a class="topic" href="/projects/">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg></span>
+            <h3>Other Projects</h3>
+            <p>Contributions to emulators, Forth and SQLite, MMBasic for Windows, and a 3D-printing preset converter.</p>
+            <span class="go">cd /projects →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Featured</h2>
+            <p>The newest board, and the one most of the recent software targets.</p>
+          </div>
+        </div>
+        <article class="project feature">
+          <div class="shot">
+            <img src="https://raw.githubusercontent.com/UKTailwind/FUZIX/pc3/Kernel/platform/platform-rpipico/brochure/board.jpg" alt="The assembled Pico Computer 3 circuit board" width="820" height="763" loading="lazy">
+          </div>
+          <div class="body">
+            <ul class="tags"><li class="green">Open hardware</li><li>RP2350B</li><li>HDMI</li><li>USB host</li></ul>
+            <h3><a href="/pico-computer-3/">Pico Computer 3</a></h3>
+            <p>A complete small computer built around the RP2350B: HDMI output, a USB hub for keyboard, mouse and drives, 8&nbsp;MB of PSRAM, stereo audio, a real-time clock and an SD card. It boots into MMBasic, MicroPython or the FUZIX Unix-like OS, and it can also act as a VT100 terminal.</p>
+            <div class="meta" data-repo="Pico-Computer-3"></div>
+            <div class="links">
+              <a href="/pico-computer-3/">Hardware and software →</a>
+              <a href="https://github.com/UKTailwind/Pico-Computer-3">Design files</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="wrap about">
+        <div class="prose">
+          <h2 style="margin-top:0">About</h2>
+          <p>Peter Mather has spent more than four decades building computer systems. He started on real-time hardware and software, including plant monitoring for nuclear power stations and an early digital radiography system. He then moved into finance, and as IT Director of the London International Financial Futures Exchange (LIFFE) he led the team behind APT, the first system to automate open-outcry trading.</p>
+          <p>Senior technology roles followed at Bankers Trust, Nikko Europe, Commerzbank and PwC, where he was Global Leader of Enterprise Core Systems. Today he is back close to the metal, writing MMBasic firmware for the Colour Maximite&nbsp;2 and the PicoMite and designing the boards it runs on.</p>
+        </div>
+        <ul class="facts">
+          <li><b>Education</b>MA Natural Sciences, Cambridge; PhD, Birmingham</li>
+          <li><b>Career</b>Real-time systems, then IT leadership at LIFFE, Bankers Trust, Nikko, Commerzbank and PwC</li>
+          <li><b>Now</b>MMBasic firmware, small computers and open PCB designs</li>
+          <li><b>Off the bench</b>British sabre champion in 1973 and a member of the 1976 British Olympic fencing team</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Recently updated</h2>
+            <p>Live from GitHub.</p>
+          </div>
+          <a class="more" href="https://github.com/UKTailwind?tab=repositories">All repositories →</a>
+        </div>
+        <ul class="activity" id="recent-activity">
+          <li><a href="https://github.com/UKTailwind/PicoMite">PicoMite</a><span class="desc">PicoMite / WebMite / PicoMiteVGA / PicoMiteHDMI MMBasic firmware for RP2040 &amp; RP2350</span><span class="when">Nov 2026</span></li>
+          <li><a href="https://github.com/UKTailwind/FUZIX">FUZIX</a><span class="desc">Fork · FuzixOS ported to the Pico Computer 3</span><span class="when">Nov 2026</span></li>
+          <li><a href="https://github.com/UKTailwind/pc3host">pc3host</a><span class="desc">The Fuzix MMBasic toolchain hosted on a PC</span><span class="when">Nov 2026</span></li>
+          <li><a href="https://github.com/UKTailwind/CMM2V1.5">CMM2V1.5</a><span class="desc">Colour Maximite 2 firmware (MMBasic)</span><span class="when">Nov 2026</span></li>
+          <li><a href="https://github.com/UKTailwind/VT2350">VT2350</a><span class="desc">A VT100 terminal on an RP2350: HDMI, USB keyboard and mouse, two UARTs and USB serial</span><span class="when">Nov 2026</span></li>
+        </ul>
+      </div>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
 </body>
 </html>
