@@ -105,11 +105,12 @@
       <div class="wrap split">
         <div class="prose">
           <h2 style="margin-top:0">Local language models</h2>
-          <p>Which AI models can you run on your own hardware that are actually useful for embedded C and MMBasic work? A benchmark harness is testing locally hosted models on a workstation GPU, using real tasks: writing and debugging C under AddressSanitizer, answering questions about the MMBasic source, and extending a BASIC interpreter.</p>
-          <p>A full write-up of the method, results and hardware recommendations is coming soon.</p>
+          <p>Which AI models can you run on your own hardware that are actually useful for embedded C and MMBasic work? Ten models were tested on a workstation with a 20&nbsp;GB graphics card, on real tasks: writing C that is checked under AddressSanitizer, answering questions about the MMBasic source, and extending a BASIC interpreter.</p>
+          <p>The write-up covers the method, the results, how to set up Ollama, and what more money buys, from a used 24&nbsp;GB card to a 128&nbsp;GB Ryzen AI Max+ machine.</p>
+          <p><a class="btn primary" href="/ai/local-models/">Read the write-up</a></p>
         </div>
         <div class="note">
-          <strong>In progress.</strong> The results will be published here and on The Back Shed forum when the testing is complete.
+          <strong>In short:</strong> gpt-oss:20b is the best all-rounder for a 16–24&nbsp;GB card, and gemma4:26b, which fits a 24&nbsp;GB card, matched the much larger gpt-oss:120b on real changes to existing code.
         </div>
       </div>
     </section>

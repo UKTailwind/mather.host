@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local AI models — mather.host</title>
+  <meta name="description" content="Which AI models can you run on your own PC that are actually useful for embedded C and MMBasic work? Ten models tested on real tasks on a 20 GB workstation card, plus what more money buys in hardware.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/" aria-current="page">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /ai/local-models</p>
+        <h1>Which local AI models are actually useful?</h1>
+        <p class="lede">Ten open models, tested on a 20&nbsp;GB workstation card with tasks taken from real embedded work: C compiled under AddressSanitizer, questions about the PicoMite source, and changes to an existing BASIC interpreter. Then the harder question: what more money buys, from a used RTX&nbsp;3090 to a £10,000 workstation card or a Ryzen AI&nbsp;Max+.</p>
+        <div class="stats">
+          <div class="stat"><b>10</b><span>models tested</span></div>
+          <div class="stat"><b>22</b><span>graded tasks each</span></div>
+          <div class="stat"><b>0</b><span>answers judged by eye</span></div>
+          <div class="stat"><b>Nov 2026</b><span>models and UK prices</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="summary">
+      <div class="wrap">
+        <div class="article">
+          <h2>In short</h2>
+          <ul class="findings">
+            <li><b>gpt-oss:20b is the best all-rounder for a 16–24&nbsp;GB card.</b> It fits entirely on the card, runs at about 50 tokens/s, reads long source files quickly and got every standard test right. Its weakness showed only on the hardest work.</li>
+            <li><b>Only gpt-oss:120b and gemma4:26b passed all nine real-work runs.</b> These are real changes to existing code. qwen3.6:27b-coding passed 8 but is slow; gpt-oss:20b passed 6 and failed every attempt to extend the BASIC interpreter. Here the 120B runs mostly from system RAM at 15–20 tokens/s.</li>
+            <li><b>gemma4:26b is the find of these tests:</b> as good as the 120B at real work, in under a third of the memory. It takes about 18.5&nbsp;GB of graphics memory with a 32K context, so it wants a 24&nbsp;GB card. On this 20&nbsp;GB card, which also runs the Windows desktop, that left the card nearly full and the model ran at 9–37 tokens/s instead of 74–88. It also reasons at length, about 11,000 tokens per real-work answer against 3,000 for the 120B.</li>
+            <li><b>Mixture-of-experts models are what make a small card work.</b> Dense 24–32B models either crawl once they spill out of graphics memory, spend so long reasoning that answers take many minutes, or skip reasoning and get it wrong.</li>
+            <li><b>A 24&nbsp;GB card is the sweet spot.</b> From there up to 72&nbsp;GB, more graphics memory buys speed, not capability: nothing that fits in 32–64&nbsp;GB did better than the two models above.</li>
+            <li><b>Holding gpt-oss:120b in fast memory is the next step, but its value is unproven.</b> On these tests it did no better than gemma4:26b. The cheapest way to do it is a Ryzen AI Max+ machine: about £3,500 with 128&nbsp;GB, at roughly 50 tokens/s. A 72&nbsp;GB NVIDIA card is two to three times faster, and reads prompts far faster, but costs about three times as much as the whole Ryzen machine.</li>
+          </ul>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#machine">The test machine</a></li>
+            <li><a href="#method">How the models were tested</a></li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#lessons">What the results mean</a></li>
+            <li><a href="#setup">Setting up Ollama on Windows</a></li>
+            <li><a href="#hardware">What more money buys</a></li>
+            <li><a href="#host">Host machine and operating system</a></li>
+            <li><a href="#used">Buying a used workstation card</a></li>
+            <li><a href="#cloud">Local or cloud?</a></li>
+            <li><a href="#recommend">Recommendations</a></li>
+            <li><a href="#caveats">Caveats, and what went wrong</a></li>
+            <li><a href="#repro">Run the tests yourself</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="machine">
+      <div class="wrap split">
+        <div class="article">
+          <h2>The test machine</h2>
+          <p>A small-form-factor workstation of the kind many people already have: a fast processor, plenty of RAM and a modest 70&nbsp;W graphics card. That makes it a useful baseline. Anything that runs well here runs well on most desktops with a 16–24&nbsp;GB card.</p>
+          <p>For language models, two numbers decide almost everything. <strong>Graphics memory</strong> decides what fits on the card, and its <strong>memory bandwidth</strong> decides how fast the card generates text, because every word means reading the model's active weights once. Whatever doesn't fit spills into system RAM, which here is about four times slower.</p>
+          <p>The processor's NPU goes unused. At 13&nbsp;TOPS against roughly 300 for the graphics card, and sharing the processor's memory bandwidth, it couldn't generate text any faster than the CPU anyway.</p>
+        </div>
+        <dl class="spec">
+          <dt>Machine</dt><dd>Minisforum MS-02 Ultra</dd>
+          <dt>Processor</dt><dd>Intel Core Ultra 9 275HX, 24 cores (8P + 16E)</dd>
+          <dt>RAM</dt><dd>96&nbsp;GB DDR5, 2&nbsp;×&nbsp;48&nbsp;GB at 4400&nbsp;MT/s, about 70&nbsp;GB/s</dd>
+          <dt>Graphics</dt><dd>NVIDIA RTX 4000 SFF Ada, 20&nbsp;GB, 280&nbsp;GB/s, 70&nbsp;W</dd>
+          <dt>Software</dt><dd>Windows 11, Ollama 0.40.16, gcc 15.2 in WSL Ubuntu</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <div class="article">
+          <h2>How the models were tested</h2>
+          <p>Every answer is graded automatically. Code is compiled with gcc under AddressSanitizer and UndefinedBehaviorSanitizer, which catch memory errors and undefined behaviour as the code runs, and then compared against a reference implementation on thousands of cases. Each test was itself tested first: a correct reference solution must pass, and deliberately broken versions must fail.</p>
+
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Set</th><th>Tasks</th><th>How it's checked</th></tr></thead>
+              <tbody>
+                <tr><th>Standard coding</th><td>CRC-16/XMODEM, a ring buffer, MMBasic keyword uppercasing (skipping strings, comments and <code>REM</code>), Bresenham line drawing with clipping, a 64-bit integer square root, a safe string replace</td><td>Thousands of random cases each against a reference; floating point rejected where it isn't allowed</td></tr>
+                <tr><th>Hard</th><td>A <code>printf</code> subset (<code>mini_snprintf</code>); an MMBasic-style expression evaluator</td><td>60,000 random formats against the C library; 30,000 random expressions plus 19 malformed ones</td></tr>
+                <tr><th>Real work</th><td>Add <code>STEP</code> and <code>GOSUB</code>/<code>RETURN</code> to a 250-line BASIC interpreter; find two planted bugs in a PicoMite-style program store; write a page-based heap allocator to a precise specification</td><td>27 BASIC programs; 300,000 random edits against a reference; operation-by-operation comparison with a reference allocator. Three runs each, with different random seeds</td></tr>
+                <tr><th>General</th><td>An LED resistor rounded to E24, a counting problem, an I²C address byte, battery life, a clock-hand angle, a logic puzzle</td><td>The model's final <code>ANSWER:</code> line</td></tr>
+                <tr><th>PicoMite</th><td>2,300 lines (about 22,000 tokens) of <code>Commands.c</code>, then five questions about <code>cmd_for</code>, <code>cmd_do</code> and <code>DoFindLoop</code></td><td>Exact details that have to come from the code, such as error strings</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The real-work tasks were added after the first round, because the best models were getting everything else right and the tests had stopped telling them apart. They are closer to what an assistant is actually asked to do: change code it didn't write without breaking what already works. The interpreter task, for example, requires that <code>RETURN</code> discards any <code>FOR</code> loops the subroutine opened, and that a <code>NEXT</code> inside a subroutine can't close the caller's loop.</p>
+          <p>Most of these models reason before answering, and that reasoning counts towards a token budget. Answers were capped at 12,000 tokens for the standard sets and 16,000–24,000 for the harder ones. A model still reasoning at the cap scores a fail. In normal use there's no cap, but you wait for every one of those tokens.</p>
+
+          <h3>The models</h3>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Model</th><th>From</th><th>Type</th><th class="num">Parameters</th><th class="num">File size</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><th>gpt-oss:20b</th><td>OpenAI</td><td>Mixture of experts</td><td class="num">21B, 3.6B active</td><td class="num">13&nbsp;GB</td><td>Native 4-bit (MXFP4); reasoning effort set to medium</td></tr>
+                <tr><th>gpt-oss:120b</th><td>OpenAI</td><td>Mixture of experts</td><td class="num">117B, 5.1B active</td><td class="num">65&nbsp;GB</td><td>Same family, about 6&nbsp;× larger</td></tr>
+                <tr><th>gemma4:26b</th><td>Google</td><td>Mixture of experts</td><td class="num">25B</td><td class="num">18&nbsp;GB</td><td>Ships with a small draft model that predicts tokens ahead, and image input</td></tr>
+                <tr><th>qwen3.6:35b-a3b</th><td>Alibaba</td><td>Mixture of experts</td><td class="num">35B, 3B active</td><td class="num">22&nbsp;GB</td><td>The <code>-coding</code> tag is the same weights with coding settings</td></tr>
+                <tr><th>qwen3.6:27b</th><td>Alibaba</td><td>Dense</td><td class="num">27B</td><td class="num">17&nbsp;GB</td><td>Tested with its coding settings</td></tr>
+                <tr><th>qwen3-coder-next</th><td>Alibaba</td><td>Mixture of experts</td><td class="num">80B, 3B active</td><td class="num">51&nbsp;GB</td><td>Coding specialist; answers without reasoning first</td></tr>
+                <tr><th>glm-4.7-flash</th><td>Zhipu</td><td>Mixture of experts</td><td class="num">30B</td><td class="num">19&nbsp;GB</td><td></td></tr>
+                <tr><th>devstral-small-2:24b</th><td>Mistral</td><td>Dense</td><td class="num">24B</td><td class="num">15&nbsp;GB</td><td>Coding specialist; answers without reasoning first</td></tr>
+                <tr><th>qwen3:32b</th><td>Alibaba</td><td>Dense</td><td class="num">32B</td><td class="num">19&nbsp;GB</td><td>The starting point; stopped early as too slow</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>All except gpt-oss are the standard 4-bit (Q4_K_M) downloads from Ollama's library.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <div class="article">
+          <h2>Results</h2>
+          <h3>Scores</h3>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Model</th><th class="num">Coding (6)</th><th class="num">General (6)</th><th class="num">PicoMite (5)</th><th class="num">Hard (2)</th><th class="num">Real work (9)</th><th class="num">Time, standard sets</th></tr></thead>
+              <tbody>
+                <tr class="hl"><th>gpt-oss:120b</th><td class="num">6</td><td class="num">6</td><td class="num">5</td><td class="num">1</td><td class="num">9</td><td class="num">13 min</td></tr>
+                <tr class="hl"><th>gemma4:26b</th><td class="num">6</td><td class="num">5</td><td class="num">5</td><td class="num">1</td><td class="num">9</td><td class="num">16 min</td></tr>
+                <tr><th>gpt-oss:20b</th><td class="num">6</td><td class="num">6</td><td class="num">5</td><td class="num">1</td><td class="num">6</td><td class="num">6 min</td></tr>
+                <tr><th>qwen3.6:27b-coding</th><td class="num">5</td><td class="num">6</td><td class="num">5</td><td class="num">0</td><td class="num">8</td><td class="num">48 min</td></tr>
+                <tr><th>qwen3.6:35b-a3b-coding</th><td class="num">2</td><td class="num">6</td><td class="num">5</td><td class="num">1</td><td class="num">3</td><td class="num">24 min</td></tr>
+                <tr><th>qwen3.6:35b-a3b</th><td class="num">4</td><td class="num">6</td><td class="num">5</td><td class="num">–</td><td class="num">–</td><td class="num">34 min</td></tr>
+                <tr><th>glm-4.7-flash</th><td class="num">4</td><td class="num">6</td><td class="num">5</td><td class="num">0</td><td class="num">–</td><td class="num">16 min</td></tr>
+                <tr><th>qwen3-coder-next</th><td class="num">3</td><td class="num">6</td><td class="num">5</td><td class="num">0</td><td class="num">–</td><td class="num">5 min</td></tr>
+                <tr><th>devstral-small-2:24b</th><td class="num">3</td><td class="num">6</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num">6 min</td></tr>
+                <tr><th>qwen3:32b</th><td class="num">3 of 4</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">90 min for 4 tasks</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">Real work is 3 tasks × 3 seeds. A dash means not run: the real-work tasks came last, so they went to the leading models and the coding-tuned ones. Times are for the 6 coding tasks, 6 general questions and the PicoMite questions, on this machine.</p>
+
+          <h3>The real-work tasks in detail</h3>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Model</th><th class="num">Extend the interpreter</th><th class="num">Find two bugs</th><th class="num">Page allocator</th><th class="num">Typical time per answer</th></tr></thead>
+              <tbody>
+                <tr class="hl"><th>gpt-oss:120b</th><td class="num pass">3/3</td><td class="num pass">3/3</td><td class="num pass">3/3</td><td class="num">2–10 min</td></tr>
+                <tr class="hl"><th>gemma4:26b</th><td class="num pass">3/3</td><td class="num pass">3/3</td><td class="num pass">3/3</td><td class="num">9–19 min*</td></tr>
+                <tr><th>gpt-oss:20b</th><td class="num fail">0/3</td><td class="num pass">3/3</td><td class="num pass">3/3</td><td class="num">1–5 min</td></tr>
+                <tr><th>qwen3.6:35b-a3b-coding</th><td class="num">1/3</td><td class="num">1/3</td><td class="num">1/3</td><td class="num">2–12 min</td></tr>
+                <tr><th>qwen3.6:27b-coding</th><td class="num pass">3/3</td><td class="num pass">3/3</td><td class="num">2/3</td><td class="num">7–20 min*</td></tr>
+                <tr><th>devstral-small-2:24b</th><td class="num fail">0/3</td><td class="num fail">0/3</td><td class="num fail">0/3</td><td class="num">1–4 min</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">* gemma4:26b ran at 9–22 tokens/s on these tasks because with a 32K context it left the card nearly full. With a little memory to spare it runs at 46–88 tokens/s, which would make these 2–6 minutes; see <a href="#setup">setup</a>.</p>
+          <p>gpt-oss:20b failed the interpreter extension three different ways: its <code>GOSUB</code> returned to the wrong place, it broke how existing <code>FOR</code> loops are skipped, and once its code didn't compile because it called a function before declaring it. gpt-oss:120b got all three right, including the rules about loops inside subroutines, and so did gemma4:26b.</p>
+          <p>qwen3.6:27b-coding came close, with 8 of 9: one allocator run read past the end of an array. But it's a dense model, so it's slow on this card, about 23 tokens/s, and it reasoned for about 12,000 tokens per answer: around eight minutes an answer here.</p>
+          <p>qwen3.6:35b-a3b-coding passed all three tasks with one seed and none of the six runs with the other two. Three times it was still reasoning at 24,000 tokens and never wrote any code, once its code didn't compile, and twice it failed the tests. devstral-small-2 answered in one to four minutes and failed all nine runs. It made the same mistake in the interpreter every time, not discarding the subroutine's own <code>FOR</code> loop on <code>RETURN</code>, and its allocator miscounted free memory within the first 30 operations.</p>
+
+          <h3>Speed</h3>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Model</th><th class="num">On the card</th><th class="num">Generate</th><th class="num">Read a 22–25k-token prompt</th><th class="num">Generate after it</th></tr></thead>
+              <tbody>
+                <tr><th>gpt-oss:20b</th><td class="num">100%</td><td class="num">51–54</td><td class="num">2,070–2,460</td><td class="num">41–43</td></tr>
+                <tr><th>qwen3.6:35b-a3b</th><td class="num">79%</td><td class="num">60–65</td><td class="num">1,125</td><td class="num">48–54</td></tr>
+                <tr><th>glm-4.7-flash</th><td class="num">94%</td><td class="num">56–58</td><td class="num">815–840</td><td class="num">34</td></tr>
+                <tr><th>gemma4:26b, 16K context</th><td class="num">100%</td><td class="num">74–88</td><td class="num">–</td><td class="num">–</td></tr>
+                <tr><th>gemma4:26b, 32K context</th><td class="num">100%</td><td class="num">13–37</td><td class="num">1,740–1,840</td><td class="num">33–42</td></tr>
+                <tr><th>gemma4:26b, 32K, 2 layers on CPU</th><td class="num">87%</td><td class="num">56</td><td class="num">1,660</td><td class="num">46</td></tr>
+                <tr><th>qwen3-coder-next</th><td class="num">about a third</td><td class="num">32–34</td><td class="num">390</td><td class="num">30</td></tr>
+                <tr><th>qwen3.6:27b, 16K context</th><td class="num">100%</td><td class="num">26</td><td class="num">680</td><td class="num">26</td></tr>
+                <tr><th>qwen3.6:27b, 32K context</th><td class="num">93%</td><td class="num">23</td><td class="num">585</td><td class="num">20</td></tr>
+                <tr><th>gpt-oss:120b</th><td class="num">27%</td><td class="num">15–20</td><td class="num">300</td><td class="num">15–18</td></tr>
+                <tr><th>devstral-small-2:24b</th><td class="num">100%</td><td class="num">16</td><td class="num">580</td><td class="num">12</td></tr>
+                <tr><th>qwen3:32b</th><td class="num">76%</td><td class="num">3</td><td class="num">225</td><td class="num">2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">Tokens per second at 32K context unless stated. A token is roughly three-quarters of a word; anything above about 10 tokens/s reads comfortably.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="lessons">
+      <div class="wrap">
+        <div class="article">
+          <h2>What the results mean</h2>
+          <h3>Mixture-of-experts models are the key on a small card</h3>
+          <p>A dense model reads all of its parameters for every token. Once a dense 32B model spills out of a 20&nbsp;GB card it drops to 2–3 tokens/s, and one coding task took 45 minutes. A mixture-of-experts model picks a few experts per token: qwen3.6:35b-a3b reads only about 3B of its 35B parameters, so it runs at 50–60 tokens/s with a fifth of itself in system RAM. That's what lets an 80B or 117B model run at all on this machine.</p>
+
+          <h3>How efficiently a model reasons matters as much as its speed</h3>
+          <p>gpt-oss reasons in a few hundred to a few thousand tokens. The qwen3.6 models often used 10,000 or more on a single short function, and four times out of six qwen3.6:35b-a3b-coding was still reasoning at 12,000 tokens and never wrote any code. Doubling the budget to 24,000 tokens didn't help: it ran out four times out of six again, and still passed only two. Given 60,000 tokens for the <code>printf</code> task, it stopped at about 20,000 with code that still failed. The problem is how it reasons, not how long it's allowed to. The dense qwen3.6:27b-coding did get there: its one standard-set failure, the ring buffer, passed with the bigger budget, after 19,900 tokens and 20 minutes. At 50 tokens/s, 12,000 tokens is four minutes of waiting for one function.</p>
+          <p>gemma4:26b reasons at length too, about 11,000 tokens for a typical real-work answer against 3,000 for gpt-oss:120b and 7,000 for gpt-oss:20b, but it finishes, and it gets the answer right. On a card that holds it entirely, that's a few minutes per answer.</p>
+
+          <h3>The easy tests stopped separating the best models</h3>
+          <p>gpt-oss:20b and gpt-oss:120b both scored full marks on the standard coding set, the general questions and the PicoMite questions. Only the real-work tasks showed the difference, and it was in the task that most resembles everyday assistant work: changing code you didn't write, with rules that interact. That's where model size showed.</p>
+
+          <h3>Long context is cheap with these models</h3>
+          <p>Every model answered all five PicoMite questions correctly after reading 22,000 tokens of <code>Commands.c</code>, including exact error strings and why <code>cmd_for</code> removes stale stack entries. The better MoE models read that much source in 10–25 seconds on this card.</p>
+
+          <h3>Coding specialists that don't reason are fast but sloppy</h3>
+          <p>qwen3-coder-next answers in seconds without reasoning first, and its code shows it: it treated a lowercase <code>rem</code> as an ordinary word, divided by zero in the square root, and gave <code>-7 MOD 2</code> as 1 rather than C's −1. devstral-small-2 is the same kind of model and did no better: three of six standard coding tasks, neither hard task, and none of the nine real-work runs. Being dense, it's also slow on this card, at 12–16 tokens/s.</p>
+
+          <h3>RAM speed matters only for models that spill</h3>
+          <p>Anything that fits on the card doesn't care how fast system RAM is. For the big models it's capacity that counts: 96&nbsp;GB holds the 65&nbsp;GB gpt-oss:120b with room for everything else. Here the 48&nbsp;GB modules run at 4400&nbsp;MT/s with two fitted and 3600 with four, so filling all four slots for 192&nbsp;GB would make every spilling model about 18% slower. It's only worth it for models over about 80&nbsp;GB.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="setup">
+      <div class="wrap">
+        <div class="article">
+          <h2>Setting up Ollama on Windows</h2>
+          <p>Ollama's defaults are conservative. These user environment variables, followed by restarting Ollama, roughly doubled the speed of a model that spills into RAM (qwen3:32b at 8K context went from 4.5 to 8.1 tokens/s):</p>
+<pre>OLLAMA_FLASH_ATTENTION=1        faster attention, less memory
+OLLAMA_KV_CACHE_TYPE=q8_0       halves the memory used by the context
+OLLAMA_NUM_PARALLEL=1           one request at a time, no wasted context slots
+OLLAMA_KEEP_ALIVE=30m           keep the model loaded between questions
+OLLAMA_MODELS=D:\Ollama\models  optional: keep models off the system drive (and out of Dropbox)</pre>
+
+          <h3>Leave the card some headroom</h3>
+          <p>On Windows the desktop and ordinary apps hold graphics memory: here the desktop compositor took 1.4–1.7&nbsp;GB, Phone Link up to 2&nbsp;GB, and Explorer, Firefox and EasyEDA about 0.3&nbsp;GB each. Ollama didn't allow for that. On every load it assumed the same 19.3&nbsp;GB of the 20&nbsp;GB card was free, so a model that fits by Ollama's sums can leave the card all but full, and when that happens it slows right down. Ollama still reports it as 100% on the card.</p>
+          <p>gemma4:26b shows it clearly. With a 32K context it took about 18.5&nbsp;GB of the card, leaving roughly half a gigabyte. It generated at 9–37 tokens/s, and the very same answer ran at 13 tokens/s on one load and 37 on the next. With a 16K context it ran at 74–88 tokens/s. With the full 32K context and 2 of its 30 layers deliberately moved to the processor, it ran at 46–56 tokens/s: faster with part of it off the card than with all of it on. The likely cause is Windows moving memory between the card and system RAM to make room, though that isn't proven here.</p>
+          <ul>
+            <li>If a model that should fit runs slower than expected, try a smaller context, or move a couple of layers to the processor with Ollama's <code>num_gpu</code> option (here <code>num_gpu 28</code>), and compare speeds.</li>
+            <li>Task Manager's <em>Shared GPU memory</em> isn't a reliable sign of trouble. llama.cpp deliberately keeps some buffers, such as the vocabulary table, in pinned system memory, and they show up there: 1.1–1.4&nbsp;GB for gemma4:26b even when it was running at full speed.</li>
+            <li>If the PC has integrated graphics, plugging the monitor into the motherboard should leave the whole card for models. That wasn't tested here.</li>
+            <li>NVIDIA's driver lets CUDA programs overflow into system RAM rather than fail, controlled by <strong>CUDA – Sysmem Fallback Policy</strong> in the NVIDIA Control Panel. Changing it wasn't tested here.</li>
+          </ul>
+
+          <h3>Processor threads</h3>
+          <p>For a model mostly on the card, 8 threads gave 94% of the speed of 16 and kept the PC responsive. For gpt-oss:120b, which runs three-quarters from system RAM, 16 threads were clearly faster: 19.6 tokens/s against 15.3 with 8.</p>
+
+          <h3>Quantisation and what the card accelerates</h3>
+          <p>The standard 4-bit downloads (Q4_K_M) are the sweet spot: a small loss against full precision, usually 1–3% on benchmarks, at a quarter of the size. Coding suffers first from heavier compression, because one wrong token breaks a build, so don't go below 4-bit for code. Generation speed depends on how many bytes are read per token, so an 8-bit model runs at about half the speed of a 4-bit one.</p>
+          <p>The Ada card's tensor cores support FP16, BF16, FP8, INT8 and INT4. Ollama's llama.cpp engine unpacks its quantised weights to INT8, which is where the card's prompt-reading speed comes from. FP8 is used by server engines such as vLLM, not by Ollama, and FP4 needs NVIDIA's newer Blackwell cards. gpt-oss's native MXFP4 format runs fine on Ada; it just doesn't get Blackwell's extra speed.</p>
+
+          <h3>Working from WSL</h3>
+          <p>Run Ollama on Windows and let tools inside WSL reach it over localhost. With <code>networkingMode=mirrored</code> under <code>[wsl2]</code> in <code>%UserProfile%\.wslconfig</code>, WSL sees Windows' localhost directly, so WSL never needs access to the GPU at all.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="hardware">
+      <div class="wrap">
+        <div class="article">
+          <h2>What more money buys</h2>
+          <p>The models you can run are set by how much fast memory you have, and the price tiers don't line up neatly with that. Read against the results above, going from 20 to 24&nbsp;GB is worth having, because 24&nbsp;GB holds gemma4:26b entirely with room for the desktop. From there up to 72&nbsp;GB, more memory mostly buys speed. The next step that adds capability is holding gpt-oss:120b in fast memory, and these tests couldn't show that it does better than gemma4:26b.</p>
+
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Fast memory</th><th>Examples, UK prices seen Nov 2026</th><th>What it adds over a 20&nbsp;GB card</th></tr></thead>
+              <tbody>
+                <tr class="hl"><th>24&nbsp;GB</th><td>Used RTX 3090, £800–1,000 · used RTX 4090, £1,800–2,500 · RTX PRO 4000 Blackwell SFF (low profile, 70&nbsp;W)</td><td>gemma4:26b entirely on the card: as good as gpt-oss:120b on the real-work tasks. Speed too: the 3090 and 4090 read memory about 3.5&nbsp;× faster.</td></tr>
+                <tr><th>32&nbsp;GB</th><td>Intel Arc Pro B70, £1,000–1,300 · Radeon AI PRO R9700, about £1,600 · RTX 5090, £3,300+ · RTX PRO 4500, about £4,500</td><td>Speed, and the qwen3.6 models fit entirely, but they scored below gpt-oss:20b. gpt-oss:120b only improves to perhaps 23–30 tokens/s.</td></tr>
+                <tr><th>48&nbsp;GB</th><td>RTX PRO 5000 48&nbsp;GB, about £7,400</td><td>gpt-oss:120b about 70% on the card: perhaps 1.5–2&nbsp;× today's speed. Poor value.</td></tr>
+                <tr><th>64&nbsp;GB</th><td>Two 32&nbsp;GB cards, £2,000–3,400</td><td>gpt-oss:120b about 93% on the card, most of full speed. Needs a host with two full-speed slots, and ideally Linux.</td></tr>
+                <tr class="hl"><th>72–96&nbsp;GB</th><td>RTX PRO 5000 72&nbsp;GB, about £10,000 · RTX PRO 6000 96&nbsp;GB</td><td>gpt-oss:120b entirely on the card: likely well over 100 tokens/s, and thousands of tokens/s reading prompts.</td></tr>
+                <tr class="hl"><th>128–192&nbsp;GB unified</th><td>Ryzen AI Max+ 395 with 128&nbsp;GB, about £3,500 complete · Max+ 495 with 192&nbsp;GB, about £5,500</td><td>gpt-oss:120b in fast memory at 50–55 tokens/s, but slow at reading long prompts.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">Speeds for configurations not tested here are estimates from memory bandwidth and published measurements. Prices were rising through 2026 because of the memory shortage; check before buying.</p>
+
+          <h3>How much memory gpt-oss:120b needs</h3>
+          <p>It's a mixture-of-experts model, but that doesn't mean only the active experts need to be on the card. Each layer picks 4 of its 128 experts for every token, and the choice changes from token to token, so every expert has to be reachable. What the design does buy is that each token reads only about 5B of the 117B parameters, so the part left in system RAM costs much less than it would for a dense model.</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Part</th><th class="num">Size</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><th>Expert weights</th><td class="num">about 61&nbsp;GB</td><td>36 layers × 128 experts, about 4 bits each</td></tr>
+                <tr><th>Everything else</th><td class="num">about 4&nbsp;GB</td><td>Attention, embeddings, output layer</td></tr>
+                <tr><th>Context cache</th><td class="num">0.6&nbsp;GB at 32K, 2.5&nbsp;GB at 128K</td><td>8-bit cache. Small, because half the layers only look back 128 tokens</td></tr>
+                <tr class="hl"><th>Total measured at 32K context</th><td class="num">66.1&nbsp;GB</td><td>Plus 1–2&nbsp;GB of working buffers, plus whatever the desktop uses if the card drives a display</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>So a 72&nbsp;GB card is the smallest that holds it, and 80–96&nbsp;GB is comfortable. Below that, speed is set mostly by how much has to come from system RAM, which is why the gains only become large in the last step.</p>
+
+          <h3>Ryzen AI Max+: 395 or 495?</h3>
+          <p>These chips share one pool of fast memory between processor and graphics, so a 128&nbsp;GB machine can give 96&nbsp;GB or more to models. Both run gpt-oss:120b at about 50–55 tokens/s on current llama.cpp builds (Vulkan, MXFP4); early-2025 software managed only 30–34, so check how any benchmark was run. The 495 uses the same 256-bit memory bus with faster memory, 273&nbsp;GB/s against 256, so it's only about 7% faster at generating text. Its extra 64&nbsp;GB matters only for models in the 200–300B class, which would run noticeably slower and weren't tested here.</p>
+          <p>The weak spot is reading prompts: about 340–700 tokens/s on gpt-oss:120b depending on the graphics driver. A coding assistant that feeds in a 20,000-token file would wait 30–60 seconds each time, much as this machine does today. When comparing benchmarks, ask for generation speed with a long context and for prompt-reading speed, not just the usual short test.</p>
+
+          <h3>The 32&nbsp;GB cards</h3>
+          <p>The Radeon AI PRO R9700 and Intel Arc Pro B70 make 32&nbsp;GB cheap, but they read memory at about a third of an RTX 5090's speed. The R9700 has the more mature software: AMD supports it in ROCm, including under WSL2, and Ollama and LM Studio run it on Windows. The B70 is cheaper and has ECC memory, but its software is the weak point; under WSL2 Intel's compute backend often can't see the card, so plan on native Linux. Neither runs NVIDIA-only software, which matters for image and video generation and for training.</p>
+
+          <h3>An RTX 4090 or 3090?</h3>
+          <p>The RTX 4090 is the same Ada generation as the test card, so software support is identical. It has 24&nbsp;GB, about 3.6&nbsp;× the memory bandwidth and 4&nbsp;× the compute: roughly 150 tokens/s on gpt-oss:20b instead of 51, and long prompts read in 2–3 seconds instead of 9. Its extra 4&nbsp;GB is just what gemma4:26b needs to run entirely on the card alongside the desktop, which makes it the best general-purpose upgrade these results point to. Against that, it draws 450&nbsp;W and is a 3–3.5-slot card with a 16-pin power connector. A used 3090 has the same 24&nbsp;GB and generates text almost as fast on these models for about half the price; it reads prompts at about half a 4090's speed.</p>
+          <p>For a small machine like the MS-02, which takes only low-profile cards, the RTX PRO 4000 Blackwell SFF is the drop-in upgrade: 24&nbsp;GB, 432&nbsp;GB/s (1.5&nbsp;× the Ada SFF card), still 70&nbsp;W, and with Blackwell's FP4 support.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="host">
+      <div class="wrap">
+        <div class="article">
+          <h2>Host machine and operating system</h2>
+          <p>A graphics card needs a host with the slots, power and cooling for it. Two second-hand workstations compared for a one-card-now, maybe-two-later plan with a 300&nbsp;W R9700:</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th></th><th>Lenovo ThinkStation P520 (Xeon W-2265, 128&nbsp;GB, 900&nbsp;W)</th><th>Dell Precision 3660 (i9-12900K, 1000&nbsp;W)</th></tr></thead>
+              <tbody>
+                <tr><th>Second card</th><td>Two full-speed x16 slots; Lenovo validates two 300&nbsp;W double-width cards on the 900&nbsp;W supply</td><td>One x16 slot, the rest x4; a second big card is doubtful</td></tr>
+                <tr><th>System RAM</th><td>128&nbsp;GB quad-channel DDR4, about 94&nbsp;GB/s, already fitted</td><td>32–64&nbsp;GB dual-channel DDR5, about 75&nbsp;GB/s</td></tr>
+                <tr><th>Card link</th><td>PCIe 3.0 x16; only slows loading a model</td><td>PCIe 5.0 x16</td></tr>
+                <tr><th>Processor</th><td>Older, 12 cores, plenty for this</td><td>Much faster, better for compiling</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The P520 wins for two cards; its fast, plentiful RAM also helps models that spill. Check power connectors: many current cards use a 16-pin 12V-2x6 plug, and older workstation supplies have 8-pin leads, so you may need adapters, two 8-pin leads per card. The MS-02 used here takes only low-profile cards and has a 350&nbsp;W supply, so its upgrade path is a low-profile card or an external GPU over USB4.</p>
+
+          <h3>Do you need Linux?</h3>
+          <p>No, not for one card. If your coding assistant uses a cloud model, the operating system doesn't matter at all. For local models, NVIDIA's CUDA works well natively on Windows and inside WSL2, and AMD's R9700 is supported under both. Linux is worth it if you buy Intel's B70, run two or more cards together, or want server engines such as vLLM. Even then, consider a separate headless Linux box reached over the network rather than moving your main desktop. If you do, use <strong>Ubuntu 24.04 LTS</strong>: it's what AMD and Intel document and test against first.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="used">
+      <div class="wrap">
+        <div class="article">
+          <h2>Buying a used workstation card</h2>
+          <p>eBay has many listings for cards like the RTX A6000 from sellers with a few hundred feedback and 100% positive. There's no single scam tied to these cards, but several patterns are common:</p>
+          <ul>
+            <li><strong>Hijacked accounts.</strong> Old, dormant accounts with clean feedback suddenly list expensive cards below market price, then disappear. Years of silence followed by a run of GPU listings is the signature.</li>
+            <li><strong>Farmed feedback.</strong> Feedback earned on cheap items or as a buyer, then a switch to £3,000 cards. Filter the feedback to "as a seller" and look at what was actually sold.</li>
+            <li><strong>Fake tracking or an empty box,</strong> and requests to pay off eBay. The latter is always a scam.</li>
+          </ul>
+          <p>Before buying, compare the price with eBay's <em>sold</em> listings, and ask for a photo of the card's serial label next to a note with your username and the date. Pay only through eBay checkout. Film the unboxing in one take, and test straight away within the return window: check that <code>nvidia-smi</code> reports the right card and memory, run a VRAM test that fills all of it, and give it an hour under load. Where you can, collect in person and see it running first. An established IT refurbisher costs more but usually gives a warranty, which at these prices is often worth it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="cloud">
+      <div class="wrap">
+        <div class="article">
+          <h2>Local or cloud?</h2>
+          <p>Even £10,000 of hardware doesn't buy a top cloud model; the largest open models need hundreds of gigabytes. The same money pays for the most expensive individual coding plans, about $200 a month, for over four years. Local models win on privacy, working offline and having no running costs, and they're good for routine work. Many people use both: a local model for everyday jobs and a cloud model for the hard problems.</p>
+          <p>You can try models before buying hardware. Services such as OpenRouter serve the same open models for cents per million tokens, so a week of real work costs very little, and an hour on a rented 96&nbsp;GB card shows how fast a big card would feel.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="recommend">
+      <div class="wrap">
+        <div class="article">
+          <h2>Recommendations</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Budget</th><th>Buy</th><th>Run</th></tr></thead>
+              <tbody>
+                <tr><th>£0</th><td>Nothing, if you have a 16–24&nbsp;GB NVIDIA card</td><td>gpt-oss:20b for everything; gemma4:26b for harder changes. On a 20&nbsp;GB card, give it a smaller context or move 2 layers to the processor (see <a href="#setup">setup</a>). Tune Ollama as above.</td></tr>
+                <tr class="hl"><th>£800–2,500</th><td>A used RTX 3090 or RTX 4090 (24&nbsp;GB), or an R9700 (32&nbsp;GB) if you want a new card with a warranty</td><td>gemma4:26b entirely on the card for harder work, and everything two to three times faster</td></tr>
+                <tr><th>About £3,500</th><td>A Ryzen AI Max+ 395 machine with 128&nbsp;GB</td><td>gpt-oss:120b at about 50 tokens/s: the cheapest way to hold it in fast memory, if your own work shows it beats gemma4:26b</td></tr>
+                <tr><th>About £10,000</th><td>An RTX PRO 5000 72&nbsp;GB in a suitable workstation</td><td>gpt-oss:120b at full speed with fast prompt reading, and CUDA for everything else</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Poor value for this work:</strong> 48&nbsp;GB cards and the RTX PRO 4500, which cost much more than 32&nbsp;GB cards without running better models; and the 192&nbsp;GB Max+ 495 unless you specifically want 200B-class models.</p>
+          <p><strong>Before spending anything,</strong> try gemma4:26b and gpt-oss:120b on your own work. gemma4:26b runs at full speed on a 20&nbsp;GB card with a 16K context. gpt-oss:120b runs on any PC with a 16–24&nbsp;GB card and 96&nbsp;GB of RAM at 15–20 tokens/s: slow, but enough to judge whether faster hardware is worth it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="caveats">
+      <div class="wrap">
+        <div class="article">
+          <h2>Caveats, and what went wrong</h2>
+          <p>This is a practical test on one machine: 11 coding tasks, 6 questions and 5 code-reading questions, with three seeds only on the real-work tasks. Single runs can swing by an answer, and the same seed doesn't always reproduce the same answer, because the draft-token prediction some models use isn't fully deterministic.</p>
+          <p>Building a fair harness turned out to be half the work. Three bugs in it were found and fixed during testing, and the affected results were re-graded:</p>
+          <ul>
+            <li><strong>Stale programs.</strong> When a model's code failed to compile, the harness could run the previous model's compiled test instead, which might pass. Six qwen "passes" were answers with no code at all, from models that ran out of tokens while reasoning. The old program is now deleted before each compile.</li>
+            <li><strong>Code cut short.</strong> One model copied the task text into a comment, including the three backticks that mark a code block, and the harness took that as the end of the code. Code blocks now only count when the backticks start a line.</li>
+            <li><strong>A fair interface.</strong> The allocator task shows its <code>#define</code>s as an interface; a model that reasonably treated them as coming from a header failed to compile. The harness now provides them.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="repro">
+      <div class="wrap split">
+        <div class="article">
+          <h2>Run the tests yourself</h2>
+          <p>The harness is a few Python scripts using only the standard library, plus gcc or clang with the sanitizers: native on Linux and macOS, or in WSL on Windows. It records your machine's details, so results from different hardware can sit side by side. Results from other machines are very welcome: run the tests and open a pull request with your results folder.</p>
+          <p><a class="btn primary" href="https://github.com/UKTailwind/llmbench">llmbench on GitHub</a></p>
+          <p>The test harness and this write-up were developed with Claude Code, in keeping with the rest of this section of the site.</p>
+        </div>
+        <div class="note">
+          <strong>Source and raw results:</strong> <a href="https://github.com/UKTailwind/llmbench">github.com/UKTailwind/llmbench</a>, MIT licence. Every model answer from the real-work tasks is included, so the grading can be checked. The PicoMite source used in the long-context test is included under its own licence.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

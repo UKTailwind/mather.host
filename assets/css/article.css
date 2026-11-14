@@ -1,0 +1,54 @@
+/* mather.host: styles for long-form article pages (tables, contents list, findings). Load after site.css. */
+
+/* ---------- Long-form articles ---------- */
+
+.article { max-width: 54rem; }
+.article > :first-child { margin-top: 0; }
+.article h2 { font-size: clamp(1.4rem, 3vw, 1.8rem); margin: 0 0 0.6em; letter-spacing: -0.015em; scroll-margin-top: 80px; }
+.article h3 { font-size: 1.12rem; margin: 1.8em 0 0.4em; scroll-margin-top: 80px; }
+.article p, .article ul, .article ol { margin: 0 0 1em; }
+.article li + li { margin-top: 0.35em; }
+.article .note { margin: 1.4em 0; }
+.article pre {
+  margin: 1em 0 1.4em; padding: 14px 18px; border-radius: 10px; overflow-x: auto;
+  background: var(--code-bg); color: var(--code-fg); font-size: 0.86rem; line-height: 1.55;
+}
+.article :not(pre) > code { background: var(--bg-sunk); padding: 0.08em 0.35em; border-radius: 5px; font-size: 0.87em; }
+.article .lead-list { padding-left: 1.2em; }
+.article .lead-list li { padding-left: 4px; }
+
+.toc { list-style: none; margin: 0; padding: 0; columns: 2 15rem; column-gap: 32px; counter-reset: toc; }
+.toc li { break-inside: avoid; padding: 7px 0; border-bottom: 1px dashed var(--line); counter-increment: toc; }
+.toc li::before { content: counter(toc, decimal-leading-zero) "  "; font-family: var(--font-mono); font-size: 0.8rem; color: var(--copper); }
+.toc a { font-weight: 600; text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+
+.table-wrap {
+  margin: 1.2em 0 1.6em; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-raised);
+}
+table.data { width: 100%; border-collapse: collapse; font-size: 0.92rem; line-height: 1.45; }
+table.data th, table.data td { padding: 9px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+table.data thead th {
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--fg-muted); background: var(--bg-sunk); white-space: nowrap; vertical-align: bottom;
+}
+table.data tbody th { font-weight: 600; white-space: nowrap; }
+table.data tbody tr:last-child > * { border-bottom: 0; }
+table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.data tr.hl > * { background: var(--accent-soft); }
+/* the note sits outside the scrolling box, so on a phone it wraps to the screen instead of scrolling with the table */
+.table-wrap:has(+ .table-note) { margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.article .table-note {
+  margin: 0 0 1.6em; padding: 8px 14px 10px; font-size: 0.84rem; color: var(--fg-muted);
+  background: var(--bg-raised); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 var(--radius) var(--radius);
+}
+.pass { color: var(--accent); font-weight: 600; }
+.fail { color: var(--copper); font-weight: 600; }
+.muted { color: var(--fg-faint); }
+
+.findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+@media (min-width: 860px) { .findings { grid-template-columns: 1fr 1fr; } }
+.findings li { margin: 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-raised); }
+.findings b { display: block; margin-bottom: 4px; }
+.findings li + li { margin-top: 0; }
