@@ -138,3 +138,36 @@
     bar.insertBefore(b, bar.querySelector(".dl"));
   });
 })();
+
+// Visit counter. Any page of the live site counts one visit per browser per half hour of
+// activity, using the free Abacus counter API (no account, no cookies). The home page shows
+// the total in its footer. Local previews only read the count, so testing doesn't add to it.
+(function () {
+  "use strict";
+  var URL_BASE = "https://abacus.jasoncameron.dev/";
+  var KEY = "mather.host/visits";
+  var GAP_MS = 30 * 60 * 1000;
+  var SEEN_KEY = "mh-last-seen";
+
+  var shown = document.querySelector("[data-visits]");
+  var live = /(^|\.)mather\.host$/.test(location.hostname);
+  var now = Date.now();
+  var last = 0;
+  try {
+    last = Number(localStorage.getItem(SEEN_KEY)) || 0;
+    localStorage.setItem(SEEN_KEY, String(now));
+  } catch (e) { /* storage blocked: every page view counts */ }
+
+  var counting = live && now - last > GAP_MS;
+  if (!counting && !shown) return;
+
+  fetch(URL_BASE + (counting ? "hit/" : "get/") + KEY, { cache: "no-store", referrerPolicy: "no-referrer" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (d) {
+      if (!shown || typeof d.value !== "number") return;
+      shown.textContent = d.value.toLocaleString("en-GB");
+      var box = shown.closest(".visits");
+      if (box) box.hidden = false;
+    })
+    .catch(function () { /* leave the counter hidden */ });
+})();

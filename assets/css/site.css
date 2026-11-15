@@ -482,3 +482,4 @@ main { flex: 1; }
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
 .site-footer a { color: var(--fg-muted); }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.site-footer .visits b { font-family: var(--font-mono); font-weight: 400; font-variant-numeric: tabular-nums; }
