@@ -166,6 +166,8 @@
     .then(function (d) {
       if (!shown || typeof d.value !== "number") return;
       shown.textContent = d.value.toLocaleString("en-GB");
+      var word = shown.nextSibling;
+      if (word && word.nodeType === 3) word.nodeValue = d.value === 1 ? " visit" : " visits";
       var box = shown.closest(".visits");
       if (box) box.hidden = false;
     })
