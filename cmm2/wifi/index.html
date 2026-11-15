@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CMM2 WiFi module — mather.host</title>
+  <meta name="description" content="A plug-on WiFi module for the Colour Maximite 2. It uses the Raspberry Pi RM2 radio, passes the rear I/O header through, and gives MMBasic V8 the PicoMite's networking: a web server, HTTPS client, UDP, MQTT, network time, telnet and TFTP.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/" aria-current="page">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /cmm2/wifi</p>
+        <h1>WiFi for the Colour Maximite 2</h1>
+        <p class="lede">A small board that plugs onto the CMM2's rear I/O header and gives it WiFi, using the same radio as the Raspberry Pi Pico&nbsp;W. From MMBasic V8.00.00, the CMM2 gets the PicoMite's networking commands: a web server, a web client with HTTPS, UDP, MQTT, network time, a telnet console and file transfer.</p>
+        <div class="stats">
+          <div class="stat"><b>4 pins</b><span>used; the other 36 pass through</span></div>
+          <div class="stat"><b>~2&nbsp;MB/s</b><span>measured in each direction</span></div>
+          <div class="stat"><b>V8.00.00</b><span>firmware, from the first beta</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <figure class="photo">
+          <img src="/assets/img/cmm2-wifi.jpg" alt="The CMM2 WiFi module: the RM2 radio module and a 3.3 V regulator above a 40-pin box header" width="1200" height="777">
+          <figcaption>The module from the front. The radio and its regulator sit above the pass-through header; the socket that plugs into the CMM2 is on the back.</figcaption>
+        </figure>
+        <div class="article">
+          <h2>What it is</h2>
+          <p>The module carries a Raspberry Pi <strong>RM2</strong> radio module, which holds the Infineon CYW43439: the same WiFi and Bluetooth chip as the Pico&nbsp;W and Pico&nbsp;2&nbsp;W. A 40-pin socket on its back plugs onto the CMM2's rear I/O header, and a box header on its front repeats that header, so anything you already plug in there still fits.</p>
+          <p>The radio talks to the CMM2 over SPI2 and uses four of the header's pins; the other 36 pass straight through. It has its own 3.3&nbsp;V regulator, fed from the header's 5&nbsp;V, because the header's 3.3&nbsp;V pins are rated for 100&nbsp;mA and the radio draws up to 271&nbsp;mA when it transmits.</p>
+          <dl class="spec">
+            <dt>Radio</dt><dd>Raspberry Pi RM2 (CYW43439): 2.4&nbsp;GHz WiFi and Bluetooth</dd>
+            <dt>Fits</dt><dd>The CMM2's 40-pin rear I/O header, on the G1 and the G2</dd>
+            <dt>Uses</dt><dd>SPI2, and MMBasic pins 32, 33, 38 and 40</dd>
+            <dt>Power</dt><dd>Its own 3.3&nbsp;V regulator, from the header's 5&nbsp;V</dd>
+            <dt>Firmware</dt><dd>MMBasic V8.00.00 or later</dd>
+            <dt>Design</dt><dd>Open hardware, in EasyEDA Pro</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="fitting">
+      <div class="wrap">
+        <div class="article">
+          <h2>Fitting it</h2>
+          <p>Switch the CMM2 off, then push the module's socket onto the rear I/O header so that the module stands upright behind the computer.</p>
+          <ul>
+            <li><strong>On a G2,</strong> fit it with the words <em>THIS WAY UP</em> on the board at the top.</li>
+            <li><strong>On a G1, fit it upside down,</strong> with <em>THIS WAY UP</em> at the bottom. The G1's I/O header has its pinout rotated 180 degrees compared with the G2's, so turning the module over puts every pin in the right place.</li>
+          </ul>
+          <div class="note">
+            <strong>Check the orientation before you switch on.</strong> Fitted the wrong way round, the module's 5&nbsp;V supply pin lands on one of the header's ground pins.
+          </div>
+
+          <h3>The pins it uses</h3>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th class="num">MMBasic pin</th><th>Used for</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><th class="num">40</th><td>SPI2 clock</td><td>Held high by a pull-up on the module, because the firmware checks this pin at power-up</td></tr>
+                <tr><th class="num">38</th><td>SPI2 data</td><td>One line for both directions; the radio's interrupt shares it, as on a Pico&nbsp;W</td></tr>
+                <tr><th class="num">33</th><td>Chip select</td><td></td></tr>
+                <tr><th class="num">32</th><td>Radio on</td><td>Switches the WiFi and Bluetooth on together</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">These four pins aren't connected on the module's pass-through header. Pin 35, SPI2's input, isn't used, and passes through as an ordinary I/O pin.</p>
+          <p>When WiFi is on, SPI2 and these four pins belong to the radio, and the <code>SPI2</code> commands and <code>SETPIN</code> on those pins give an error. Without <code>OPTION WIFI</code> the firmware leaves them alone, although with the module fitted they're still wired to it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="using">
+      <div class="wrap">
+        <div class="article">
+          <h2>Using it</h2>
+          <p>Support comes with MMBasic V8.00.00 for the CMM2, starting with its first beta. The networking is the PicoMite WebMite's, ported to the CMM2 as it is, so the commands work as they do on a Pico&nbsp;W and they're documented in the <a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PicoMite_User_Manual.pdf">PicoMite User Manual</a>. Programs written for a WebMite should carry over with little or no change.</p>
+
+          <h3>Joining a network</h3>
+          <p>Give the CMM2 your network's name and password once, at the command prompt:</p>
+<pre>OPTION WIFI "MyNetwork", "MyPassword"</pre>
+          <p>The CMM2 restarts and joins the network in the background, which takes about 7 seconds, without holding up the prompt. It joins again every time it's switched on. Optional extra arguments set a host name (by default <code>PICO</code> followed by the board's ID), a fixed IP address with its mask and gateway, and a country code. Then:</p>
+<pre>PRINT MM.INFO(IP ADDRESS)   ' the address the network gave it
+WEB PING "mather.host"      ' check it can reach the internet
+WEB NTP 0                   ' set the clock from the internet, in UTC</pre>
+          <p><code>WEB NTP</code> sets the CMM2's clock, and its real-time clock too if one is fitted. Its argument is your time zone's offset from UTC in hours.</p>
+
+          <h3>What it can do</h3>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th>For</th><th>Commands</th></tr></thead>
+              <tbody>
+                <tr><th>Joining and checking</th><td><code>OPTION WIFI</code>, <code>WEB SCAN</code>, <code>WEB PING</code>, <code>MM.INFO(IP ADDRESS)</code></td></tr>
+                <tr><th>Network time</th><td><code>WEB NTP</code></td></tr>
+                <tr><th>A web server</th><td><code>OPTION TCP SERVER PORT</code>, <code>WEB TCP INTERRUPT</code>, <code>WEB TCP READ</code>, <code>WEB TRANSMIT PAGE</code>, <code>FILE</code> and <code>CODE</code></td></tr>
+                <tr><th>Fetching from the web, HTTPS included</th><td><code>WEB OPEN TCP CLIENT</code>, <code>WEB OPEN TLS CLIENT</code>, <code>WEB TCP CLIENT REQUEST</code>, and <code>JSON$</code> to read the replies</td></tr>
+                <tr><th>UDP</th><td><code>OPTION UDP SERVER PORT</code>, <code>WEB UDP SEND</code>, <code>WEB UDP INTERRUPT</code>, <code>MM.MESSAGE$</code>, <code>MM.ADDRESS$</code></td></tr>
+                <tr><th>MQTT</th><td><code>WEB MQTT CONNECT</code>, <code>PUBLISH</code>, <code>SUBSCRIBE</code> and <code>CLOSE</code>, <code>MM.TOPIC$</code>, <code>MM.MESSAGE$</code></td></tr>
+                <tr><th>A remote console</th><td><code>OPTION TELNET CONSOLE ON</code>, <code>ONLY</code> or <code>OFF</code>: the CMM2's prompt from a telnet program on another computer</td></tr>
+                <tr><th>Copying files</th><td>A TFTP server, for files to and from the SD card from another computer; <code>OPTION TFTP OFF</code> turns it off</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>A small web server</h3>
+          <p>Set the port once with <code>OPTION TCP SERVER PORT 80</code>, then run this. A browser pointed at the CMM2's address gets a page showing its date and time: <code>WEB TRANSMIT PAGE</code> fills in each <code>{expression}</code> in the page as it sends it.</p>
+<pre>Dim buff%(512)
+Open "A:/index.html" For Output As #1
+Print #1, "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Colour Maximite 2&lt;/h1&gt;"
+Print #1, "&lt;p&gt;{Date$} {Time$}&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;"
+Close #1
+Print "Serving at "; MM.Info(IP ADDRESS)
+WEB TCP INTERRUPT webreq
+Do : Loop
+
+Sub webreq
+  Local a
+  For a = 1 To MM.Info(MAX CONNECTIONS)
+    WEB TCP READ a, buff%()
+    If LLen(buff%()) Then WEB TRANSMIT PAGE a, "A:/index.html"
+  Next a
+End Sub</pre>
+
+          <h3>How fast it is</h3>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th>Measured during development</th><th class="num">Result</th></tr></thead>
+              <tbody>
+                <tr><th>Joining the network at power-up</th><td class="num">about 7&nbsp;s</td></tr>
+                <tr><th>Ping from a PC on the same network</th><td class="num">1–6&nbsp;ms</td></tr>
+                <tr><th>Transfer to and from a PC</th><td class="num">2.1&nbsp;MB/s out, 2.4&nbsp;MB/s in</td></tr>
+                <tr><th>HTTPS download, decrypted on the CMM2</th><td class="num">1.1&nbsp;MB/s</td></tr>
+                <tr><th>TFTP file copy</th><td class="num">about 250&nbsp;KB/s each way</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">The transfer and HTTPS figures came from a test program driving the network directly; MMBasic programs add their own overheads.</p>
+
+          <h3>Good to know</h3>
+          <ul>
+            <li><strong>Memory:</strong> with <code>OPTION WIFI</code> set, the firmware sets aside 128&nbsp;KB of memory for the network. Without it nothing is taken.</li>
+            <li><strong>No SD card needed:</strong> the radio's own firmware and the network code are built into the CMM2's flash.</li>
+            <li><strong>Without the module:</strong> if <code>OPTION WIFI</code> is set but the module isn't fitted, the CMM2 says <em>WiFi module not found</em> at start-up and carries on as normal, with the memory and pins free. The settings are kept for when the module goes back on.</li>
+            <li><strong>Loadable programs:</strong> while a loadable program such as an emulator or MicroPython is running, the network isn't looked after, so connections may drop.</li>
+            <li><strong>Range:</strong> the module sits behind the computer, so a metal case or rear panel will cut its range.</li>
+            <li><strong>Bluetooth:</strong> the radio has Bluetooth too, but the firmware doesn't use it yet.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="build">
+      <div class="wrap split">
+        <div class="article">
+          <h2>Building one</h2>
+          <p>The design files are in the <a href="https://github.com/UKTailwind/Pico-Computer-3">Pico-Computer-3 repository</a>, named <em>CMM2 Wifi V1.1</em>. They hold the EasyEDA Pro project, Gerbers, and a bill of materials and placement file for a board house to make and assemble it, with LCSC part numbers.</p>
+          <p>It's a two-layer board with all its surface-mount parts on one side, so the board house can assemble those. The two 2&nbsp;×&nbsp;20 headers are fitted by hand: the socket on the back, which plugs into the CMM2, and the box header on the front. The RM2 radio module is sold by Raspberry Pi resellers and by LCSC.</p>
+        </div>
+        <ul class="doclist" style="columns:1">
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/blob/main/CMM2%20Wifi%20V1.1.pdf">Schematic</a><span>PDF, with the pin assignments</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20Wifi%20V1.1.zip">Gerbers</a><span>Zip file for the board house</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20Wifi%20V1.1%20BOM.xlsx">Bill of materials</a><span>Excel, with LCSC part numbers</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20Wifi%20V1.1%20CPL.xlsx">Placement file</a><span>Excel, for assembly</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20Wifi%20V1.1.eprj2">EasyEDA Pro project</a><span>To change the design</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

@@ -37,6 +37,9 @@ table.data tbody th { font-weight: 600; white-space: nowrap; }
 table.data tbody tr:last-child > * { border-bottom: 0; }
 table.data .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 table.data tr.hl > * { background: var(--accent-soft); }
+/* tables whose first column is a phrase rather than a name: let it wrap, and keep each command whole */
+table.data.wrap-first tbody th { white-space: normal; min-width: 8.5rem; }
+table.data td code { white-space: nowrap; }
 /* the note sits outside the scrolling box, so on a phone it wraps to the screen instead of scrolling with the table */
 .table-wrap:has(+ .table-note) { margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 .article .table-note {
