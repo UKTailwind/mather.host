@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colour Maximite 2 G3 — mather.host</title>
+  <meta name="description" content="The Colour Maximite 2 G3: a G2 with HDMI video and sound from a MacroSilicon MS7210, and every sound through the HDMI screen and the audio socket at once. Open hardware, with EasyEDA Pro design files.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/" aria-current="page">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /cmm2/g3</p>
+        <h1>Colour Maximite 2 G3</h1>
+        <p class="lede">The Colour Maximite 2 with HDMI. The G3 is a G2 whose picture goes to an HDMI transmitter instead of VGA, and whose sound plays through the HDMI screen and the audio socket at the same time. Everything else is the G2's, so G2 programs and add-ons work on it unchanged.</p>
+        <div class="stats">
+          <div class="stat"><b>HDMI</b><span>picture and sound</span></div>
+          <div class="stat"><b>1920×1080</b><span>at 60&nbsp;Hz, as on the G2</span></div>
+          <div class="stat"><b>V8.00.00</b><span>firmware, from the first beta</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <figure class="photo">
+          <img src="/assets/img/cmm2-g3.jpg" alt="An assembled Colour Maximite 2 G3 board, with the HDMI socket at the top right" width="1100" height="972">
+          <figcaption>An assembled G3. The HDMI socket and its MS7210 transmitter are at the top right, where the G2 has its VGA socket.</figcaption>
+        </figure>
+        <div class="article">
+          <h2>What's different from the G2</h2>
+          <p>Only two things, and both are about getting the picture and the sound to a modern screen.</p>
+          <dl class="spec">
+            <dt>Video</dt><dd>HDMI, from a MacroSilicon MS7210 fed with the processor's 24-bit digital video, in place of the G2's VGA socket and its resistor ladders</dd>
+            <dt>Sound</dt><dd>Every sound plays through the HDMI screen and the 3.5&nbsp;mm audio socket at once</dd>
+          </dl>
+          <h3>What's the same</h3>
+          <p>The rest of the board is the G2's: the STM32H743 processor, 32&nbsp;MB of SDRAM, the SD card, the USB socket for a keyboard, mouse and gamepads, the PS/2 mouse, power and the serial console over USB, the 40-pin I/O header, the Wii Nunchuk and Classic connector, the IR receiver, the DS3231 real-time clock with its backup battery, and the DS18B20 temperature sensor. The <a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/manual/Colour_Maximite_2_User_Manual.pdf">Colour Maximite 2 User Manual</a> describes them all.</p>
+          <p>Because the I/O header is the same, the <a href="/cmm2/wifi/">WiFi module</a> fits a G3 exactly as it fits a G2.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="video">
+      <div class="wrap">
+        <div class="article">
+          <h2>The picture</h2>
+          <p>A G3 shows all the G2's video modes on an HDMI screen, up to 1920&nbsp;×&nbsp;1080 at 60&nbsp;Hz, from the moment it's switched on. Because the signal is digital, there's nothing to adjust:</p>
+          <ul>
+            <li><strong>Full colour levels</strong> in every mode, whatever <code>OPTION VGA OUTPUT</code> says.</li>
+            <li><strong>No centring:</strong> HDMI tells the screen where the picture is, so <code>OPTION HORIZONTAL OFFSET</code> isn't needed and the monitor's auto-adjust never comes into it.</li>
+            <li><strong>Standard timings:</strong> modes with wide pixels are sent at standard HDMI timings with each pixel repeated. Mode 7 reaches the screen as 640&nbsp;×&nbsp;480 at 75&nbsp;Hz, mode 12 as 1920&nbsp;×&nbsp;1080 at 60&nbsp;Hz and mode 13 as 800&nbsp;×&nbsp;600.</li>
+            <li><strong>Small screens:</strong> mode 18 is sent as 1024&nbsp;×&nbsp;600 at 60&nbsp;Hz, the resolution of many small HDMI displays.</li>
+            <li><strong>DVI monitors:</strong> for a monitor that doesn't accept the full HDMI signal, <code>OPTION DVI ON</code> sends plain DVI. The picture is the same, and the sound goes to the audio socket alone.</li>
+          </ul>
+          <p>Programs can tell which board they're on: <code>MM.DEVICE$</code> returns <code>"Colour Maximite 2 G3"</code>.</p>
+
+          <h2 id="sound" style="margin-top:1.6em">The sound</h2>
+          <p>A G3 sends every sound to the audio socket and to the HDMI screen together. There's no option to set: <code>PLAY VOLUME</code> sets both, and a screen without speakers simply stays silent while the socket carries on.</p>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th>Source</th><th>Through HDMI</th><th>Through the audio socket</th></tr></thead>
+              <tbody>
+                <tr><th>WAV, FLAC and MP3 files, MOD music, <code>PLAY MIDI</code> and FM synthesis, and loadable programs' sound such as Doom's</th><td>All 16 bits</td><td>12 bits, as on a G2</td></tr>
+                <tr><th>Tones, <code>SOUND</code>, BBC Micro sounds, speech and samples</th><td>12 bits</td><td>12 bits, as on a G2</td></tr>
+                <tr><th>Programs that drive the audio hardware directly: CSUBs, <code>POKE</code>s, the <code>DAC</code> command</th><td>Silent</td><td>As on a G2</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="firmware">
+      <div class="wrap">
+        <div class="article">
+          <h2>Firmware</h2>
+          <p>G3 support is part of MMBasic V8.00.00 for the Colour Maximite 2, from its first beta. One firmware file runs on the G1, the G2 and the G3: at start-up it recognises a G3 by its HDMI transmitter, which answers on the same I2C bus as the real-time clock, and sets it up. The firmware is loaded exactly as on a G2.</p>
+          <div class="links">
+            <a href="https://github.com/UKTailwind/CMM2V1.5/releases">Firmware releases</a>
+            <a href="https://github.com/UKTailwind/CMM2V1.5">Source</a>
+            <a href="/cmm2/">About the CMM2 firmware →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="build">
+      <div class="wrap split">
+        <div class="article">
+          <h2>Building one</h2>
+          <p>The design files are in the <a href="https://github.com/UKTailwind/Pico-Computer-3">Pico-Computer-3 repository</a>, named <em>CMM2 V2 G3 V1.1</em>. They hold the EasyEDA Pro project, the Gerbers, and a bill of materials and placement file with LCSC part numbers, which is everything a board house needs to make and assemble the board.</p>
+          <p>The HDMI transmitter is the MacroSilicon MS7210 (LCSC C2914249), with its own 1.2&nbsp;V regulator.</p>
+        </div>
+        <ul class="doclist" style="columns:1">
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/blob/main/CMM2%20V2%20G3%20V1.1.pdf">Schematic</a><span>PDF of the whole board</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20V2%20G3%20V1.zip">Gerbers</a><span>Zip file for the board house</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20V2%20G3%20V1.1%20BOM.xlsx">Bill of materials</a><span>Excel, with LCSC part numbers</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20V2%20G3%20V1.1%20CPL.xlsx">Placement file</a><span>Excel, for assembly</span></li>
+          <li><a href="https://github.com/UKTailwind/Pico-Computer-3/raw/main/CMM2%20V2%20G3%20V1.1.eprj2">EasyEDA Pro project</a><span>To change the design</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

@@ -53,7 +53,7 @@
           <p>The radio talks to the CMM2 over SPI2 and uses four of the header's pins; the other 36 pass straight through. It has its own 3.3&nbsp;V regulator, fed from the header's 5&nbsp;V, because the header's 3.3&nbsp;V pins are rated for 100&nbsp;mA and the radio draws up to 271&nbsp;mA when it transmits.</p>
           <dl class="spec">
             <dt>Radio</dt><dd>Raspberry Pi RM2 (CYW43439): 2.4&nbsp;GHz WiFi and Bluetooth</dd>
-            <dt>Fits</dt><dd>The CMM2's 40-pin rear I/O header, on the G1 and the G2</dd>
+            <dt>Fits</dt><dd>The CMM2's 40-pin rear I/O header, on the G1, the G2 and the <a href="/cmm2/g3/">G3</a></dd>
             <dt>Uses</dt><dd>SPI2, and MMBasic pins 32, 33, 38 and 40</dd>
             <dt>Power</dt><dd>Its own 3.3&nbsp;V regulator, from the header's 5&nbsp;V</dd>
             <dt>Firmware</dt><dd>MMBasic V8.00.00 or later</dd>
@@ -69,7 +69,7 @@
           <h2>Fitting it</h2>
           <p>Switch the CMM2 off, then push the module's socket onto the rear I/O header so that the module stands upright behind the computer.</p>
           <ul>
-            <li><strong>On a G2,</strong> fit it with the words <em>THIS WAY UP</em> on the board at the top.</li>
+            <li><strong>On a G2 or a G3,</strong> fit it with the words <em>THIS WAY UP</em> on the board at the top.</li>
             <li><strong>On a G1, fit it upside down,</strong> with <em>THIS WAY UP</em> at the bottom. The G1's I/O header has its pinout rotated 180 degrees compared with the G2's, so turning the module over puts every pin in the right place.</li>
           </ul>
           <div class="note">
@@ -98,7 +98,7 @@
       <div class="wrap">
         <div class="article">
           <h2>Using it</h2>
-          <p>Support comes with MMBasic V8.00.00 for the CMM2, starting with its first beta. The networking is the PicoMite WebMite's, ported to the CMM2 as it is, so the commands work as they do on a Pico&nbsp;W and they're documented in the <a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PicoMite_User_Manual.pdf">PicoMite User Manual</a>. Programs written for a WebMite should carry over with little or no change.</p>
+          <p>Support comes with MMBasic V8.00.00 for the CMM2, starting with its first beta, and WiFi has been confirmed working on the G1, the G2 and the G3. The networking is the PicoMite WebMite's, ported to the CMM2 as it is, so the commands work as they do on a Pico&nbsp;W and they're documented in the <a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PicoMite_User_Manual.pdf">PicoMite User Manual</a>. Programs written for a WebMite should carry over with little or no change.</p>
 
           <h3>Joining a network</h3>
           <p>Give the CMM2 your network's name and password once, at the command prompt:</p>
@@ -162,7 +162,7 @@ End Sub</pre>
 
           <h3>Good to know</h3>
           <ul>
-            <li><strong>Memory:</strong> with <code>OPTION WIFI</code> set, the firmware sets aside 128&nbsp;KB of memory for the network. Without it nothing is taken.</li>
+            <li><strong>Memory:</strong> with <code>OPTION WIFI</code> set, the firmware sets aside 128&nbsp;KB of memory for the network. Without it nothing is taken. On a G1 the 128&nbsp;KB comes from the top of the display memory, so with WiFi on some screen modes have one page fewer: 1024&nbsp;×&nbsp;768 in 16-bit colour (<code>MODE 9,16</code>) has one page instead of two, for example. Loadable programs on a G1 still get all of the display memory, and WiFi reconnects when they end.</li>
             <li><strong>No SD card needed:</strong> the radio's own firmware and the network code are built into the CMM2's flash.</li>
             <li><strong>Without the module:</strong> if <code>OPTION WIFI</code> is set but the module isn't fitted, the CMM2 says <em>WiFi module not found</em> at start-up and carries on as normal, with the memory and pins free. The settings are kept for when the module goes back on.</li>
             <li><strong>Loadable programs:</strong> while a loadable program such as an emulator or MicroPython is running, the network isn't looked after, so connections may drop.</li>
