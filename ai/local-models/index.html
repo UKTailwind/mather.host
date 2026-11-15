@@ -308,7 +308,7 @@ OLLAMA_MODELS=D:\Ollama\models  optional: keep models off the system drive (and 
           <p>The Radeon AI PRO R9700 and Intel Arc Pro B70 make 32&nbsp;GB cheap, but they read memory at about a third of an RTX 5090's speed. The R9700 has the more mature software: AMD supports it in ROCm, including under WSL2, and Ollama and LM Studio run it on Windows. The B70 is cheaper and has ECC memory, but its software is the weak point; under WSL2 Intel's compute backend often can't see the card, so plan on native Linux. Neither runs NVIDIA-only software, which matters for image and video generation and for training.</p>
 
           <h3>An RTX 4090 or 3090?</h3>
-          <p>The RTX 4090 is the same Ada generation as the test card, so software support is identical. It has 24&nbsp;GB, about 3.6&nbsp;× the memory bandwidth and 4&nbsp;× the compute: roughly 150 tokens/s on gpt-oss:20b instead of 51, and long prompts read in 2–3 seconds instead of 9. Its extra 4&nbsp;GB is just what gemma4:26b needs to run entirely on the card alongside the desktop, which makes it the best general-purpose upgrade these results point to. Against that, it draws 450&nbsp;W and is a 3–3.5-slot card with a 16-pin power connector. A used 3090 has the same 24&nbsp;GB and generates text almost as fast on these models for about half the price; it reads prompts at about half a 4090's speed.</p>
+          <p>The RTX 4090 is the same Ada generation as the test card, so software support is identical. It has 24&nbsp;GB, about 3.6&nbsp;× the memory bandwidth and 4&nbsp;× the compute: roughly 150 tokens/s on gpt-oss:20b instead of 51, and long prompts read in 2–3 seconds instead of 9. Its extra 4&nbsp;GB is just what gemma4:26b needs to run entirely on the card alongside the desktop, which makes it the best general-purpose upgrade these results point to. Against that, it draws up to 450&nbsp;W, so it costs about 12–14p an hour in electricity while it works against about 3p for the machine tested here (see <a href="#electricity">electricity</a>), and it's a 3–3.5-slot card with a 16-pin power connector. A used 3090 has the same 24&nbsp;GB and generates text almost as fast on these models for about half the price; it reads prompts at about half a 4090's speed.</p>
           <p>For a small machine like the MS-02, which takes only low-profile cards, the RTX PRO 4000 Blackwell SFF is the drop-in upgrade: 24&nbsp;GB, 432&nbsp;GB/s (1.5&nbsp;× the Ada SFF card), still 70&nbsp;W, and with Blackwell's FP4 support.</p>
         </div>
       </div>
@@ -357,8 +357,27 @@ OLLAMA_MODELS=D:\Ollama\models  optional: keep models off the system drive (and 
       <div class="wrap">
         <div class="article">
           <h2>Local or cloud?</h2>
-          <p>Even £10,000 of hardware doesn't buy a top cloud model; the largest open models need hundreds of gigabytes. The same money pays for the most expensive individual coding plans, about $200 a month, for over four years. Local models win on privacy, working offline and having no running costs, and they're good for routine work. Many people use both: a local model for everyday jobs and a cloud model for the hard problems.</p>
+          <p>Even £10,000 of hardware doesn't buy a top cloud model; the largest open models need hundreds of gigabytes. The same money pays for the most expensive individual coding plans, about $200 a month, for over four years. Local models win on privacy, working offline and having no subscription, though not on running costs, as the next section shows. They're good for routine work, and many people use both: a local model for everyday jobs and a cloud model for the hard problems.</p>
           <p>You can try models before buying hardware. Services such as OpenRouter serve the same open models for cents per million tokens, so a week of real work costs very little, and an hour on a rented 96&nbsp;GB card shows how fast a big card would feel.</p>
+
+          <h3 id="electricity">Electricity</h3>
+          <p>Running a model locally isn't free. The graphics card works flat out while it generates, and big cards draw a lot: published tests put an RTX 4090 at about 350–410&nbsp;W while generating, and an RTX 5090 is rated at 575&nbsp;W, before counting the rest of the PC. At the UK price-cap rate of 26p per kWh (October–December 2026):</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Machine</th><th class="num">Power while generating</th><th class="num">Per hour</th><th class="num">4 hours a working day</th><th class="num">Flat out all year</th></tr></thead>
+              <tbody>
+                <tr><th>This machine, gpt-oss:20b</th><td class="num">100&nbsp;W</td><td class="num">2.6p</td><td class="num">£26</td><td class="num">£230</td></tr>
+                <tr><th>This machine, gpt-oss:120b</th><td class="num">125&nbsp;W</td><td class="num">3.3p</td><td class="num">£33</td><td class="num">£285</td></tr>
+                <tr><th>Ryzen AI Max+ 395, gpt-oss:120b</th><td class="num">120–150&nbsp;W</td><td class="num">3–4p</td><td class="num">£31–39</td><td class="num">£270–340</td></tr>
+                <tr><th>PC with an RTX 4090</th><td class="num">450–550&nbsp;W</td><td class="num">12–14p</td><td class="num">£120–145</td><td class="num">£1,000–1,250</td></tr>
+                <tr><th>PC with an RTX 5090</th><td class="num">550–650&nbsp;W</td><td class="num">14–17p</td><td class="num">£145–170</td><td class="num">£1,250–1,480</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">This machine was measured with the graphics card's and processor's own power readings, so the figure at the wall is somewhat higher. The other rows are estimates from published measurements and ratings. "4 hours a working day" is 1,000 hours of generating a year. Unit rates vary by region from about 25p to 28p.</p>
+          <p>For one person using an assistant through the working day, that's £25–40 a year on a frugal machine and £120–170 on a big card: noticeable, but small next to the price of the hardware. It changes if a model runs unattended, for example an agent working through long jobs day and night. A big card's PC running flat out all year costs £1,000–1,500 in electricity, approaching the $200-a-month price of the most expensive cloud coding plans.</p>
+          <p>Per token, electricity alone costs more than renting the same open model. gpt-oss:120b used about 8 joules per token here, roughly 60p of electricity per million tokens. OpenRouter charges about 12p ($0.15–0.17) per million tokens to run it, and even the frugal Ryzen AI Max+ would use 16–22p of electricity. So a local machine doesn't save money against cloud services running the same open models. It pays its way through privacy, working offline, and having no usage limits or subscription.</p>
+          <p>Two ways to cut the bill. A loaded model keeps the card in a higher power state even when it's doing nothing: the card here drew 38&nbsp;W with a model loaded against 17–28&nbsp;W without, so a shorter <code>OLLAMA_KEEP_ALIVE</code> helps on a machine that's left on. And because generating text is limited by memory speed rather than computing power, a big card can be power-limited with little loss: published tests show a 4090 capped at 350&nbsp;W losing only 4–7% of its speed.</p>
         </div>
       </div>
     </section>
