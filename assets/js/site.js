@@ -98,3 +98,26 @@
     }
   }).catch(function () { /* keep the static fallback content */ });
 })();
+
+// Copy buttons for code listings (figure.listing): added here so they only appear when they work.
+(function () {
+  "use strict";
+  if (!navigator.clipboard) return;
+  var figs = document.querySelectorAll("figure.listing");
+  Array.prototype.forEach.call(figs, function (fig) {
+    var code = fig.querySelector("pre code");
+    var bar = fig.querySelector("figcaption");
+    if (!code || !bar) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "copy";
+    b.textContent = "Copy";
+    b.addEventListener("click", function () {
+      navigator.clipboard.writeText(code.textContent).then(function () {
+        b.textContent = "Copied";
+        setTimeout(function () { b.textContent = "Copy"; }, 1600);
+      }, function () { b.textContent = "Copy failed"; });
+    });
+    bar.insertBefore(b, bar.querySelector(".dl"));
+  });
+})();

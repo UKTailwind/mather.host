@@ -55,3 +55,23 @@ table.data td code { white-space: nowrap; }
 .findings li { margin: 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-raised); }
 .findings b { display: block; margin-bottom: 4px; }
 .findings li + li { margin-top: 0; }
+
+/* ---------- Code listings (a file name bar, Copy and Download, then the code) ---------- */
+
+.listing { margin: 1.2em 0 1.6em; border-radius: 10px; overflow: hidden; background: var(--code-bg); }
+.listing figcaption {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 18px;
+  font-family: var(--font-mono); font-size: 0.8rem; color: var(--code-fg);
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+.listing .file { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.listing .dl, .listing .copy {
+  font: inherit; font-size: 0.76rem; padding: 3px 10px; border-radius: 999px; cursor: pointer;
+  color: var(--code-fg); background: transparent; border: 1px solid rgb(255 255 255 / 0.22); text-decoration: none;
+}
+.listing .dl:hover, .listing .copy:hover { background: rgb(255 255 255 / 0.1); }
+.article .listing pre { margin: 0; border-radius: 0; }
+.listing .c { color: #8db3a0; }
+.listing .s { color: #f2c48f; }
+.listing .k { color: #e8fff0; font-weight: 600; }
+.article .back { margin-top: 1.6em; font-weight: 600; }

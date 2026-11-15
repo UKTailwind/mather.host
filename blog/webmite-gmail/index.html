@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email from a WebMite through Gmail — mather.host</title>
+  <meta name="description" content="How to send email through Gmail from the WiFi versions of the PicoMite: setting up a Gmail app password, and complete MMBasic programs that send a message with and without an attachment.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /blog/webmite-gmail</p>
+        <h1>Sending email through Gmail from a WebMite</h1>
+        <p class="lede">The WiFi versions of the PicoMite can send email on their own: an alarm from a sensor, a daily log file, a reading from the garden. This article sets up a Gmail account to accept mail from the board, then gives complete MMBasic programs that send a message, with or without an attachment.</p>
+        <p class="post-meta"><time datetime="2026-11-15">15 November 2026</time><span>WebMite firmware V6.04 or later</span><span>Pico W and Pico 2 W</span></p>
+      </div>
+    </section>
+
+    <section class="section" id="summary">
+      <div class="wrap">
+        <div class="article">
+          <h2>In short</h2>
+          <ul class="findings">
+            <li><b>Gmail accepts mail from the board.</b> The board logs in with your Gmail address and an app password: a separate 16-letter password for one device, which you can delete at any time without changing your main password.</li>
+            <li><b>The firmware does the encryption.</b> <code>WEB OPEN TLS CLIENT</code> connects to <code>smtp.gmail.com</code> on port 465, which is encrypted from the first byte. Port 587 is not supported, because it needs STARTTLS, which switches to encryption partway through.</li>
+            <li><b>Sending a message takes under ten exchanges.</b> Each one is a single <code>WEB TCP CLIENT REQUEST</code>, and the program checks Gmail's three-digit reply before going on.</li>
+            <li><b>Attachments are streamed, not loaded.</b> The file is read 57 bytes at a time, base64 encoded and sent in 4&nbsp;KB blocks with <code>WEB TCP CLIENT WRITE</code>, so even a Pico&nbsp;W can send a file bigger than its free memory.</li>
+          </ul>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#need">What you need</a></li>
+            <li><a href="#gmail">Step 1: a Gmail app password</a></li>
+            <li><a href="#conversation">How the board talks to Gmail</a></li>
+            <li><a href="#plain">Step 2: send a message</a></li>
+            <li><a href="#attachment">Step 3: send a file</a></li>
+            <li><a href="#verify">Checking that it really is Google</a></li>
+            <li><a href="#trouble">When it goes wrong</a></li>
+            <li><a href="#habits">Good habits</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="need">
+      <div class="wrap">
+        <div class="article">
+          <h2>What you need</h2>
+          <ul>
+            <li><strong>A Raspberry Pi Pico&nbsp;W or Pico&nbsp;2&nbsp;W running a WebMite build of the PicoMite firmware</strong>, version 6.04 or later. These builds have the TLS (secure connection) commands this needs. The current release is on <a href="https://github.com/UKTailwind/PicoMite/releases">GitHub</a>.</li>
+            <li><strong>The board joined to your network.</strong> If it isn't yet, type <code>OPTION WIFI "network-name", "network-password"</code> at the prompt. The board restarts and connects by itself from then on.</li>
+            <li><strong>A Google account with 2-Step Verification turned on.</strong> A free Gmail account set up just for your devices is best: see <a href="#habits">Good habits</a>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gmail">
+      <div class="wrap">
+        <div class="article">
+          <h2>Step 1: a Gmail app password</h2>
+          <p>Gmail won't let a device log in with your normal password. Instead, you create an <em>app password</em> for it: a random 16-letter password for one app or device, which you can delete without affecting anything else.</p>
+          <ol class="lead-list">
+            <li><strong>Sign in to the Google account you'll send from</strong>, at <a href="https://myaccount.google.com/">myaccount.google.com</a>.</li>
+            <li><strong>Turn on 2-Step Verification</strong> if it isn't already on: <em>Security</em>, then <em>2-Step Verification</em>. App passwords are only available with it on.</li>
+            <li><strong>Open <a href="https://myaccount.google.com/apppasswords">myaccount.google.com/apppasswords</a></strong>. Type a name that tells you which device it's for, such as <code>WebMite greenhouse</code>, and click <em>Create</em>.</li>
+            <li><strong>Copy the password Google shows you</strong>. It appears as four groups of four letters, such as <code>abcd efgh ijkl mnop</code>. Remove the spaces: the program needs the 16 letters run together. Google shows it only once; if you lose it, delete it and create another.</li>
+          </ol>
+          <div class="note">
+            <strong>If the App passwords page says the setting isn't available,</strong> the usual reasons are that 2-Step Verification is off, or set up with security keys only; that the account uses Google's Advanced Protection; or that it's a work or school account whose administrator has turned app passwords off. Note too that changing the account's main password deletes all its app passwords, so the board stops sending until you give it a new one. No other Gmail setting needs to change.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="conversation">
+      <div class="wrap">
+        <div class="article">
+          <h2>How the board talks to Gmail</h2>
+          <p>Mail is sent with SMTP, a conversation of short text lines. The board sends a command; Gmail answers with a three-digit code and some text. A code starting with 2 or 3 means carry on, and 4 or 5 means something is wrong.</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th scope="col">The board sends</th><th scope="col">Gmail replies</th><th scope="col">Meaning</th></tr></thead>
+              <tbody>
+                <tr><td><em>connects to port 465</em></td><td><code>220 smtp.gmail.com ESMTP</code></td><td>Hello: the firmware absorbs this greeting</td></tr>
+                <tr><td><code>EHLO webmite</code></td><td><code>250-smtp.gmail.com at your service</code></td><td>Introductions, plus a list of what Gmail supports</td></tr>
+                <tr><td><code>AUTH LOGIN</code></td><td><code>334 VXNlcm5hbWU6</code></td><td>“Username:”, in base64</td></tr>
+                <tr><td>Gmail address, in base64</td><td><code>334 UGFzc3dvcmQ6</code></td><td>“Password:”, in base64</td></tr>
+                <tr><td>App password, in base64</td><td><code>235 2.7.0 Accepted</code></td><td>Logged in</td></tr>
+                <tr><td><code>MAIL FROM:&lt;you@gmail.com&gt;</code></td><td><code>250 2.1.0 OK</code></td><td>Sender accepted</td></tr>
+                <tr><td><code>RCPT TO:&lt;them@example.com&gt;</code></td><td><code>250 2.1.5 OK</code></td><td>Recipient accepted</td></tr>
+                <tr><td><code>DATA</code></td><td><code>354 Go ahead</code></td><td>Send the message</td></tr>
+                <tr><td>The message, then a line holding just <code>.</code></td><td><code>250 2.0.0 OK</code></td><td>Accepted for delivery</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Three details of the WebMite's commands shape the programs below:</p>
+          <ul>
+            <li><strong>Port 465, not 587.</strong> On port 465 the connection is encrypted before anything is said, which is what <code>WEB OPEN TLS CLIENT</code> does. Port 587 starts unencrypted and switches over with a STARTTLS command, which the firmware doesn't support.</li>
+            <li><strong>No need to read the greeting.</strong> Gmail sends its 220 greeting the moment the secure connection is up, and the firmware discards it. The short pause after opening gives it time to arrive, so the program can send <code>EHLO</code> straight away and get EHLO's own reply. (<code>WEB TCP CLIENT READ</code> exists for servers that make you wait for their greeting on a plain connection.)</li>
+            <li><strong><code>REQUEST</code> for commands, <code>WRITE</code> for the message.</strong> <code>WEB TCP CLIENT REQUEST</code> sends up to 255 characters and waits for the reply, which suits the commands. But Gmail says nothing while the message itself arrives, so that goes out with <code>WEB TCP CLIENT WRITE</code>, which sends a LONGSTRING of any length without waiting. The final <code>.</code> goes with <code>REQUEST</code>, to collect Gmail's verdict.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="plain">
+      <div class="wrap">
+        <div class="article">
+          <h2>Step 2: send a message</h2>
+          <p>This is the whole program. Put your Gmail address and app password in the two <code>Const</code> lines at the top, put a real address in the <code>SendMail</code> line, and <code>RUN</code> it.</p>
+          <figure class="listing">
+            <figcaption><span class="file">send-mail.bas</span><a class="dl" href="send-mail.bas" download>Download</a></figcaption>
+<pre><code><span class="c">' send-mail.bas: send an email through Gmail from a WebMite</span>
+<span class="c">' https://mather.host/blog/webmite-gmail/</span>
+<span class="c">' Needs a WiFi (WebMite) build of the PicoMite firmware, V6.04 or</span>
+<span class="c">' later, joined to your network with OPTION WIFI, and a Gmail app</span>
+<span class="c">' password.</span>
+<span class="k">Option</span> <span class="k">Explicit</span>
+
+<span class="k">Const</span> GmailUser = <span class="s">"your.name@gmail.com"</span>   <span class="c">' the Gmail account to send from</span>
+<span class="k">Const</span> AppPassword = <span class="s">"abcdefghijklmnop"</span>    <span class="c">' its app password: 16 letters, no spaces</span>
+<span class="k">Const</span> CRLF = Chr$(13) + Chr$(10)
+
+<span class="k">Dim</span> <span class="k">Integer</span> rx(512)    <span class="c">' Gmail's replies: a LONGSTRING of up to 4 KB</span>
+<span class="k">Dim</span> <span class="k">Integer</span> msg(512)   <span class="c">' the outgoing message: a LONGSTRING of up to 4 KB</span>
+
+<span class="c">' Optional: check that the server really is Google (see the article)</span>
+<span class="c">' WEB NTP</span>
+<span class="c">' WEB TLS CA "gmail-ca.pem"</span>
+
+SendMail <span class="s">"someone@example.com"</span>, <span class="s">"Hello from the WebMite"</span>, <span class="s">"Sent by a Pico running MMBasic."</span>
+<span class="k">Print</span> <span class="s">"Mail sent"</span>
+<span class="k">End</span>
+
+<span class="c">' Send a plain-text email. The body can be up to 255 characters.</span>
+<span class="k">Sub</span> SendMail(mailto <span class="k">As</span> <span class="k">String</span>, subject <span class="k">As</span> <span class="k">String</span>, body <span class="k">As</span> <span class="k">String</span>)
+  <span class="k">WEB</span> <span class="k">OPEN</span> <span class="k">TLS</span> <span class="k">CLIENT</span> <span class="s">"smtp.gmail.com"</span>, 465, 20000
+  <span class="k">Pause</span> 300
+  Smtp <span class="s">"EHLO webmite"</span>, <span class="s">"250"</span>
+  Smtp <span class="s">"AUTH LOGIN"</span>, <span class="s">"334"</span>
+  Smtp B64(GmailUser), <span class="s">"334"</span>
+  Smtp B64(AppPassword), <span class="s">"235"</span>
+  Smtp <span class="s">"MAIL FROM:&lt;"</span> + GmailUser + <span class="s">"&gt;"</span>, <span class="s">"250"</span>
+  Smtp <span class="s">"RCPT TO:&lt;"</span> + mailto + <span class="s">"&gt;"</span>, <span class="s">"250"</span>
+  Smtp <span class="s">"DATA"</span>, <span class="s">"354"</span>
+  <span class="k">LongString</span> <span class="k">Clear</span> msg()
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"From: "</span> + GmailUser + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"To: "</span> + mailto + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Subject: "</span> + subject + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), body + CRLF
+  <span class="k">WEB</span> <span class="k">TCP</span> <span class="k">CLIENT</span> <span class="k">WRITE</span> msg()
+  Smtp <span class="s">"."</span>, <span class="s">"250"</span>
+  <span class="k">WEB</span> <span class="k">CLOSE</span> <span class="k">TCP</span> <span class="k">CLIENT</span>
+<span class="k">End</span> <span class="k">Sub</span>
+
+<span class="c">' Send one line to Gmail and check that the reply starts with the</span>
+<span class="c">' expected code. On any other reply, show it and stop.</span>
+<span class="k">Sub</span> Smtp(cmd <span class="k">As</span> <span class="k">String</span>, code <span class="k">As</span> <span class="k">String</span>)
+  <span class="k">WEB</span> <span class="k">TCP</span> <span class="k">CLIENT</span> <span class="k">REQUEST</span> cmd + CRLF, rx(), 20000
+  <span class="k">If</span> Replied(code) = 0 <span class="k">Then</span>
+    <span class="k">Print</span> <span class="s">"Gmail replied: "</span>;
+    <span class="k">LongString</span> <span class="k">Print</span> rx()
+    <span class="k">WEB</span> <span class="k">CLOSE</span> <span class="k">TCP</span> <span class="k">CLIENT</span>
+    <span class="k">Error</span> <span class="s">"Expected "</span> + code
+  <span class="k">EndIf</span>
+<span class="k">End</span> <span class="k">Sub</span>
+
+<span class="c">' True if the last reply, or any line of it, starts with code</span>
+<span class="k">Function</span> Replied(code <span class="k">As</span> <span class="k">String</span>) <span class="k">As</span> <span class="k">Integer</span>
+  <span class="k">If</span> LInStr(rx(), code) = 1 <span class="k">Then</span> Replied = 1
+  <span class="k">If</span> LInStr(rx(), Chr$(10) + code) &gt; 0 <span class="k">Then</span> Replied = 1
+<span class="k">End</span> <span class="k">Function</span>
+
+<span class="c">' Base64-encode a string, as AUTH LOGIN needs</span>
+<span class="k">Function</span> B64(s <span class="k">As</span> <span class="k">String</span>) <span class="k">As</span> <span class="k">String</span>
+  <span class="k">Local</span> <span class="k">Integer</span> n = <span class="k">Math</span>(<span class="k">BASE64</span> <span class="k">ENCODE</span> s, B64)
+<span class="k">End</span> <span class="k">Function</span></code></pre>
+          </figure>
+          <p>When it works, the console shows the firmware's connection messages and then the program's own. The address will be different:</p>
+<pre><code>&gt; RUN
+Connecting to 142.250.27.109 port 465 (TLS)
+Connected
+Mail sent</code></pre>
+          <p>How it works:</p>
+          <ul>
+            <li><code>Smtp</code> sends one line and checks that Gmail's reply starts with the code that should come back. If it doesn't, it prints the reply and stops with an error. Gmail's replies say plainly what's wrong, so read them first: see <a href="#trouble">When it goes wrong</a>.</li>
+            <li><code>AUTH LOGIN</code> asks for the user name and then the password, each base64 encoded. <code>B64</code> does this with MMBasic's built-in <code>MATH(BASE64 ENCODE)</code>. Base64 is not encryption: the TLS connection is what keeps the password private.</li>
+            <li>The message itself is headers (<code>From:</code>, <code>To:</code>, <code>Subject:</code>), a blank line, then the text. Every line ends with a carriage return and line feed, which is what <code>CRLF</code> holds.</li>
+          </ul>
+          <p>To send mail from your own program, copy in the constants, the two arrays and the four routines, then call <code>SendMail</code> whenever there's something to report:</p>
+<pre><code>If pressure &lt; 1.0 Then SendMail "you@example.com", "Boiler alarm", "Pressure is " + Str$(pressure, 1, 2) + " bar"</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="attachment">
+      <div class="wrap">
+        <div class="article">
+          <h2>Step 3: send a file</h2>
+          <p>An attachment turns the message into a MIME message with several parts. The header <code>Content-Type: multipart/mixed</code> names a <em>boundary</em> string, and each part starts with a line of two dashes and that string. The first part is the text. The second is the file, with headers giving its type and name, encoded as base64 text because email can only carry text. The last boundary line has two more dashes at the end.</p>
+          <figure class="listing">
+            <figcaption><span class="file">send-attachment.bas</span><a class="dl" href="send-attachment.bas" download>Download</a></figcaption>
+<pre><code><span class="c">' send-attachment.bas: email a file through Gmail from a WebMite</span>
+<span class="c">' https://mather.host/blog/webmite-gmail/</span>
+<span class="c">' Needs a WiFi (WebMite) build of the PicoMite firmware, V6.04 or</span>
+<span class="c">' later, joined to your network with OPTION WIFI, and a Gmail app</span>
+<span class="c">' password.</span>
+<span class="k">Option</span> <span class="k">Explicit</span>
+
+<span class="k">Const</span> GmailUser = <span class="s">"your.name@gmail.com"</span>   <span class="c">' the Gmail account to send from</span>
+<span class="k">Const</span> AppPassword = <span class="s">"abcdefghijklmnop"</span>    <span class="c">' its app password: 16 letters, no spaces</span>
+<span class="k">Const</span> CRLF = Chr$(13) + Chr$(10)
+<span class="k">Const</span> Q = Chr$(34)                        <span class="c">' a double quote</span>
+<span class="k">Const</span> Boundary = <span class="s">"WebMite-boundary-7d3f9a"</span>  <span class="c">' separates the parts of the message</span>
+
+<span class="k">Dim</span> <span class="k">Integer</span> rx(512)    <span class="c">' Gmail's replies: a LONGSTRING of up to 4 KB</span>
+<span class="k">Dim</span> <span class="k">Integer</span> msg(512)   <span class="c">' the outgoing message, sent in blocks of up to 4 KB</span>
+
+<span class="c">' Optional: check that the server really is Google (see the article)</span>
+<span class="c">' WEB NTP</span>
+<span class="c">' WEB TLS CA "gmail-ca.pem"</span>
+
+SendFile <span class="s">"someone@example.com"</span>, <span class="s">"Today's log"</span>, <span class="s">"The log file is attached."</span>, <span class="s">"log.csv"</span>, <span class="s">"text/csv"</span>
+<span class="k">Print</span> <span class="s">"Mail sent"</span>
+<span class="k">End</span>
+
+<span class="c">' Send a plain-text email with one file attached. fname can include a</span>
+<span class="c">' drive and folder, eg "B:/logs/today.csv". ftype is the file's MIME</span>
+<span class="c">' type, eg "text/csv", "image/jpeg" or "application/octet-stream".</span>
+<span class="k">Sub</span> SendFile(mailto <span class="k">As</span> <span class="k">String</span>, subject <span class="k">As</span> <span class="k">String</span>, body <span class="k">As</span> <span class="k">String</span>, fname <span class="k">As</span> <span class="k">String</span>, ftype <span class="k">As</span> <span class="k">String</span>)
+  <span class="k">Local</span> <span class="k">String</span> chunk, coded, shown
+  <span class="k">Local</span> <span class="k">Integer</span> i, n
+
+  <span class="c">' The name shown in the email: fname without its drive or folder</span>
+  shown = fname
+  <span class="k">For</span> i = Len(fname) <span class="k">To</span> 1 <span class="k">Step</span> -1
+    <span class="k">If</span> Mid$(fname, i, 1) = <span class="s">"/"</span> <span class="k">Or</span> Mid$(fname, i, 1) = <span class="s">":"</span> <span class="k">Then</span>
+      shown = Mid$(fname, i + 1)
+      <span class="k">Exit</span> <span class="k">For</span>
+    <span class="k">EndIf</span>
+  <span class="k">Next</span> i
+
+  <span class="k">WEB</span> <span class="k">OPEN</span> <span class="k">TLS</span> <span class="k">CLIENT</span> <span class="s">"smtp.gmail.com"</span>, 465, 20000
+  <span class="k">Pause</span> 300
+  Smtp <span class="s">"EHLO webmite"</span>, <span class="s">"250"</span>
+  Smtp <span class="s">"AUTH LOGIN"</span>, <span class="s">"334"</span>
+  Smtp B64(GmailUser), <span class="s">"334"</span>
+  Smtp B64(AppPassword), <span class="s">"235"</span>
+  Smtp <span class="s">"MAIL FROM:&lt;"</span> + GmailUser + <span class="s">"&gt;"</span>, <span class="s">"250"</span>
+  Smtp <span class="s">"RCPT TO:&lt;"</span> + mailto + <span class="s">"&gt;"</span>, <span class="s">"250"</span>
+  Smtp <span class="s">"DATA"</span>, <span class="s">"354"</span>
+
+  <span class="c">' The headers, then the text part of the message</span>
+  <span class="k">LongString</span> <span class="k">Clear</span> msg()
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"From: "</span> + GmailUser + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"To: "</span> + mailto + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Subject: "</span> + subject + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"MIME-Version: 1.0"</span> + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Content-Type: multipart/mixed; boundary="</span> + Q + Boundary + Q + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"--"</span> + Boundary + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Content-Type: text/plain; charset=UTF-8"</span> + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), body + CRLF
+
+  <span class="c">' The attachment's own headers</span>
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"--"</span> + Boundary + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Content-Type: "</span> + ftype + <span class="s">"; name="</span> + Q + shown + Q + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Content-Transfer-Encoding: base64"</span> + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"Content-Disposition: attachment; filename="</span> + Q + shown + Q + CRLF
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), CRLF
+
+  <span class="c">' The file: every 57 bytes become one 76-character line of base64,</span>
+  <span class="c">' and each block is sent as soon as it holds about 4 KB</span>
+  <span class="k">Open</span> fname <span class="k">For</span> <span class="k">Input</span> <span class="k">As</span> #1
+  <span class="k">Do</span> <span class="k">While</span> <span class="k">Not</span> Eof(#1)
+    chunk = Input$(57, #1)
+    n = <span class="k">Math</span>(<span class="k">BASE64</span> <span class="k">ENCODE</span> chunk, coded)
+    <span class="k">LongString</span> <span class="k">Append</span> msg(), coded + CRLF
+    <span class="k">If</span> LLen(msg()) &gt; 4000 <span class="k">Then</span>
+      <span class="k">WEB</span> <span class="k">TCP</span> <span class="k">CLIENT</span> <span class="k">WRITE</span> msg()
+      <span class="k">LongString</span> <span class="k">Clear</span> msg()
+    <span class="k">EndIf</span>
+  <span class="k">Loop</span>
+  <span class="k">Close</span> #1
+
+  <span class="c">' Close the last part, send what is left, then end the message</span>
+  <span class="k">LongString</span> <span class="k">Append</span> msg(), <span class="s">"--"</span> + Boundary + <span class="s">"--"</span> + CRLF
+  <span class="k">WEB</span> <span class="k">TCP</span> <span class="k">CLIENT</span> <span class="k">WRITE</span> msg()
+  Smtp <span class="s">"."</span>, <span class="s">"250"</span>
+  <span class="k">WEB</span> <span class="k">CLOSE</span> <span class="k">TCP</span> <span class="k">CLIENT</span>
+<span class="k">End</span> <span class="k">Sub</span>
+
+<span class="c">' Send one line to Gmail and check that the reply starts with the</span>
+<span class="c">' expected code. On any other reply, show it and stop.</span>
+<span class="k">Sub</span> Smtp(cmd <span class="k">As</span> <span class="k">String</span>, code <span class="k">As</span> <span class="k">String</span>)
+  <span class="k">WEB</span> <span class="k">TCP</span> <span class="k">CLIENT</span> <span class="k">REQUEST</span> cmd + CRLF, rx(), 20000
+  <span class="k">If</span> Replied(code) = 0 <span class="k">Then</span>
+    <span class="k">Print</span> <span class="s">"Gmail replied: "</span>;
+    <span class="k">LongString</span> <span class="k">Print</span> rx()
+    <span class="k">WEB</span> <span class="k">CLOSE</span> <span class="k">TCP</span> <span class="k">CLIENT</span>
+    <span class="k">Error</span> <span class="s">"Expected "</span> + code
+  <span class="k">EndIf</span>
+<span class="k">End</span> <span class="k">Sub</span>
+
+<span class="c">' True if the last reply, or any line of it, starts with code</span>
+<span class="k">Function</span> Replied(code <span class="k">As</span> <span class="k">String</span>) <span class="k">As</span> <span class="k">Integer</span>
+  <span class="k">If</span> LInStr(rx(), code) = 1 <span class="k">Then</span> Replied = 1
+  <span class="k">If</span> LInStr(rx(), Chr$(10) + code) &gt; 0 <span class="k">Then</span> Replied = 1
+<span class="k">End</span> <span class="k">Function</span>
+
+<span class="c">' Base64-encode a string, as AUTH LOGIN needs</span>
+<span class="k">Function</span> B64(s <span class="k">As</span> <span class="k">String</span>) <span class="k">As</span> <span class="k">String</span>
+  <span class="k">Local</span> <span class="k">Integer</span> n = <span class="k">Math</span>(<span class="k">BASE64</span> <span class="k">ENCODE</span> s, B64)
+<span class="k">End</span> <span class="k">Function</span></code></pre>
+          </figure>
+          <p>As before, fill in the constants and the <code>SendFile</code> line. The fourth parameter is the file to send. It can include a drive and folder, so <code>"B:/logs/today.csv"</code> attaches a log from the SD card. Only the name, <code>today.csv</code>, appears in the email.</p>
+          <p>The fifth parameter is the file's MIME type, which tells the recipient's mail program what to do with it:</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th scope="col">File</th><th scope="col">MIME type</th></tr></thead>
+              <tbody>
+                <tr><td><code>.txt</code>, <code>.bas</code></td><td><code>text/plain</code></td></tr>
+                <tr><td><code>.csv</code></td><td><code>text/csv</code></td></tr>
+                <tr><td><code>.jpg</code></td><td><code>image/jpeg</code></td></tr>
+                <tr><td><code>.png</code></td><td><code>image/png</code></td></tr>
+                <tr><td><code>.bmp</code></td><td><code>image/bmp</code></td></tr>
+                <tr><td>anything else</td><td><code>application/octet-stream</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Points to note:</p>
+          <ul>
+            <li><strong>57 bytes make one line.</strong> Base64 turns every 3 bytes into 4 characters, so 57 bytes become the 76-character lines that email expects.</li>
+            <li><strong>The memory used doesn't grow with the file.</strong> The lines collect in a 4&nbsp;KB LONGSTRING, which is sent with <code>WEB TCP CLIENT WRITE</code> and cleared as soon as it holds more than 4,000 characters. Gmail's limit is 25&nbsp;MB per message, and base64 makes a file a third bigger than it is.</li>
+            <li><strong><code>SendFile</code> uses file number 1.</strong> If your program keeps <code>#1</code> open for something else, change the three lines that use it.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="verify">
+      <div class="wrap">
+        <div class="article">
+          <h2>Checking that it really is Google</h2>
+          <p>By default, <code>WEB OPEN TLS CLIENT</code> encrypts the connection but doesn't check the server's certificate, so it can't tell Gmail from an impostor on your network. To make sure your app password only ever goes to Google, give the firmware Google's root certificates:</p>
+          <ol class="lead-list">
+            <li><strong>Download Google's GTS Root R1 and GTS Root R4 certificates</strong> from Google's own repository: <a href="https://pki.goog/repo/certs/gtsr1.pem">gtsr1.pem</a> and <a href="https://pki.goog/repo/certs/gtsr4.pem">gtsr4.pem</a>. Join them into one file. On Windows, at a command prompt:
+<pre><code>copy /b gtsr1.pem + gtsr4.pem gmail-ca.pem</code></pre>
+            On Linux or macOS:
+<pre><code>cat gtsr1.pem gtsr4.pem &gt; gmail-ca.pem</code></pre>
+            Two are needed because Gmail sends one of two certificate chains, depending on what the other end supports: an RSA chain that ends at GTS Root R1, or an ECDSA chain that ends at GTS Root R4. Both roots are valid until 2036.</li>
+            <li><strong>Copy <code>gmail-ca.pem</code> to the WebMite's A: drive</strong>, the same way you load programs: with <code>XMODEM RECEIVE "gmail-ca.pem"</code> and your terminal program, or by TFTP, which is on by default in the WiFi builds.</li>
+            <li><strong>Remove the <code>'</code> from the two lines near the top of the program:</strong>
+<pre><code>WEB NTP
+WEB TLS CA "gmail-ca.pem"</code></pre>
+            </li>
+          </ol>
+          <p><code>WEB NTP</code> sets the clock, which the check needs because certificates have start and end dates. If your program already sets the clock, for example with <code>WEB NTP</code> and your time zone, leave that line out. <code>WEB TLS CA</code> applies to every later secure connection, including MQTT, until <code>WEB TLS NOVERIFY</code>. So if the program also talks to other secure servers, add their root certificates to the same file.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="trouble">
+      <div class="wrap">
+        <div class="article">
+          <h2>When it goes wrong</h2>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col">What you see</th><th scope="col">What it means</th></tr></thead>
+              <tbody>
+                <tr><th scope="row"><code>535-5.7.8 Username and Password not accepted</code></th><td>The Gmail address or app password is wrong. Check that the spaces are out of the app password. Gmail gives the same reply when the app password has been deleted, which includes after a change to the account's main password.</td></tr>
+                <tr><th scope="row"><code>534-5.7.9 Application-specific password required</code></th><td>The account's normal password was used. Create an app password (<a href="#gmail">Step 1</a>).</td></tr>
+                <tr><th scope="row"><code>Failed to convert web address</code></th><td>The board couldn't look up <code>smtp.gmail.com</code>. Check that it's on your network: <code>PRINT MM.INFO$(IP ADDRESS)</code> should show an address.</td></tr>
+                <tr><th scope="row"><code>No response from TLS server</code>, or another error mentioning TLS</th><td>The secure connection didn't come up. Some networks block port 465. With certificate checking on, check that the clock was set and that <code>gmail-ca.pem</code> holds both certificates.</td></tr>
+                <tr><th scope="row"><code>Cannot find file</code></th><td>After <code>WEB TLS CA</code>, <code>gmail-ca.pem</code> isn't on the current drive. In <code>SendFile</code>, the file to attach isn't where the program says.</td></tr>
+                <tr><th scope="row">A reply starting <code>5</code> after the final <code>.</code></th><td>Gmail refused the message itself, for example because it's too big (<code>552</code>) or looks like spam (<code>550</code>). The rest of the reply says why.</td></tr>
+                <tr><th scope="row">The mail is “from” your Gmail address, whatever <code>From:</code> says</th><td>Gmail always sends as the account that logged in, unless the other address is set up as a “Send mail as” address in Gmail's settings.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="habits">
+      <div class="wrap">
+        <div class="article">
+          <h2>Good habits</h2>
+          <ul>
+            <li><strong>Give your devices their own Gmail account.</strong> Anyone with the app password can read and send mail as that account, so keep it away from your personal mailbox.</li>
+            <li><strong>Never share a program with the password still in it.</strong> If one gets out, delete the app password at <a href="https://myaccount.google.com/apppasswords">myaccount.google.com/apppasswords</a> and create a new one.</li>
+            <li><strong>Send when something changes, not in a loop.</strong> Gmail limits how much an account can send each day, and it may suspend an account that looks like it's sending spam. An alarm when a reading crosses a limit, or one summary a day, is the right pace.</li>
+            <li><strong>Watch for lines that start with a dot.</strong> A line holding just <code>.</code> ends the message, so a line of your text that starts with <code>.</code> needs a second one added in front; it's removed again on delivery. Base64 never contains a dot, so attachments are safe.</li>
+          </ul>
+          <p>The WebMite's network commands are described in full in the <a href="https://github.com/UKTailwind/PicoMite/blob/main/PDF/PicoMite_User_Manual.pdf">PicoMite User Manual</a>, and at the prompt with <code>HELP WEB</code>.</p>
+          <p class="back"><a href="/blog/">← All articles</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>
