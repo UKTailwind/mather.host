@@ -99,9 +99,26 @@
   }).catch(function () { /* keep the static fallback content */ });
 })();
 
-// Copy buttons for code listings (figure.listing): added here so they only appear when they work.
+// Code on article pages: a Copy button on each listing (figure.listing), and Windows (CRLF)
+// line endings on anything copied from a code block. MMBasic terminals and editors don't
+// treat a bare LF as the end of a line, so LF-only text pastes as one long statement.
 (function () {
   "use strict";
+  if (!document.querySelector(".article pre")) return;
+  function crlf(t) { return t.replace(/\r?\n/g, "\r\n"); }
+
+  // Text selected by hand inside a code block
+  document.addEventListener("copy", function (e) {
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !e.clipboardData) return;
+    var node = sel.anchorNode;
+    var el = node && (node.nodeType === 1 ? node : node.parentElement);
+    if (!el || !el.closest(".article pre")) return;
+    e.clipboardData.setData("text/plain", crlf(sel.toString()));
+    e.preventDefault();
+  });
+
+  // The Copy button copies the whole listing, ending with a line break so the last line is entered too
   if (!navigator.clipboard) return;
   var figs = document.querySelectorAll("figure.listing");
   Array.prototype.forEach.call(figs, function (fig) {
@@ -113,7 +130,7 @@
     b.className = "copy";
     b.textContent = "Copy";
     b.addEventListener("click", function () {
-      navigator.clipboard.writeText(code.textContent).then(function () {
+      navigator.clipboard.writeText(crlf(code.textContent.replace(/\s+$/, "")) + "\r\n").then(function () {
         b.textContent = "Copied";
         setTimeout(function () { b.textContent = "Copy"; }, 1600);
       }, function () { b.textContent = "Copy failed"; });
