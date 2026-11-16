@@ -309,6 +309,43 @@ main { flex: 1; }
 .topic .go { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); }
 .topic:hover .go { text-decoration: underline; }
 
+/* Cards that are not links: feature and app lists */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr)); gap: 16px; }
+/* four cards: one column, then two, then four, never three and one */
+.cards.four { grid-template-columns: 1fr; }
+@media (min-width: 640px) { .cards.four { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1120px) { .cards.four { grid-template-columns: repeat(4, 1fr); } }
+/* a full-width card with its lists side by side, above two half-width cards */
+.cards.two { grid-template-columns: 1fr; }
+.card .cols { display: grid; gap: 10px 36px; }
+.card .cols > div { display: flex; flex-direction: column; gap: 10px; }
+@media (min-width: 860px) {
+  .cards.two { grid-template-columns: 1fr 1fr; }
+  .cards.two .span { grid-column: 1 / -1; }
+  .card .cols { grid-template-columns: 1fr 1fr; }
+}
+.card {
+  display: flex; flex-direction: column; gap: 10px; padding: 22px;
+  background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.card .icon {
+  width: 44px; height: 44px; display: grid; place-items: center;
+  border-radius: 10px; background: var(--accent-soft); color: var(--accent);
+}
+.card .icon svg { width: 24px; height: 24px; }
+.card h3 { margin: 4px 0 0; font-size: 1.15rem; }
+.card h4 { margin: 8px 0 0; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--copper); }
+.card p { margin: 0; color: var(--fg-muted); font-size: 0.97rem; }
+.card ul { margin: 0; padding-left: 1.15em; color: var(--fg-muted); font-size: 0.96rem; }
+.card ul li + li { margin-top: 5px; }
+.card b { color: var(--fg); }
+.card code { font-size: 0.86em; }
+
+.steps { margin: 0; padding-left: 1.3em; }
+.steps li { padding-left: 4px; }
+.steps li + li { margin-top: 0.6em; }
+.steps code { background: var(--bg-sunk); padding: 0.08em 0.35em; border-radius: 5px; font-size: 0.87em; }
+
 /* ---------- Project cards ---------- */
 
 .projects {
@@ -438,6 +475,7 @@ main { flex: 1; }
 /* ---------- Specs, docs, two-column blocks ---------- */
 
 .split { display: grid; gap: 28px; align-items: start; }
+.split > * { min-width: 0; } /* so a code listing scrolls inside its column instead of widening it */
 @media (min-width: 860px) { .split { grid-template-columns: 1.1fr 0.9fr; gap: 48px; } }
 
 .spec {

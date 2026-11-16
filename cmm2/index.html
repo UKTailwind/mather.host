@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Colour Maximite 2 — mather.host</title>
-  <meta name="description" content="MMBasic V7 firmware and design files for the Colour Maximite 2, the STM32H743 computer that boots straight into BASIC.">
+  <meta name="description" content="MMBasic V8 for the Colour Maximite 2: WiFi and web pages from BASIC, PicoMite programs run unaltered, and twenty-one games, languages and utilities that load from the SD card.">
   <meta name="theme-color" content="#1f7a5c">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -29,14 +30,213 @@
 
   <main id="main">
     <section class="hero compact">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">// cd /cmm2</p>
+          <h1>Colour Maximite 2</h1>
+          <p class="lede">A 480&nbsp;MHz STM32H743 computer that switches on straight into BASIC. MMBasic V8 puts it on your WiFi network serving web pages, runs PicoMite programs unaltered, and loads twenty-one games, languages and utilities from its SD card.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b1">Download 8.00.00b1</a>
+            <a class="btn" href="#apps">See the apps</a>
+          </div>
+          <div class="stats">
+            <div class="stat"><b>8.00.00b1</b><span>beta, 16 Nov 2026</span></div>
+            <div class="stat"><b>21</b><span>apps to load from the card</span></div>
+            <div class="stat"><b>G1 · G2 · G3</b><span>one firmware file</span></div>
+          </div>
+        </div>
+        <div class="terminal" role="img" aria-label="An MMBasic prompt on a Colour Maximite 2 G3: it prints the board's name, its IP address on the WiFi network and the firmware version, then starts Doom">
+          <div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="dim">&gt;</span> PRINT MM.DEVICE$
+<span class="hl">Colour Maximite 2 G3</span>
+<span class="dim">&gt;</span> PRINT MM.INFO(IP ADDRESS)
+<span class="hl">192.168.1.106</span>
+<span class="dim">&gt;</span> PRINT MM.VER
+<span class="hl"> 8.000001</span>
+<span class="dim">&gt;</span> CHDIR "A:/Doom" : RUN "doom.app"
+<span class="dim">&gt;</span> _</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
-        <p class="eyebrow">// cd /cmm2</p>
-        <h1>Colour Maximite 2</h1>
-        <p class="lede">A 480&nbsp;MHz STM32H743 computer that boots straight into BASIC, with VGA graphics, sound and an SD card. The firmware is being brought up to the same V7 MMBasic interpreter as the PicoMite, and one firmware file runs on both the G1 and G2 boards.</p>
-        <div class="stats">
-          <div class="stat"><b>V7.00 RC6</b><span>latest release, Nov 2026</span></div>
-          <div class="stat"><b>18</b><span>video modes</span></div>
-          <div class="stat"><b>G1 + G2</b><span>one firmware file</span></div>
+        <div class="section-head">
+          <div>
+            <h2>New in MMBasic V8</h2>
+            <p>The first beta, 8.00.00b1, was posted on 16 November 2026. The same firmware file runs on all three generations of the board.</p>
+          </div>
+          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/Release_Notes_8.00.00b1.md">Release notes →</a>
+        </div>
+        <div class="cards four">
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a9.5 9.5 0 0 1 13 0"/><path d="M8.7 16a5 5 0 0 1 6.6 0"/><circle cx="12" cy="19.5" r="1"/></svg></span>
+            <h3>WiFi and the Internet</h3>
+            <p>With the WiFi module on the rear I/O connector, the CMM2 runs the WebMite's networking unchanged: a web server, HTTP and HTTPS clients, UDP, MQTT, network time, a Telnet console and TFTP file transfer.</p>
+            <div class="links"><a href="#web">Web pages from BASIC ↓</a><a href="/cmm2/wifi/">The module →</a></div>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M9.5 8.5v4.5M14.5 8.5v4.5M9.5 10.75h5"/></svg></span>
+            <h3>HDMI on the Generation 3</h3>
+            <p>A Generation 2 whose picture goes out through HDMI, with the sound on the monitor's speakers and the audio socket at once. Every video mode shows, from power up, and OPTION DVI suits monitors that want DVI.</p>
+            <div class="links"><a href="/cmm2/g3/">About the G3 →</a></div>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 5V2.5M12 5V2.5M16 5V2.5M8 21.5V19M12 21.5V19M16 21.5V19"/><path d="M8 10h8M8 14h5"/></svg></span>
+            <h3>Programs run from RAM</h3>
+            <p>The BASIC program lives in 512&nbsp;KB of SDRAM and is never written to the flash, so loading is quicker and editing never wears it. With OPTION AUTORUN ON, AUTORUN.BAS on the card starts at power up.</p>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4.5l-3 15"/></svg></span>
+            <h3>USER modules</h3>
+            <p>Commands and functions of your own, written in C, that a BASIC program calls like the built-in ones. The SQL command works the same way, with SQLite as its module.</p>
+          </div>
+        </div>
+        <p class="note" style="margin:20px 0 0"><strong>Coming from V7?</strong> Save your program and your options to the SD card before you update, because V8 uses the part of the flash where V7 kept the program. Afterwards, load the options again and reload your library from its source files. The release notes' "Before you update" section has every step. 7.00.00RC6 is the last V7 release and stays available.</p>
+      </div>
+    </section>
+
+    <section class="section" id="web">
+      <div class="wrap split">
+        <div class="article">
+          <h2>Web pages from BASIC</h2>
+          <p>Type <code>OPTION WIFI "MyNetwork", "secret"</code> and <code>OPTION TCP SERVER PORT 80</code> once at the prompt, and a BASIC program can serve web pages to any browser on your network. This is a whole server:</p>
+          <figure class="listing">
+            <figcaption><span class="file">server.bas</span></figcaption>
+<pre><code><span class="k">DIM</span> buff%(4096/8)
+<span class="k">WEB</span> <span class="k">TCP</span> <span class="k">INTERRUPT</span> WebInterrupt
+<span class="k">DO</span>
+  <span class="c">' collect readings, switch outputs, draw the screen...</span>
+<span class="k">LOOP</span>
+
+<span class="k">SUB</span> WebInterrupt
+  <span class="k">LOCAL</span> a%, p%, t%
+  <span class="k">FOR</span> a% = 1 <span class="k">TO</span> MM.INFO(MAX CONNECTIONS)
+    <span class="k">WEB</span> <span class="k">TCP</span> <span class="k">READ</span> a%, buff%()
+    p% = LINSTR(buff%(), <span class="s">"GET"</span>)
+    t% = LINSTR(buff%(), <span class="s">"HTTP"</span>)
+    <span class="k">IF</span> (p% &lt;&gt; 0) <span class="k">AND</span> (t% &gt; p%) <span class="k">THEN</span>
+      <span class="k">WEB</span> <span class="k">TRANSMIT</span> <span class="k">PAGE</span> a%, <span class="s">"index.html"</span>
+    <span class="k">ENDIF</span>
+  <span class="k">NEXT</span> a%
+<span class="k">END</span> <span class="k">SUB</span></code></pre>
+          </figure>
+          <p>WEB TRANSMIT PAGE sends an HTML file from the SD card and fills in anything between curly brackets with its value, so a page shows live readings with no extra code:</p>
+          <figure class="listing">
+            <figcaption><span class="file">index.html</span></figcaption>
+<pre><code>&lt;h1&gt;Colour Maximite 2&lt;/h1&gt;
+&lt;p&gt;The time here is {TIME$}&lt;/p&gt;</code></pre>
+          </figure>
+          <p>Buttons and fields in a form come back to the program as requests it can act on. A graph drawn with the CMM2's graphics commands can be saved as a PNG and sent as an image. Several browsers can connect at once.</p>
+        </div>
+        <div class="card">
+          <h3>Also on the network</h3>
+          <ul>
+            <li><b>HTTPS and TCP clients</b> to fetch data from web services, with the server's certificate checked if you want (WEB TLS CA)</li>
+            <li><b>MQTT</b>: publish and subscribe through a broker</li>
+            <li><b>UDP</b> messages to and from other devices</li>
+            <li><b>WEB NTP</b> sets the clock from a time server</li>
+            <li><b>A Telnet console</b>: the prompt and the editor from a PC, with nothing plugged into the serial port</li>
+            <li><b>TFTP</b> copies files to and from a PC</li>
+          </ul>
+          <p>The network code is the WebMite's, unchanged, so a WebMite program runs as it is apart from the I/O pins it uses. Geoff Graham's <a href="https://geoffg.net/retic.html">Garden Watering Controller</a> runs with only its pins changed.</p>
+          <div class="links">
+            <a href="/cmm2/wifi/">The WiFi module →</a>
+            <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual: WiFi and Internet Functions</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="picomite">
+      <div class="wrap split">
+        <div class="prose">
+          <h2 style="margin-top:0">PicoMite programs, unaltered</h2>
+          <p>The CMM2 and the <a href="/picomite/">PicoMite</a> now run the same MMBasic, so a PicoMite program's BASIC is already right. What differs is the hardware, and <code>OPTION PICOMITE</code> covers that. Set it at the prompt, or put <code>OPTION PICOMITE HDMI</code> at the top of the program so that it applies to that program alone, and the program sees the PicoMite it was written for.</p>
+          <p>It gets far more room: about 4&nbsp;MB for variables on a Generation&nbsp;1, and 15&nbsp;MB on a Generation&nbsp;2 or&nbsp;3. The PicoMite's own test programs run on every release as part of the CMM2's regression tests.</p>
+          <p>Programs that use hardware the CMM2 doesn't have, such as the PIO, LCD panels or cameras, still need changes. The User Manual's Porting Programs chapter lists them.</p>
+        </div>
+        <dl class="spec">
+          <dt><b>Display</b></dt>
+          <dd><code>MODE</code> is the PicoMite's: 1 to 3 on VGA, 1 to 5 on HDMI, with its framebuffers, layers and screen memory for PEEK and POKE.</dd>
+          <dt><b>Resolutions</b></dt>
+          <dd>640x480 at 60 or 75&nbsp;Hz, 720x400, 800x600 and 848x480, and with HDMI also 800x480, 1024x600, 1280x720 and 1024x768.</dd>
+          <dt><b>Pins</b></dt>
+          <dd>GP0, GP1 and the rest name the rear connector's pins with the same functions. The PicoMite's SETPIN for COM ports, I2C, SPI, PWM and IR is accepted.</dd>
+          <dt><b>Drives</b></dt>
+          <dd>B: is the SD card, as on the PicoMite, and so is A:. C: is a USB drive on both.</dd>
+          <dt><b>CSUBs</b></dt>
+          <dd>A PicoMite CSUB that uses only MMBasic's call table runs as it is.</dd>
+          <dt><b>Name</b></dt>
+          <dd>MM.DEVICE$ returns the PicoMite's name, so a program that sets itself up by it does so as on that PicoMite.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="apps">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Games, languages and utilities</h2>
+            <p>Twenty-one loadable programs, in CMM2_Programs_8.00.00b1.zip. Copy the folders you want to the SD card and start one with RUN. When it ends, MMBasic puts the screen, sound and pins back as they were.</p>
+          </div>
+          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/releases/download/v8.00.00b1/CMM2_Programs_8.00.00b1.zip">Download the zip (40&nbsp;MB) →</a>
+        </div>
+        <div class="cards two">
+          <div class="card span">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10a5 5 0 0 1 4.9 6l-.8 4a2.5 2.5 0 0 1-4.3 1.1L14.5 16h-5l-2.3 2.1A2.5 2.5 0 0 1 2.9 17l-.8-4A5 5 0 0 1 7 7z"/><path d="M7 10v4M5 12h4"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="17.5" cy="13" r=".6" fill="currentColor"/></svg></span>
+            <h3>Games</h3>
+            <div class="cols">
+            <div>
+            <h4>Ready to play</h4>
+            <ul>
+              <li><b>Doom</b>, with the free Freedoom game data and its music on the FM synthesiser</li>
+              <li><b>Heretic</b> and <b>Quake</b>, with their shareware episodes (Quake needs a G2 or G3)</li>
+              <li><b>ScummVM</b> for LucasArts and Sierra adventures, with three free games. Add Monkey Island, Day of the Tentacle and others from your own copies.</li>
+              <li><b>NES</b>, with two free games</li>
+            </ul>
+            <p>USB gamepads work in the emulators. <a href="/blog/cmm2-usb-full-speed/">Which ones to buy</a>.</p>
+            </div>
+            <div>
+            <h4>Classic computers</h4>
+            <ul>
+              <li><b>ZX Spectrum</b> 48K and 128K, <b>Amstrad CPC</b> 464, 664 and 6128, <b>Commodore 64</b> with its 1541 drive</li>
+              <li><b>Atari</b> 400/800, XL/XE and 5200, <b>Apple //e</b>, <b>BBC Micro</b> and Master 128, <b>TRS-80</b> Model I, III, 4 and 4P</li>
+              <li><b>Amiga 500</b> at its own 50 frames a second, with your own Kickstart (G2 or G3)</li>
+              <li><b>386 PC</b> with VGA and a Sound Blaster 16, running FreeDOS, MS-DOS, Windows 3.1 and Windows 95</li>
+            </ul>
+            </div>
+            </div>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M6.5 9.5l3 2.5-3 2.5M11.5 15h5"/></svg></span>
+            <h3>Languages</h3>
+            <ul>
+              <li><b>MMBasic V8</b>, built in, with a full-screen editor and a file manager</li>
+              <li><b>MicroPython</b>, the Pico Computer&nbsp;3's, with modules for the screen, sound, keyboard, mouse, SQLite, ulab and the I/O pins</li>
+              <li><b>A C compiler</b> that runs on the machine, with no PC. It compiles MMBasic programs too, so one that spends its time calculating runs much faster.</li>
+              <li><b>zeptoforth</b>, a Forth with preemptive tasks, double-precision arithmetic and a screen editor</li>
+            </ul>
+            <h4>Write your own</h4>
+            <ul>
+              <li><b>Loadable programs</b> in C or C++, built on a PC with the SDK</li>
+              <li><b>USER modules</b> that add commands to BASIC</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></span>
+            <h3>Utilities</h3>
+            <ul>
+              <li><b>WordGrinder</b>, a word processor that exports ODT for Word and LibreOffice, HTML and Markdown, and checks spelling on a G2 or G3</li>
+              <li><b>sc-im</b>, a spreadsheet worked from the keyboard like vi, that reads and writes CSV</li>
+              <li><b>SQLite</b> databases from BASIC with the SQL command, with a sample database to try</li>
+              <li><b>A VT100 terminal</b> that makes the CMM2 the screen and keyboard of a PicoMite or another computer, in colour, with the mouse, scrollback and XMODEM</li>
+            </ul>
+            <div class="links">
+              <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a>
+              <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC guide</a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -44,21 +244,16 @@
     <section class="section">
       <div class="wrap split">
         <div class="prose">
-          <h2 style="margin-top:0">MMBasic V7 for the CMM2</h2>
-          <p>The <a href="https://github.com/UKTailwind/CMM2V1.5">CMM2V1.5</a> tree ports the PicoMite's V7 interpreter back to the Colour Maximite 2, and adds features that make use of the STM32H7's speed and memory:</p>
+          <h2 style="margin-top:0">Built into MMBasic</h2>
+          <p>Before any app is loaded, the firmware itself has plenty for games, graphics and control:</p>
           <ul>
-            <li><strong>Loadable C/C++ programs</strong>: MicroPython, Doom, Heretic, ScummVM, a NES emulator and a 386 PC emulator that runs DOS and Windows 3.1</li>
-            <li><strong>A C compiler</strong> that runs on the machine</li>
-            <li><strong>SQL databases</strong> (SQLite) from BASIC</li>
-            <li><strong><code>OPTION PICOMITE</code></strong> runs PicoMite VGA and HDMI programs unchanged</li>
-            <li>USB touch screens with an on-screen keyboard, stepper-motor control, and an FM synth that plays MIDI</li>
-            <li>The CMM2's 18 video modes, 3D engine, sprites and CAN bus, all kept</li>
+            <li><strong>19 video modes</strong> up to 1920&nbsp;x&nbsp;1080, with pages, sprites, tile maps, a 3D engine, turtle graphics and the PicoMite's raycaster for first-person views</li>
+            <li><strong>Sound</strong>: WAV, FLAC, MP3 and MOD files, the BBC Micro's sound, and an FM synthesiser that plays MIDI</li>
+            <li><strong>SQL databases</strong> (SQLite), long strings and regular expressions</li>
+            <li><strong>USB keyboards, mice, gamepads and touch screens</strong>, with an on-screen keyboard</li>
+            <li><strong>Control</strong>: stepper motors, CAN bus, WS2812 LEDs, infrared remotes and the PicoMite's astronomy commands, which can point a telescope</li>
           </ul>
-          <p>It builds with CMake, Ninja and the GCC from STM32CubeIDE, and is flashed with an ST-Link.</p>
-          <div class="links">
-            <a href="https://github.com/UKTailwind/CMM2V1.5/releases">Download firmware</a>
-            <a href="https://github.com/UKTailwind/CMM2V1.5">Source</a>
-          </div>
+          <p>The source is in the <a href="https://github.com/UKTailwind/CMM2V1.5">CMM2V1.5</a> repository. Version 8 is on its <a href="https://github.com/UKTailwind/CMM2V1.5/tree/v8-dev">v8-dev</a> branch, and main stays at version 7.</p>
           <div class="meta" data-repo="CMM2V1.5" style="margin-top:10px"></div>
         </div>
         <div class="gallery" style="grid-template-columns:1fr">
@@ -68,22 +263,30 @@
       </div>
     </section>
 
-    <section class="section">
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <h2>Manuals</h2>
-            <p>PDFs in the CMM2V1.5 repository.</p>
-          </div>
+    <section class="section" id="install">
+      <div class="wrap split">
+        <div class="prose">
+          <h2 style="margin-top:0">Installing 8.00.00b1</h2>
+          <ol class="steps">
+            <li>Download <code>CMM2_MMBasic_8.00.00b1.bin</code>, and the programs zip if you want the apps, from the <a href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b1">release</a>.</li>
+            <li>If you're coming from V7, save your program to the SD card and your options with <code>OPTION DISK SAVE "A:/myoptions"</code>.</li>
+            <li>Type <code>UPDATE FIRMWARE</code>, or set the PGM jumper (the BOOT CONFIG switch on a Waveshare board) for a first install. Connect the CMM2's keyboard USB port to a PC with an A-to-A cable, and write the .bin with ST's free STM32CubeProgrammer over USB.</li>
+            <li>Put the jumper or switch back if you moved it, press reset, then <code>OPTION DISK LOAD "A:/myoptions"</code>, and LIBRARY LOAD your library's files again if you use one.</li>
+            <li>Unzip the programs on a PC and copy the folders you want to the root of the SD card.</li>
+          </ol>
+          <p style="margin-top:1em">Appendix K of the User Manual walks through STM32CubeProgrammer with screenshots. This is a beta, so please report problems on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum.</p>
         </div>
-        <ul class="doclist">
-          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual</a><span>MMBasic V7 on the Colour Maximite 2</span></li>
-          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/cc/Colour_Maximite_2_C_Compiler.pdf">C Compiler</a><span>Compiling C on the machine</span></li>
-          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/loadable/Colour_Maximite_2_Loadable_Programs.pdf">Loadable Programs</a><span>Writing and running C/C++ programs</span></li>
-          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a><span>The bundled applications</span></li>
-          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC Emulator</a><span>Running DOS and Windows 3.1</span></li>
-          <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/Stepper_Reference.pdf">Stepper Reference</a><span>Motor control commands</span></li>
-        </ul>
+        <div class="prose">
+          <h2 style="margin-top:0">Manuals</h2>
+          <ul class="doclist" style="columns:1">
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual</a><span>MMBasic V8 on the Colour Maximite 2, now with WiFi and Internet Functions</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a><span>Installing, starting and using every app</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/loadable/Colour_Maximite_2_Loadable_Programs.pdf">Loadable Programs</a><span>Writing apps and USER modules in C and C++</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/cc/Colour_Maximite_2_C_Compiler.pdf">C Compiler</a><span>Compiling C and MMBasic on the machine</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC Emulator</a><span>Installing and running DOS and Windows</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/Stepper_Reference.pdf">Stepper Reference</a><span>Motor control commands</span></li>
+          </ul>
+        </div>
       </div>
     </section>
 
