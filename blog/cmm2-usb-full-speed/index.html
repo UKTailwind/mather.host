@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Full-speed USB devices for the CMM2 — mather.host</title>
+  <meta name="description" content="The Colour Maximite 2 can't reach a low-speed USB keyboard, mouse or gamepad through a hub, because of a fault in its STM32 processor. How to tell a full-speed device from its specifications and advertising, and how to check one you already have.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /blog/cmm2-usb-full-speed</p>
+        <h1>Choosing full-speed USB devices for the CMM2</h1>
+        <p class="lede">The Colour Maximite 2's USB socket takes a hub, so a keyboard, a mouse, gamepads and a flash drive can all be connected at once. There is one catch: a fault in the STM32 processor means a <em>low-speed</em> device can't be used through a hub. This article explains how to spot a full-speed keyboard, mouse or gamepad from its specifications and advertising, and how to check one you already own.</p>
+        <p class="post-meta"><time datetime="2026-11-16">16 November 2026</time><span>CMM2 firmware 7.00.00 or later</span><span>Every generation</span></p>
+      </div>
+    </section>
+
+    <section class="section" id="summary">
+      <div class="wrap">
+        <div class="article">
+          <h2>In short</h2>
+          <ul class="findings">
+            <li><b>Through a hub, only full-speed devices work.</b> A low-speed keyboard, mouse or gamepad works when it's plugged straight into the CMM2, but MMBasic refuses it on a hub with <code>USB low-speed device behind a hub is not supported: plug it in directly</code>.</li>
+            <li><b>It's the processor, not the firmware.</b> ST lists the fault in the STM32H743's errata, ES0392, with no workaround. It affects every revision of the chip, so it affects every CMM2.</li>
+            <li><b>“USB 2.0” on the box tells you nothing.</b> A low-speed device can be USB&nbsp;2.0 too. The useful clues are a polling rate above 125&nbsp;Hz, full n-key rollover, and console-controller compatibility.</li>
+            <li><b>The sure test takes a few seconds.</b> Plug the device into the hub on the CMM2 and read the message. Or check it on a PC: Linux, Windows and macOS can all show a device's speed.</li>
+          </ul>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#why">Why low speed is a problem</a></li>
+            <li><a href="#need">When it matters</a></li>
+            <li><a href="#clues">What to look for when buying</a></li>
+            <li><a href="#types">Keyboards, mice and gamepads</a></li>
+            <li><a href="#check">Checking a device you already have</a></li>
+            <li><a href="#fix">Why the firmware can't fix it</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="why">
+      <div class="wrap">
+        <div class="article">
+          <h2>Why low speed is a problem</h2>
+          <p>USB&nbsp;2.0 has three speeds, and every device uses one of them:</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th scope="col">Speed</th><th scope="col">Data rate</th><th scope="col">Typical devices</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Low speed</th><td>1.5&nbsp;Mbit/s</td><td>Basic keyboards and mice, cheap gamepads</td></tr>
+                <tr><th scope="row">Full speed</th><td>12&nbsp;Mbit/s</td><td>Gaming keyboards and mice, console controllers, USB serial adaptors, wireless receivers</td></tr>
+                <tr><th scope="row">High speed</th><td>480&nbsp;Mbit/s</td><td>Flash drives, disks, cameras</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The CMM2's USB socket runs at full speed. A high-speed device such as a flash drive drops to full speed to work with it, and a low-speed device plugged straight into the socket works at its own speed.</p>
+          <p>A hub is different. To reach a low-speed device through one, the processor sends a short <em>preamble</em> packet before each low-speed packet, telling the hub to pass what follows to its slow ports. The STM32H743's USB controller can lock up right after sending a preamble. When it does, it drops the whole port, and every device on the hub disconnects. ST lists this in the processor's errata sheet, ES0392, as <em>“Host packet transmission may hang when connecting the full speed interface through a hub to a low-speed device”</em>. It applies to every revision of the chip, and ST gives no workaround.</p>
+          <p>So that one slow device can't take everything else down with it, MMBasic refuses a low-speed device on a hub before sending it anything. The hub and the full-speed devices on it carry on working, and the console shows:</p>
+<pre><code>USB low-speed device behind a hub is not supported: plug it in directly</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="need">
+      <div class="wrap">
+        <div class="article">
+          <h2>When it matters</h2>
+          <p>The CMM2 has one USB socket, so anything more than a keyboard needs a hub, and then every keyboard, mouse and gamepad on the hub has to be full speed.</p>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col">What you connect</th><th scope="col">What it needs</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">A keyboard on its own, plugged straight in</th><td><span class="pass">Any speed.</span> No hub, so no problem.</td></tr>
+                <tr><th scope="row">A keyboard and anything else</th><td>A hub, so the keyboard, the mouse and any gamepads must all be <span class="fail">full speed</span>.</td></tr>
+                <tr><th scope="row">A keyboard with USB ports of its own</th><td>The keyboard must be <span class="fail">full speed</span>, even plugged straight in. See <a href="#builtin">Keyboards with built-in ports</a>.</td></tr>
+                <tr><th scope="row">A flash drive or a USB serial adaptor</th><td><span class="pass">Always fine.</span> These are full or high speed.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Being full speed only gets a device past the hub. It still has to be a kind MMBasic supports: the <a href="https://github.com/UKTailwind/CMM2V1.5/blob/main/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual</a>'s chapter <em>Keyboard, Mouse and Gamepad</em> lists them.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="clues">
+      <div class="wrap">
+        <div class="article">
+          <h2>What to look for when buying</h2>
+          <p>Manufacturers rarely print “full speed” on the box. A few figures that often are printed give it away, because of two limits the USB specification puts on low-speed devices:</p>
+          <ul>
+            <li><strong>A low-speed device can be read at most about every 10&nbsp;ms.</strong> In practice a computer reads one 125 times a second (every 8&nbsp;ms) at most, so any device that reports more often than that must be full speed.</li>
+            <li><strong>A low-speed device sends at most 8 bytes at a time.</strong> That is exactly a standard keyboard report: the Shift, Ctrl, Alt and Windows keys plus six other keys. Anything that needs a longer report must be full speed.</li>
+          </ul>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col">In the specification or advert</th><th scope="col">What it tells you</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">A polling rate or report rate of 250, 500 or 1000&nbsp;Hz, or “1&nbsp;ms”</th><td><span class="pass">Full speed.</span> The most reliable clue, and common on gaming mice and keyboards. A rate you can change in the maker's software counts, as long as it goes above 125&nbsp;Hz.</td></tr>
+                <tr><th scope="row">“Full n-key rollover” or “NKRO” over USB</th><td><span class="pass">Almost always full speed.</span> Reporting every key at once needs more than 8 bytes. “Anti-ghosting” on its own says nothing.</td></tr>
+                <tr><th scope="row">An X-input mode, or works wired on an Xbox or a PlayStation&nbsp;4</th><td><span class="pass">Full speed.</span> These controllers send reports longer than 8 bytes.</td></tr>
+                <tr><th scope="row">Programmable firmware such as QMK or VIA</th><td><span class="pass">Almost always full speed.</span> The chips these keyboards use have full-speed USB.</td></tr>
+                <tr><th scope="row">“USB 2.0”, “USB 1.1”, or the USB logo</th><td><span class="muted">Nothing.</span> A low-speed device is a USB&nbsp;2.0 device too. Only “Hi-Speed” means 480&nbsp;Mbit/s, and you won't see it on a keyboard.</td></tr>
+                <tr><th scope="row">A USB-C socket, a braided cable, gold-plated plugs</th><td><span class="muted">Nothing.</span> The connector doesn't set the speed.</td></tr>
+                <tr><th scope="row">“Gaming”, RGB lighting, the price</th><td><span class="muted">A weak hint.</span> Gaming devices are usually full speed, but the word is used loosely.</td></tr>
+                <tr><th scope="row">125&nbsp;Hz, or no rate given</th><td><span class="muted">Unknown.</span> Either speed is possible. Check it before you rely on it.</td></tr>
+                <tr><th scope="row">Built-in USB ports, “with hub”, “pass-through”</th><td><span class="fail">A warning.</span> The keyboard sits behind a hub of its own. See below.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>When a listing gives no figures, reviews often do: sites that test mice and keyboards usually list the polling rate. Or ask the seller for the polling rate. A seller who knows it will know whether it is above 125&nbsp;Hz.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="types">
+      <div class="wrap">
+        <div class="article">
+          <h2>Keyboards, mice and gamepads</h2>
+
+          <h3>Keyboards</h3>
+          <p>Mechanical and gaming keyboards are usually full speed: look for a polling rate or NKRO in the specification. Plain office keyboards, and the cheap keyboard-and-mouse sets, are often low speed. A low-speed keyboard is fine on its own; it just can't share the CMM2 with anything else.</p>
+
+          <h3 id="builtin">Keyboards with built-in ports</h3>
+          <p>A keyboard with USB ports of its own has a hub inside it, and the keyboard is one of the devices behind that hub. So the keyboard has to be full speed even when it's plugged straight into the CMM2. The official Raspberry Pi keyboard is one that isn't: it's a low-speed keyboard behind its own hub, so it can't be used on the CMM2 at all. A keyboard with built-in ports that is full speed works, and its ports work as a hub for your other devices.</p>
+
+          <h3>Mice</h3>
+          <p>Most ordinary mice are low speed. Gaming mice are the easy choice: almost all of them advertise a polling rate of 500 or 1000&nbsp;Hz, and that makes them full speed. If you want something plainer, look for a stated rate above 125&nbsp;Hz, or check the mouse before you buy more than one.</p>
+
+          <h3>Gamepads</h3>
+          <p>Console controllers are full speed: the DualShock&nbsp;3 and&nbsp;4, the Switch Pro controller and the wired Xbox&nbsp;360, One and Series controllers. So are third-party pads with an X-input mode. The cheap generic pads, including most replicas of old console pads, are usually low speed, so plug one of those straight into the CMM2, without a hub.</p>
+
+          <h3>Wireless sets</h3>
+          <p>With a wireless keyboard or mouse, the receiver is the USB device, so it's the receiver's speed that counts, not the keyboard's. Check the receiver like any other device.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="check">
+      <div class="wrap">
+        <div class="article">
+          <h2>Checking a device you already have</h2>
+          <ul>
+            <li><strong>On the CMM2.</strong> Plug the device into the hub and watch the console. A full-speed device connects as usual, for example <code>USB Keyboard Connected on channel 1</code>. A low-speed one gives the <code>USB low-speed device behind a hub is not supported</code> message.</li>
+            <li><strong>On Linux or a Raspberry Pi.</strong> Run <code>lsusb -t</code>. The number at the end of the device's line is its speed: <code>1.5M</code> is low speed, <code>12M</code> full speed and <code>480M</code> high speed.</li>
+            <li><strong>On Windows.</strong> Windows doesn't show the speed itself. The free <a href="https://www.uwe-sieber.de/usbtreeview_e.html">USB Device Tree Viewer</a> does: select the device and look for its speed, low, full or high.</li>
+            <li><strong>On a Mac.</strong> Hold Option, open the Apple menu and choose <em>System Information</em>, then <em>USB</em>. Select the device and look at <em>Speed</em>: “Up to 1.5&nbsp;Mb/s” is low speed and “Up to 12&nbsp;Mb/s” full speed.</li>
+          </ul>
+<pre><code>$ lsusb -t
+/:  Bus 001.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/4p, 480M
+    |__ Port 001: Dev 002, If 0, Class=Hub, Driver=hub/4p, 480M
+        |__ Port 001: Dev 003, If 0, Class=Human Interface Device, Driver=usbhid, 1.5M
+        |__ Port 002: Dev 004, If 0, Class=Human Interface Device, Driver=usbhid, 12M</code></pre>
+          <p>Here the device on port 1 is low speed and the one on port 2 is full speed. A device with several interfaces, such as a keyboard with media keys, has one line for each, all at the same speed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="fix">
+      <div class="wrap">
+        <div class="article">
+          <h2>Why the firmware can't fix it</h2>
+          <p>The same fault is in the USB controllers of many STM32 families, so other people have tried to get round it. Some of ST's errata sheets add only that more capacitance on the data lines may make it happen less often, which reduces the problem without curing it. The developers of <a href="https://github.com/hathach/tinyusb">TinyUSB</a>, the USB library the CMM2 uses, found a timing fix for a similar fault in Espressif's ESP32 chips. On an STM32F407 it didn't help: the port still dropped in 9 boots out of 10. Their notes are in TinyUSB's <a href="https://github.com/hathach/tinyusb/blob/master/docs/reference/device_issues.rst">device issues</a> page.</p>
+          <p>The one arrangement that avoids preambles altogether is a high-speed USB connection to a high-speed hub, which then does the low-speed talking itself. The STM32H743 can only do high speed with an extra chip, which the CMM2 doesn't have. So choosing full-speed devices is the answer, and with the clues above it's usually easy.</p>
+          <p class="back"><a href="/blog/">← All articles</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>
