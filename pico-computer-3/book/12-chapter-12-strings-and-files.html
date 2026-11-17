@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 12 — Strings and
+files – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="11-chapter-11-functions-building-your-own-commands.html" rel="prev" accesskey="p">←&nbsp;Chapter 11 — Functions: building your own commands</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html" rel="next" accesskey="n">Chapter 13 — When things go wrong: errors and debugging&nbsp;→</a>
+</nav>
+<h1 data-number="12" id="chapter-12-strings-and-files">Chapter 12 —
+Strings and files</h1>
+<p>Every program you have written so far suffers the same amnesia:
+switch off, and everything it gathered is gone. Chapter 2 taught you
+<em>why</em> (workspace forgets, flash remembers); this chapter finally
+moves your data to the remembering side. It comes in two halves that
+belong together: <strong>strings</strong> — because data on its way to
+and from storage travels as text, and you need the tools to slice and
+scrub it — and <strong>files</strong>, the full story behind the
+<code>open()</code> spell you have been trusting since chapter 4. By the
+end, your high-score table survives power-off, and the machine keeps a
+diary.</p>
+<h2 data-number="12.1" id="strings-are-sequences">Strings are
+sequences</h2>
+<p>Chapter 10 promised that string slicing would earn its keep. First,
+notice how much you already know, because a string behaves like a list
+of characters: <code>len()</code> counts them, positions fetch them,
+slices cut them, <code>in</code> searches them, <code>for</code> walks
+them:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> word <span class="op">=</span> <span class="st">&quot;Pico Computer&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> word[<span class="dv">0</span>]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;P&#39;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> word[<span class="dv">5</span>:]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;Computer&#39;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;Comp&quot;</span> <span class="kw">in</span> word</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">True</span></span></code></pre></div>
+<p>One crucial difference: strings are like tuples, not lists —
+<strong>fixed at birth</strong>. You never change a string; you make a
+<em>new</em> one and, usually, store it back under the same name. Keep
+that in mind as the methods arrive, because it explains their one
+surprise.</p>
+<h2 data-number="12.2" id="string-methods-the-text-workshop">String
+methods: the text workshop</h2>
+<p>Strings carry a workshop of methods (chapter 9’s word — commands
+after the dot). The everyday bench:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>s.upper()</code>, <code>s.lower()</code></td>
+<td>a SHOUTED / whispered copy</td>
+</tr>
+<tr>
+<td><code>s.strip()</code></td>
+<td>copy with spaces (and line-ends) trimmed off both ends</td>
+</tr>
+<tr>
+<td><code>s.replace(old, new)</code></td>
+<td>copy with every <code>old</code> swapped for <code>new</code></td>
+</tr>
+<tr>
+<td><code>s.startswith(x)</code>, <code>s.endswith(x)</code></td>
+<td>True/False questions</td>
+</tr>
+<tr>
+<td><code>s.count(x)</code></td>
+<td>how many times <code>x</code> appears</td>
+</tr>
+<tr>
+<td><code>s.find(x)</code></td>
+<td>position of the first <code>x</code> (−1 if absent)</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shout <span class="op">=</span> <span class="st">&quot;stand by for launch&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shout.upper()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;STAND BY FOR LAUNCH&#39;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shout</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;stand by for launch&#39;</span></span></code></pre></div>
+<p>There is the surprise, in daylight: <code>upper()</code>
+<strong>returned</strong> a new string and left the original untouched —
+unlike <code>list.sort()</code>, which reworks the list in place. To
+keep the result, catch it: <code>shout = shout.upper()</code>.
+Forgetting this is a rite of passage; now it’s a short one.</p>
+<p>Two of these methods solve standing problems from earlier chapters.
+<strong><code>.lower()</code> fixes the fussy quiz</strong>: compare
+<code>answer.lower() == a.lower()</code> and capital letters stop
+mattering. And <strong><code>.strip()</code> is input hygiene</strong>:
+people type stray spaces, and <code>input(...).strip()</code> quietly
+forgives them. Make it a habit today — half the “why doesn’t it match?!”
+bugs in beginner programs are an invisible space.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> the string functions came along
+— <code>UCASE$</code>/<code>LCASE$</code> are
+<code>.upper()</code>/<code>.lower()</code>, <code>INSTR</code> is
+<code>.find()</code>, and
+<code>MID$</code>/<code>LEFT$</code>/<code>RIGHT$</code> all fell into
+slicing: <code>MID$(s, 3, 4)</code> is <code>s[2:6]</code> (mind the
+0-base), <code>LEFT$(s, 4)</code> is <code>s[:4]</code>,
+<code>RIGHT$(s, 4)</code> is <code>s[-4:]</code>.</p>
+</blockquote>
+<h2 data-number="12.3" id="split-and-join-strings-lists">Split and join:
+strings ↔︎ lists</h2>
+<p>The bridge between this chapter’s two worlds. <code>.split()</code>
+cuts a string into a <strong>list</strong> of pieces:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> command <span class="op">=</span> <span class="st">&quot;take rusty sword&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> command.split()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>[<span class="st">&#39;take&#39;</span>, <span class="st">&#39;rusty&#39;</span>, <span class="st">&#39;sword&#39;</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;91,Ada&quot;</span>.split(<span class="st">&quot;,&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>[<span class="st">&#39;91&#39;</span>, <span class="st">&#39;Ada&#39;</span>]</span></code></pre></div>
+<p>Bare <code>split()</code> cuts at spaces; <code>split(",")</code>
+cuts at commas — the shape of a thousand data files. (Chapter 10’s shop
+challenge, which begged for <code>take sword</code> as one input: now
+you can. <code>words = command.split()</code>, then
+<code>words[0]</code> is the verb.)</p>
+<p><code>.join()</code> is the return trip — it belongs to the
+<em>separator</em>, and glues a list into one string:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;, &quot;</span>.join([<span class="st">&quot;eggs&quot;</span>, <span class="st">&quot;bread&quot;</span>, <span class="st">&quot;coffee&quot;</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;eggs, bread, coffee&#39;</span></span></code></pre></div>
+<p>Split to work on the pieces, join to put them away: you will use this
+pair every time data enters or leaves a file, which is the cue for the
+second half.</p>
+<h2 data-number="12.4" id="files-the-full-story">Files, the full
+story</h2>
+<p>Chapter 4 gave you three lines on trust. Here is what they meant, and
+the professional form you will actually use.</p>
+<p>Opening a file is asking the filing system for a connection to it —
+<code>open(path, mode)</code> — and the <strong>mode</strong> says what
+you intend:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Means</th>
+<th>If the file exists</th>
+<th>If it doesn’t</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"r"</code></td>
+<td>read (the default)</td>
+<td>opens it</td>
+<td>error</td>
+</tr>
+<tr>
+<td><code>"w"</code></td>
+<td>write</td>
+<td><strong>wipes it clean</strong></td>
+<td>creates it</td>
+</tr>
+<tr>
+<td><code>"a"</code></td>
+<td>append</td>
+<td>adds at the end</td>
+<td>creates it</td>
+</tr>
+</tbody>
+</table>
+<p>Respect <code>"w"</code>: opening for write is already an act of
+destruction — the old contents are gone before you write a byte. When
+adding to something (a diary, a log, a score history), <code>"a"</code>
+is the mode you meant.</p>
+<p>And here is the professional form — new keyword,
+<code>with</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;notes.txt&quot;</span>, <span class="st">&quot;w&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    f.write(<span class="st">&quot;Remember the milk</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    f.write(<span class="st">&quot;Feed the turtle</span><span class="ch">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<p><code>with</code> does what chapter 4’s <code>f.close()</code> did,
+but <em>guarantees</em> it — the file is closed when the block ends,
+even if something goes wrong inside. It matters on this machine more
+than most: a file left open is how data gets lost at power-off. From
+today, <code>open</code> always arrives wrapped in a <code>with</code>;
+consider <code>close()</code> retired along with the spell.</p>
+<p>Note also <code>"\n"</code> at the end of each <code>write</code>:
+unlike <code>print</code>, <code>write</code> starts no new lines for
+you. What you write is exactly what lands.</p>
+<p>Reading back, the loop <em>is</em> the natural form — a
+<code>for</code> over a file visits its lines:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;notes.txt&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(line.strip())</span></code></pre></div>
+<p>Each <code>line</code> arrives still wearing its <code>"\n"</code>,
+which is why <code>.strip()</code> appears here and will appear in every
+file-reading loop you ever write. (For small files,
+<code>f.read()</code> grabs the whole thing as one string instead.)</p>
+<p>One more fact, then the projects. Opening a <em>missing</em> file for
+reading raises an <code>OSError</code>. Handling that gracefully is
+genuinely chapter 13’s business (it is the chapter’s whole subject), but
+the scores project below can’t wait, so it borrows two lines of
+<code>try:</code>/<code>except:</code> the way chapter 4 borrowed
+<code>open()</code> — copy today, understand on the next page.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong>
+<code>OPEN "notes.txt" FOR APPEND AS #1</code> /
+<code>PRINT #1, ...</code> / <code>CLOSE #1</code> maps to
+<code>with open("notes.txt", "a") as f:</code> /
+<code>f.write(...)</code> — and the file-number bookkeeping is gone. The
+<code>with</code> block is the <code>CLOSE</code> you cannot forget.</p>
+</blockquote>
+<h2 data-number="12.5" id="project-the-diary">Project: the diary</h2>
+<p>A program that remembers is a different kind of thing — it
+accumulates a past. <code>edit("diary.py")</code>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_entry():</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;Today: &quot;</span>).strip()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> text:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;diary.txt&quot;</span>, <span class="st">&quot;a&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            f.write(text <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Kept.&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_diary():</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;-&quot;</span> <span class="op">*</span> <span class="dv">30</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;diary.txt&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, line <span class="kw">in</span> <span class="bu">enumerate</span>(f):</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">:3}</span><span class="ss">  </span><span class="sc">{</span>line<span class="sc">.</span>strip()<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;-&quot;</span> <span class="op">*</span> <span class="dv">30</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    choice <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;(w)rite, (r)ead or (q)uit? &quot;</span>).strip().lower()</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> choice <span class="op">==</span> <span class="st">&quot;w&quot;</span>:</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        add_entry()</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> choice <span class="op">==</span> <span class="st">&quot;r&quot;</span>:</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        read_diary()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> choice <span class="op">==</span> <span class="st">&quot;q&quot;</span>:</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span></code></pre></div>
+<p>Everything from Part II shakes hands here: functions carve it into
+<code>add_entry</code>/<code>read_diary</code>, the
+<code>while True</code>/<code>break</code> menu is chapter 8’s,
+<code>enumerate</code> numbers the entries,
+<code>.strip().lower()</code> forgives typing, and <code>"a"</code> mode
+means each day <em>adds</em>. Write an entry, <strong>switch the machine
+off</strong>, switch on, read the diary. That moment — your words coming
+back — is this chapter.</p>
+<p>(First <code>r</code> before any <code>w</code>? An
+<code>OSError</code>, as promised. Let it happen, read the last line,
+and carry the itch into chapter 13 — or write a first entry and move
+on.)</p>
+<h2 data-number="12.6"
+id="project-scores-that-survive-a-library">Project: scores that survive
+— a library</h2>
+<p>Chapter 10’s hall of fame, made permanent <em>and</em> made a
+component: chapter 11 taught you that any file is a module, so build it
+once and every game you ever write gets a high-score table for one
+<code>import</code>. <code>edit("scorelib.py")</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># scorelib.py -- persistent high scores.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   import scorelib</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   scorelib.add(120, &quot;Ada&quot;); scorelib.show()</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>FILE <span class="op">=</span> <span class="st">&quot;/scores.csv&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load():</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Return the saved list of (points, name), best first.&quot;&quot;&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> []</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(FILE) <span class="im">as</span> f:</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                points, name <span class="op">=</span> line.strip().split(<span class="st">&quot;,&quot;</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>                scores.append((<span class="bu">int</span>(points), name))</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># no file yet: first ever run -- empty list</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    scores.sort(reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> scores</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save(scores):</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(FILE, <span class="st">&quot;w&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> points, name <span class="kw">in</span> scores:</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>            f.write(<span class="ss">f&quot;</span><span class="sc">{</span>points<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>name<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(points, name):</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Record a result. Returns its rank (1 = a new best).&quot;&quot;&quot;</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> load()</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    scores.append((points, name))</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    scores.sort(reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    save(scores)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> scores.index((points, name)) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show(top<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;=&quot;</span> <span class="op">*</span> <span class="dv">24</span>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;   HALL OF FAME&quot;</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;=&quot;</span> <span class="op">*</span> <span class="dv">24</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, (points, name) <span class="kw">in</span> <span class="bu">enumerate</span>(load()[:top]):</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>name<span class="sc">:12}</span><span class="ss"> </span><span class="sc">{</span>points<span class="sc">:5}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>Read <code>load</code> and <code>save</code> as a pair — they are
+split and join’s whole philosophy applied to storage. Saving: each tuple
+becomes a line, <code>f"{points},{name}\n"</code>. Loading: each line
+splits at the comma, and <code>int()</code> undoes what the file did to
+the number (files hold <em>text</em> — the
+<code>"91"</code>-versus-<code>91</code> lesson of chapter 6, now
+structural). The <code>try</code>/<code>except OSError</code> is the
+borrowed incantation: <em>if the file isn’t there yet, start empty</em>
+— chapter 13 makes it make sense.</p>
+<p>Take it for a spin at the prompt — then power-cycle and
+<code>show()</code> again:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">import</span> scorelib</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scorelib.add(<span class="dv">120</span>, <span class="st">&quot;Ada&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scorelib.add(<span class="dv">200</span>, <span class="st">&quot;Grace&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scorelib.add(<span class="dv">64</span>, <span class="st">&quot;Alan&quot;</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scorelib.show()</span></code></pre></div>
+<p><code>add</code> even reports the rank it earned — a returned value
+(chapter 11) your games will turn into “NEW HIGH SCORE!” fanfares in
+Part IV. This file is the first entry in your permanent toolkit:
+<code>/lib</code>-worthy.</p>
+<h2 data-number="12.7"
+id="jumping-around-seek-tell-and-fixed-length-records">Jumping around:
+<code>seek</code>, <code>tell</code> and fixed-length records</h2>
+<p>Everything so far has treated a file like a cassette tape: start at
+the beginning, run to the end. In truth every open file has a
+<strong>pointer</strong> — the position where the next read or write
+will happen — and you can move it at will:</p>
+<ul>
+<li><code>f.tell()</code> — where is the pointer now? (In bytes from the
+start.)</li>
+<li><code>f.seek(n)</code> — put the pointer at byte
+<code>n</code>.</li>
+<li><code>f.seek(n, 2)</code> — put it <code>n</code> bytes relative to
+the <em>end</em> (so <code>f.seek(-20, 2)</code> is “20 bytes before the
+end”).</li>
+<li><code>f.read(n)</code> — read just <code>n</code> bytes from
+wherever the pointer stands.</li>
+</ul>
+<p>And one more mode for the chapter’s table: <code>"r+"</code> opens
+for reading <em>and</em> writing <strong>without wiping
+anything</strong> — unlike <code>"w"</code>, the file’s contents
+survive, and writes land wherever the pointer points.</p>
+<p>What is this for? The classic answer is the <strong>fixed-length
+record file</strong> — a file where every entry is padded to exactly the
+same size, because then <em>arithmetic replaces searching</em>: record
+number <code>i</code> lives at byte <code>i × size</code>, and you can
+jump straight to it, read it, or overwrite it in place, without touching
+the rest of the file:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>REC <span class="op">=</span> <span class="dv">20</span>                             <span class="co"># 12 name + 7 score + newline</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_rec(name, points):</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># padding makes EVERY record 20 bytes</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span>name<span class="sc">:12}{</span>points<span class="sc">:7}</span><span class="ch">\n</span><span class="ss">&quot;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># read record number 2 directly -- no loop, no loading the file</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;scores.dat&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    f.seek(<span class="dv">2</span> <span class="op">*</span> REC)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    line <span class="op">=</span> f.read(REC)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    name, points <span class="op">=</span> line[:<span class="dv">12</span>].strip(), <span class="bu">int</span>(line[<span class="dv">12</span>:<span class="dv">19</span>])</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># update record number 1 in place, leaving its neighbours</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># untouched</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;scores.dat&quot;</span>, <span class="st">&quot;r+&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    f.seek(<span class="dv">1</span> <span class="op">*</span> REC)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    f.write(format_rec(<span class="st">&quot;Grace&quot;</span>, <span class="dv">999</span>))</span></code></pre></div>
+<p>The chapter’s f-string padding (<code>{name:12}</code>) turns out to
+be the whole technology: same-width records in,
+slice-and-<code>strip</code> out.</p>
+<p>So when would you use this instead of <code>scorelib</code>’s
+load-everything, save-everything? <strong>Mostly, you wouldn’t</strong>
+— for dozens or hundreds of entries, rewriting the whole file is
+simpler, and simpler survives. Fixed records earn their keep when the
+file gets <em>big</em>: a thousand game-world tiles on the SD card, a
+season of sensor readings — cases where loading everything into memory
+is wasteful and updating one entry shouldn’t mean rewriting a megabyte.
+File the technique under “good to own, rarely the first tool.”</p>
+<p>One honest caution: <code>seek</code> counts <strong>bytes</strong>,
+and exotic characters (accents, emoji) occupy <em>more than one
+byte</em> each, which would knock the arithmetic askew. Keep
+fixed-record files to plain unaccented text and the
+characters-equal-bytes assumption holds.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this is
+<code>OPEN ... FOR RANDOM</code>, <code>SEEK #1</code> and friends —
+except the record length lives in your arithmetic rather than the OPEN
+statement. <code>tell</code> ≈ <code>LOC()</code>, and seeking past old
+data to append is legal here too.</p>
+</blockquote>
+<h2 data-number="12.8" id="one-more-gift-sort-meets-your-functions">One
+more gift: <code>sort</code> meets your functions</h2>
+<p>Chapter 10, experiment 2 left a wound open:
+<code>["banana", "Apple", "cherry"]</code> sorts capitals-first. The fix
+is one of the prettiest ideas in Python. <code>sort</code> accepts a
+<strong>function</strong> as its <code>key</code>, and sorts by whatever
+that function returns for each item:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> words <span class="op">=</span> [<span class="st">&quot;banana&quot;</span>, <span class="st">&quot;Apple&quot;</span>, <span class="st">&quot;cherry&quot;</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> words.sort(key<span class="op">=</span><span class="bu">str</span>.lower)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(words)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>[<span class="st">&#39;Apple&#39;</span>, <span class="st">&#39;banana&#39;</span>, <span class="st">&#39;cherry&#39;</span>]</span></code></pre></div>
+<p>Read it: <em>sort them as if lowercased</em> (the items themselves
+are unchanged — the key is only the yardstick). Note what got passed:
+<code>str.lower</code> with <strong>no brackets</strong> — the function
+itself, not a call. Functions are values, as chapter 11’s challenge 2
+hinted; handing one tool to another tool is where that idea starts
+paying compound interest.</p>
+<h2 data-number="12.9" id="what-you-now-hold-2">What you now hold</h2>
+<ul>
+<li><strong>Strings are sequences</strong> — index, slice,
+<code>in</code>, <code>for</code> — but fixed: methods return
+<em>copies</em> (<code>s = s.upper()</code> to keep one).</li>
+<li><strong>The bench</strong>: <code>.lower()</code> kills case bugs,
+<code>.strip()</code> kills invisible-space bugs —
+<code>input(...).strip()</code> as a reflex — plus
+<code>.replace</code>, <code>.startswith</code>,
+<code>.find</code>.</li>
+<li><strong><code>.split()</code></strong> turns a string into a list;
+<strong><code>sep.join(list)</code></strong> turns it back. Together
+they are a file format.</li>
+<li><strong>Files</strong>: <code>open(path, mode)</code> with
+<code>"r"</code>/<code>"w"</code> (destroys!)/<code>"a"</code>; always
+inside <code>with</code> (the close you can’t forget);
+<code>write</code> adds no <code>"\n"</code> for you; read with
+<code>for line in f:</code> + <code>.strip()</code>.</li>
+<li><strong>Data survives as text</strong>: save = format with
+f-strings, load = <code>split</code> + <code>int()</code>.
+<code>scorelib.py</code> is the pattern, reusable forever.</li>
+<li><strong>The file pointer</strong>:
+<code>tell</code>/<code>seek</code> jump anywhere; <code>"r+"</code>
+updates without wiping; same-width records make jumping
+<em>arithmetic</em> — the big-file tool, not the first tool.</li>
+<li><strong><code>sort(key=function)</code></strong> — functions are
+values you can hand over.</li>
+</ul>
+<h2 data-number="12.10" id="experiments-11">Experiments</h2>
+<ol type="1">
+<li><code>"  Grace Hopper  ".strip()</code>,
+<code>"banana".count("na")</code>,
+<code>"mississippi".replace("ss", "SS")</code> — predict each, then
+check. Then the party trick: <code>"".join(reversed("stressed"))</code>
+(<code>reversed</code> walks anything backwards; <code>join</code>
+reassembles the letters) — and use it to test whether
+<code>"rotator"</code> is a palindrome.</li>
+<li>Go fix the quiz for real: <code>quiz2.py</code>’s comparison becomes
+case-blind, <em>and</em> answers get <code>.strip()</code>ed. Two edits,
+both one-liners, both permanent habits.</li>
+<li>Word statistics: read <code>diary.txt</code> and report lines, words
+(<code>len(line.split())</code>, summed) and characters. You have
+written <code>wc</code> — a tool Unix ships to this day.</li>
+<li>Break <code>scorelib</code>’s format on purpose: edit
+<code>scores.csv</code> (with <code>edit</code>!) and add a line with no
+comma. Run <code>show()</code>. Read the error, name the line that died,
+fix the file. Data from outside is never to be trusted — a scar worth
+having before chapter 13 sells you the bandage.</li>
+<li>What does <code>"3,4".split(",") == [3, 4]</code> return, and why?
+(Chapter 6 knew.)</li>
+</ol>
+<h2 data-number="12.11" id="challenges-11">Challenges</h2>
+<ol type="1">
+<li><strong>The shop, speaking properly.</strong> Chapter 10’s inventory
+now takes <code>take rusty sword</code> in one line:
+<code>split()</code>, the verb is <code>[0]</code>, and the item is
+<code>" ".join(words[1:])</code> — two-word treasures welcome.</li>
+<li><strong>Timestamps for the diary.</strong> <code>gettime()</code>
+returns a tuple starting
+<code>(year, month, day, hour, minute, ...)</code> — unpack it and
+prefix each entry with <code>[2026-07-15 14:30]</code>, zero-padded via
+the format spec <code>{month:02}</code>. (Manual, section 11, has the
+details.)</li>
+<li><strong>Flashcards.</strong> A <code>cards.txt</code> of
+<code>question,answer</code> lines and a quizzer that reads it — chapter
+10’s quiz with the data moved <em>out of the program entirely</em>.
+Editing the deck now needs no programmer. Ship it with a starter deck:
+Python vocabulary from this book’s glossary.</li>
+<li><strong>The Caesar wheel.</strong> <code>ord("a")</code> gives a
+letter’s number (97); <code>chr(100)</code> gives the letter back
+(<code>'d'</code>). Write <code>encode(text, shift)</code> that slides
+every letter three along (<code>z</code> wraps to <code>c</code>),
+<code>decode</code> to match, and store a <em>scrambled</em> secret in a
+file. Bonus swagger: crack a friend’s shift by trying all 26.</li>
+<li><strong>The ledger.</strong> A fixed-record savings book:
+<code>deposit(rec, amount)</code> seeks to account number
+<code>rec</code>, reads its 20-byte record, adds the amount, seeks
+<em>back</em> (<code>tell</code> before reading helps) and overwrites it
+in place. Ten accounts, no full-file rewrites, and <code>cat</code> the
+file afterwards to admire the perfectly aligned columns.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="11-chapter-11-functions-building-your-own-commands.html" rel="prev">←&nbsp;Chapter 11 — Functions: building your own commands</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html" rel="next">Chapter 13 — When things go wrong: errors and debugging&nbsp;→</a>
+</nav>
+</body>
+</html>

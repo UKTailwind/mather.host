@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 28 — Databases: keeping and querying real
+data – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="27-chapter-27-building-apps-the-gui-toolkit.html" rel="prev" accesskey="p">←&nbsp;Chapter 27 — Building apps: the GUI toolkit</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="29-chapter-29-time-and-schedules-the-real-time-clock.html" rel="next" accesskey="n">Chapter 29 — Time and schedules: the real-time clock&nbsp;→</a>
+</nav>
+<h1 data-number="28"
+id="chapter-28-databases-keeping-and-querying-real-data">Chapter 28 —
+Databases: keeping and querying real data</h1>
+<p>Chapter 12 taught your programs to remember by writing files, and you
+have leaned on that ever since — high scores, saved worlds,
+<code>prefs.txt</code>. Files are perfect for a handful of lines. But
+the moment data grows <em>rows</em> and <em>questions</em> — “which
+customer spent the most?”, “show me every order in July, newest first” —
+reading the whole file and sifting it by hand in Python turns into a
+chore, and a slow one.</p>
+<p>There is a better tool, and this machine has it built in: a
+<strong>database</strong>. Specifically <strong>SQLite</strong>, the
+same engine inside your phone, your browser and aeroplanes — here as the
+<code>usqlite</code> module. You keep data in <strong>tables</strong>,
+and you ask for exactly what you want in <strong>SQL</strong>, a small
+language for questions. The database does the searching, sorting and
+sums; you get back just the answer. By the end of the chapter you will
+have built a point-and-click business database — Part V’s GUI from
+chapter 27, now with a real engine behind it.</p>
+<h2 data-number="28.1" id="a-table-in-ten-seconds">A table in ten
+seconds</h2>
+<p>A database lives in a single file. Open one and it is yours; open it
+again next week and everything is still there. At the
+<code>&gt;&gt;&gt;</code> prompt:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">import</span> usqlite</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db <span class="op">=</span> usqlite.<span class="ex">connect</span>(<span class="st">&quot;/sd/first.db&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;CREATE TABLE pets(name TEXT, legs INTEGER)&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;INSERT INTO pets VALUES (&#39;Rex&#39;, 4)&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;INSERT INTO pets VALUES (&#39;Kea&#39;, 2)&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> row <span class="kw">in</span> db.execute(<span class="st">&quot;SELECT * FROM pets&quot;</span>):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>...     <span class="bu">print</span>(row)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>(<span class="st">&#39;Rex&#39;</span>, <span class="dv">4</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>(<span class="st">&#39;Kea&#39;</span>, <span class="dv">2</span>)</span></code></pre></div>
+<p>Six lines and you have a working database on the SD card. Unpick
+them, because every one is a whole idea:</p>
+<ul>
+<li><strong><code>connect</code></strong> opens (or, the first time,
+<em>creates</em>) the file and hands back a connection — your handle to
+the database, like <code>open</code> in chapter 12 but for a whole file
+of tables.</li>
+<li><strong><code>CREATE TABLE</code></strong> declares a table’s shape
+once: named <strong>columns</strong>, each with a type
+(<code>TEXT</code>, <code>INTEGER</code>, <code>REAL</code>). A table is
+a grid — columns across, one <strong>row</strong> per thing.</li>
+<li><strong><code>INSERT</code></strong> adds a row.
+<strong><code>SELECT</code></strong> asks for rows back;
+<code>SELECT *</code> means “every column”. The words in capitals are
+SQL, not Python — you are speaking to the database <em>through</em>
+Python.</li>
+<li><strong><code>execute</code> hands back a cursor</strong> — a
+pointer at the results. For <code>CREATE</code> and <code>INSERT</code>
+there are none, so we ignore it; for <code>SELECT</code> you loop over
+it and each row arrives as a tuple.</li>
+</ul>
+<p>And the quiet miracle: you never wrote a save. <strong>Every
+statement is committed the instant it runs</strong> — pull the power
+after that last <code>INSERT</code> and Kea is still there tomorrow.
+(When you have <em>many</em> rows to add at once, that per-row saving is
+slow; the project below shows the one-line fix.)</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this is genuinely new ground.
+The Micromite stored data in arrays and flat files, or
+<code>VAR SAVE</code> for a few globals — there was no query language.
+SQL is a different way of thinking: you describe <em>what</em> you want,
+not <em>how</em> to loop for it, and the engine works out the rest.</p>
+</blockquote>
+<h2 data-number="28.2"
+id="the-golden-rule-parameters-never-patchwork">The golden rule:
+parameters, never patchwork</h2>
+<p>You will often insert values that live in variables. The temptation
+is to build the SQL string yourself:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> name <span class="op">=</span> <span class="st">&quot;Rex&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># DON&#39;T: gluing the value into the SQL by hand</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;INSERT INTO pets VALUES (&#39;&quot;</span> <span class="op">+</span> name <span class="op">+</span> <span class="st">&quot;&#39;, 4)&quot;</span>)</span></code></pre></div>
+<p>It works — until a name contains an apostrophe. <code>"O'Hara"</code>
+closes the quote early and the statement becomes gibberish; a
+<em>mischievous</em> name could rewrite your query entirely (this is the
+famous “SQL injection” bug). The cure is a <strong>placeholder</strong>:
+write <code>?</code> in the SQL and pass the values separately, and the
+database inserts them safely, quotes and all:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;INSERT INTO pets VALUES (?, ?)&quot;</span>, (<span class="st">&quot;O&#39;Hara&quot;</span>, <span class="dv">4</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;SELECT * FROM pets WHERE name = ?&quot;</span>, (<span class="st">&quot;O&#39;Hara&quot;</span>,))</span></code></pre></div>
+<p>The values go in a tuple, one per <code>?</code>. Make this a reflex:
+<strong>every value from a variable, a file or a human goes in through
+<code>?</code></strong> — never glued into the string. It is shorter, it
+is safe, and from here on every query in the chapter uses it.</p>
+<h2 data-number="28.3" id="a-real-program-the-high-score-table">A real
+program: the high-score table</h2>
+<p>Remember chapter 12’s <code>scorelib.py</code>, keeping your games’
+high scores in a text file — reading it all in, splitting each line,
+sorting by hand? Here is the same job as a database, and watch how much
+<em>work</em> moves out of your code and into SQL.
+<code>edit("scores.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> usqlite</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>DB <span class="op">=</span> <span class="st">&quot;/sd/scores.db&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> open_db():</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    con <span class="op">=</span> usqlite.<span class="ex">connect</span>(DB)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    con.execute(<span class="st">&quot;CREATE TABLE IF NOT EXISTS&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot; scores(name TEXT, score INTEGER)&quot;</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(con, name, score):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    con.execute(<span class="st">&quot;INSERT INTO scores VALUES (?, ?)&quot;</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                (name, score))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top(con, n<span class="op">=</span><span class="dv">10</span>):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT name, score FROM scores&quot;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY score DESC LIMIT ?&quot;</span>, (n,)).fetchall()</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>con <span class="op">=</span> open_db()</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>name <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;Name: &quot;</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="st">&quot;Score: &quot;</span>))</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>add(con, name, score)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;--- HIGH SCORES ---&quot;</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (nm, sc) <span class="kw">in</span> <span class="bu">enumerate</span>(top(con), <span class="dv">1</span>):</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;</span><span class="sc">%2d</span><span class="st">. </span><span class="sc">%-8s</span><span class="st"> </span><span class="sc">%6d</span><span class="st">&quot;</span> <span class="op">%</span> (i, nm, sc))</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>con.close()</span></code></pre></div>
+<p>Run it a few times with different names and scores; the board fills
+up and stays filled between runs. The lessons:</p>
+<ul>
+<li><strong><code>CREATE TABLE IF NOT EXISTS</code></strong> is the
+honest way to open a database that may or may not exist yet: make the
+table the first time, do nothing every time after. No more chapter 13
+<code>try</code> around a missing file.</li>
+<li><strong>The leaderboard is one line of SQL.</strong>
+<code>ORDER BY score DESC</code> sorts highest-first;
+<code>LIMIT ?</code> keeps the top <code>n</code>. Chapter 12 did this
+with <code>sorted(..., reverse=True)[:10]</code> <em>and</em> the
+parsing that fed it — here the engine does the lot, over thousands of
+rows, in an instant.</li>
+<li><strong><code>.fetchall()</code></strong> drains the cursor into a
+plain list of tuples, so <code>top()</code> can hand the results back
+and close over nothing — an ordinary function returning ordinary
+data.</li>
+</ul>
+<h2 data-number="28.4" id="asking-sharper-questions">Asking sharper
+questions</h2>
+<p><code>SELECT</code> is where a database earns its keep. Everything
+narrows or reshapes the rows <em>before</em> they reach you. A quick
+tour, against the <code>pets</code> table:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># only some rows</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;SELECT name FROM pets WHERE legs = 4&quot;</span>).fetchall()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>[(<span class="st">&#39;Rex&#39;</span>,), (<span class="st">&quot;O&#39;Hara&quot;</span>,)]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># a fuzzy match: names containing &#39;e&#39;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;SELECT name FROM pets&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>...            <span class="st">&quot; WHERE name LIKE &#39;</span><span class="sc">%e</span><span class="st">%&#39;&quot;</span>).fetchall()</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>[(<span class="st">&#39;Rex&#39;</span>,), (<span class="st">&#39;Kea&#39;</span>,)]</span></code></pre></div>
+<p><code>WHERE</code> filters; <code>LIKE '%e%'</code> matches any text
+with an <code>e</code> in it (<code>%</code> is “anything here”). And
+the database can <em>compute</em> over the whole table without handing
+you a single row — the <strong>aggregate</strong> functions:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;SELECT count(*) FROM pets&quot;</span>).fetchone()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>(<span class="dv">3</span>,)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;SELECT sum(legs), max(legs) FROM pets&quot;</span>).fetchone()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>(<span class="dv">10</span>, <span class="dv">4</span>)</span></code></pre></div>
+<p><code>count</code>, <code>sum</code>, <code>avg</code>,
+<code>min</code>, <code>max</code> — the questions a spreadsheet
+answers, asked in SQL. <code>.fetchone()</code> takes just the first
+row, which is all an aggregate produces. Pair them with
+<strong><code>GROUP BY</code></strong> and you get one answer <em>per
+group</em> — “how many pets have each leg-count?”:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(<span class="st">&quot;SELECT legs, count(*) FROM pets&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>...            <span class="st">&quot; GROUP BY legs&quot;</span>).fetchall()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>[(<span class="dv">2</span>, <span class="dv">1</span>), (<span class="dv">4</span>, <span class="dv">2</span>)]</span></code></pre></div>
+<p>Two-legged: one. Four-legged: two. That single line replaces a
+dictionary, a loop and a running tally — chapter 10’s counting pattern,
+handed to the engine.</p>
+<h2 data-number="28.5" id="relationships-joining-tables">Relationships:
+joining tables</h2>
+<p>Real data comes in <em>related</em> pieces. An order belongs to a
+customer; an order line names a product. You <em>could</em> cram it all
+into one wide table, repeating the customer’s name and city on every
+order — but then a change of address means editing a hundred rows, and a
+typo in one is a lie. The database way is to keep each fact
+<strong>once</strong>, in its own table, and link them by an
+<strong>id</strong>:</p>
+<figure>
+<img src="figs/28-schema.png"
+alt="Northwind’s core tables, each holding one kind of fact, linked by id columns. An OrderDetails row points to its Order (which OrderID) and to a Product (which ProductID); an Order points to its Customer; a Product points to its Category. Follow the arrows and any question — “what did Berglunds buy in July?” — becomes a path through the tables, written as one JOIN. The full database (Appendix J) adds three more tables: Suppliers, Shippers and Employees." />
+<figcaption aria-hidden="true">Northwind’s core tables, each holding one
+kind of fact, linked by id columns. An <code>OrderDetails</code> row
+points to its <code>Order</code> (which <code>OrderID</code>) and to a
+<code>Product</code> (which <code>ProductID</code>); an
+<code>Order</code> points to its <code>Customer</code>; a
+<code>Product</code> points to its <code>Category</code>. Follow the
+arrows and any question — “what did Berglunds buy in July?” — becomes a
+path through the tables, written as one JOIN. The full database
+(Appendix J) adds three more tables: Suppliers, Shippers and
+Employees.</figcaption>
+</figure>
+<p>To answer a real question you walk the links, and SQL’s word for
+walking a link is <strong><code>JOIN</code></strong>: “match each row
+here to its row there”. These are the tables the project builds in a
+moment — which order lines are on order 10249, and what are they
+called?</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> db.execute(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>...   <span class="st">&quot;SELECT p.ProductName, d.Quantity&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>...   <span class="st">&quot; FROM OrderDetails d&quot;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>...   <span class="st">&quot; JOIN Products p ON p.ProductID = d.ProductID&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>...   <span class="st">&quot; WHERE d.OrderID = 10249&quot;</span>).fetchall()</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>[(<span class="st">&#39;Tofu&#39;</span>, <span class="dv">9</span>), (<span class="st">&#39;Carnarvon Tigers&#39;</span>, <span class="dv">40</span>)]</span></code></pre></div>
+<p>Read the <code>JOIN</code> as glue: <em>for each row of
+<code>OrderDetails</code>, find the <code>Products</code> row whose
+<code>ProductID</code> matches, and let me use its columns too.</em> The
+short names <code>d</code> and <code>p</code> (table
+<strong>aliases</strong>) keep it readable. Join three tables and you
+can go from a customer straight to the products they bought — which is
+exactly what the project does next.</p>
+<h2 data-number="28.6" id="the-project-northwind">The project:
+Northwind</h2>
+<p>Time to put it together. <strong>Northwind</strong> is Microsoft’s
+long-serving sample database — a fictional food importer’s customers,
+products and orders — and the machine ships a working version of it in
+the <code>northwind/</code> folder: eight tables (the five from the
+diagram plus Suppliers, Shippers and Employees), a few dozen products
+and orders, and a <code>pcgui</code> browser over the top. Pick a
+customer to see their orders; pick an order to see what was on it and
+what it cost; press a button for a whole-database report.</p>
+<p>It comes in three files, and they map onto the three things this
+chapter has taught. <strong><code>nwdata.py</code></strong> holds the
+schema and the seed data and builds the database on first run — the
+plumbing, printed in full in Appendix J.
+<strong><code>nwquery.py</code></strong> is the questions and
+<strong><code>northwind.py</code></strong> is the screen. Those last two
+are the program proper, so here they are.</p>
+<h3 data-number="28.6.1" id="the-questions">The questions</h3>
+<p>Every function takes the open connection and hands back a list of
+tuples — exactly the shape the screen wants. This is the chapter’s whole
+argument in one file: each answer is a sentence of SQL, not a page of
+loops. <code>edit("nwquery.py")</code>:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Northwind -- the queries.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Every function takes an open connection (from nwdata.open_db)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and returns a list of plain tuples, so the same code runs on</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># device (usqlite) and on a PC (sqlite3). The column order each</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># one returns is noted above it; northwind.py relies on those</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># orders. This is where the database earns its keep: joins and</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># GROUP BY aggregates that would be a tangle of loops and</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># dictionaries done by hand.</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># All user values go in through ? parameters, never built into</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># the SQL string -- that keeps a name like O&#39;Brien (or a</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># malicious one) from breaking, or rewriting, the query.</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> customers(con, like<span class="op">=</span><span class="st">&quot;&quot;</span>):</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;CustomerID, CompanyName, City, Country -- optionally</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">    filtered by a name/city fragment. Alphabetical.&quot;&quot;&quot;</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> like:</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        pat <span class="op">=</span> <span class="st">&quot;%&quot;</span> <span class="op">+</span> like <span class="op">+</span> <span class="st">&quot;%&quot;</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> con.execute(</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;SELECT CustomerID, CompanyName, City, Country&quot;</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; FROM Customers&quot;</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; WHERE CompanyName LIKE ? OR City LIKE ?&quot;</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; ORDER BY CompanyName&quot;</span>, (pat, pat))</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> con.execute(</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;SELECT CustomerID, CompanyName, City, Country&quot;</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; FROM Customers&quot;</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; ORDER BY CompanyName&quot;</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cur.fetchall()</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> products(con, like<span class="op">=</span><span class="st">&quot;&quot;</span>):</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;ProductID, ProductName, CategoryName, UnitPrice,</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="co">    UnitsInStock -- joins Products to Categories so each row</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="co">    carries its category&#39;s name.&quot;&quot;&quot;</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> like:</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        pat <span class="op">=</span> <span class="st">&quot;%&quot;</span> <span class="op">+</span> like <span class="op">+</span> <span class="st">&quot;%&quot;</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> con.execute(</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;SELECT p.ProductID, p.ProductName, c.CategoryName,&quot;</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;       p.UnitPrice, p.UnitsInStock&quot;</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; FROM Products p&quot;</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; JOIN Categories c ON c.CategoryID = p.CategoryID&quot;</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; WHERE p.ProductName LIKE ?&quot;</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; ORDER BY p.ProductName&quot;</span>, (pat,))</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>        cur <span class="op">=</span> con.execute(</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;SELECT p.ProductID, p.ProductName, c.CategoryName,&quot;</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;       p.UnitPrice, p.UnitsInStock&quot;</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; FROM Products p&quot;</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; JOIN Categories c ON c.CategoryID = p.CategoryID&quot;</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot; ORDER BY p.ProductName&quot;</span>)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cur.fetchall()</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> orders_for_customer(con, customer_id):</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;OrderID, OrderDate, EmployeeName, Shipper, OrderTotal --</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a><span class="co">    one row per order for the customer. The total is summed from</span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a><span class="co">    the order&#39;s lines with a correlated sub-query -- price times</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a><span class="co">    quantity, less discount, all in SQL.&quot;&quot;&quot;</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT o.OrderID, o.OrderDate,&quot;</span></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       e.FirstName || &#39; &#39; || e.LastName AS Employee,&quot;</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       s.CompanyName AS Shipper,&quot;</span></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       (SELECT sum(d.UnitPrice * d.Quantity&quot;</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;               * (1 - d.Discount))&quot;</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;        FROM OrderDetails d&quot;</span></span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;        WHERE d.OrderID = o.OrderID) AS Total&quot;</span></span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; FROM Orders o&quot;</span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Employees e ON e.EmployeeID = o.EmployeeID&quot;</span></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Shippers  s ON s.ShipperID  = o.ShipVia&quot;</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; WHERE o.CustomerID = ?&quot;</span></span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY o.OrderDate&quot;</span>, (customer_id,)).fetchall()</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> order_lines(con, order_id):</span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;ProductName, UnitPrice, Quantity, Discount, LineTotal --</span></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a><span class="co">    the items on one order, joining each line to its product for</span></span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a><span class="co">    the name.&quot;&quot;&quot;</span></span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT p.ProductName, d.UnitPrice, d.Quantity,&quot;</span></span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       d.Discount,&quot;</span></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       d.UnitPrice * d.Quantity * (1 - d.Discount)&quot;</span></span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;           AS LineTotal&quot;</span></span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; FROM OrderDetails d&quot;</span></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Products p ON p.ProductID = d.ProductID&quot;</span></span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; WHERE d.OrderID = ?&quot;</span></span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY p.ProductName&quot;</span>, (order_id,)).fetchall()</span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the reports: aggregates across the whole database ---------</span></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_products(con, n<span class="op">=</span><span class="dv">10</span>):</span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;ProductName, UnitsSold, Revenue -- best sellers by</span></span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a><span class="co">    revenue. GROUP BY the product, SUM the money, ORDER BY it</span></span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a><span class="co">    descending, keep the top n.&quot;&quot;&quot;</span></span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT p.ProductName,&quot;</span></span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       sum(d.Quantity) AS Units,&quot;</span></span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       sum(d.UnitPrice * d.Quantity&quot;</span></span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;           * (1 - d.Discount)) AS Revenue&quot;</span></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; FROM OrderDetails d&quot;</span></span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Products p ON p.ProductID = d.ProductID&quot;</span></span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; GROUP BY p.ProductID&quot;</span></span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY Revenue DESC&quot;</span></span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; LIMIT ?&quot;</span>, (n,)).fetchall()</span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sales_by_category(con):</span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;CategoryName, Revenue -- three tables joined</span></span>
+<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a><span class="co">    (details -&gt; products -&gt; categories), grouped by category.&quot;&quot;&quot;</span></span>
+<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT c.CategoryName,&quot;</span></span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       sum(d.UnitPrice * d.Quantity&quot;</span></span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;           * (1 - d.Discount)) AS Revenue&quot;</span></span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; FROM OrderDetails d&quot;</span></span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Products   p ON p.ProductID  = d.ProductID&quot;</span></span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Categories c ON c.CategoryID = p.CategoryID&quot;</span></span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; GROUP BY c.CategoryID&quot;</span></span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY Revenue DESC&quot;</span>).fetchall()</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sales_by_employee(con):</span>
+<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;EmployeeName, Orders, Revenue -- who sold how much.</span></span>
+<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a><span class="co">    Counts each employee&#39;s orders and sums their value across</span></span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a><span class="co">    three joined tables.&quot;&quot;&quot;</span></span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT e.FirstName || &#39; &#39; || e.LastName AS Employee,&quot;</span></span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       count(DISTINCT o.OrderID) AS Orders,&quot;</span></span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;       sum(d.UnitPrice * d.Quantity&quot;</span></span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;           * (1 - d.Discount)) AS Revenue&quot;</span></span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; FROM Employees e&quot;</span></span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Orders o       ON o.EmployeeID = e.EmployeeID&quot;</span></span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN OrderDetails d ON d.OrderID    = o.OrderID&quot;</span></span>
+<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; GROUP BY e.EmployeeID&quot;</span></span>
+<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY Revenue DESC&quot;</span>).fetchall()</span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> low_stock(con, threshold<span class="op">=</span><span class="dv">15</span>):</span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;ProductName, UnitsInStock, SupplierName -- items at or</span></span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a><span class="co">    below the threshold, with who to reorder from. A WHERE</span></span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a><span class="co">    filter plus a join.&quot;&quot;&quot;</span></span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.execute(</span>
+<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SELECT p.ProductName, p.UnitsInStock, s.CompanyName&quot;</span></span>
+<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; FROM Products p&quot;</span></span>
+<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; JOIN Suppliers s ON s.SupplierID = p.SupplierID&quot;</span></span>
+<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; WHERE p.UnitsInStock &lt;= ?&quot;</span></span>
+<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; ORDER BY p.UnitsInStock&quot;</span>, (threshold,)).fetchall()</span></code></pre></div>
+<p>Read <code>orders_for_customer</code> and <code>top_products</code>
+especially. The first joins three tables — orders to employees to
+shippers — and totals each order with a <strong>correlated
+sub-query</strong> (the inner <code>SELECT</code> runs once per order,
+summing that order’s lines). The second groups every line by product
+across the whole database and sorts by revenue. Both would be a tangle
+of nested loops and running totals done by hand; here each is a few
+lines and the engine does the sifting. And every one takes its variable
+through a <code>?</code> — the golden rule, kept.</p>
+<h3 data-number="28.6.2" id="the-screen">The screen</h3>
+<p><code>main()</code> is chapter 27, almost unchanged: a
+<code>pcgui</code> manager, controls with callbacks, a
+<code>poll()</code> loop. The one new idea is <strong>wiring a list to a
+query</strong> — picking a customer runs
+<code>orders_for_customer</code> and re-fills the orders list; picking
+an order runs <code>order_lines</code>; a report button fills the same
+list from <code>top_products</code> or friends. The GUI is a <em>window
+onto the database</em>, storing nothing itself: exactly chapter 27’s
+“controls are a view of the data, never its home”.
+<code>edit("northwind.py")</code>:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Northwind Traders -- a database browser for the Pico</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Computer 3.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Puts the machine&#39;s two headline features together: the</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># on-device SQLite engine (usqlite) holding a small Northwind-</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># style business database, and the pcgui toolkit drawing a</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># point-and-click front end over it.</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   run(&quot;/sd/northwind/northwind.py&quot;)</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Pick a customer to see their orders; pick an order to see its</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># line items and total. The buttons along the bottom run whole-</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># database reports. The first run builds and seeds the database</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># (a second or two); after that it opens instantly and survives</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># power-offs. Needs a USB mouse or touch panel; the Find box</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># also takes the keyboard.</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the sibling modules (nwdata, nwquery) importable however</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># this file is launched. run() chdirs into the program&#39;s folder</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co"># so a plain import usually works, but opening it from the editor</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># does not -- so add our own folder to the search path.</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    _here <span class="op">=</span> <span class="va">__file__</span>.rsplit(<span class="st">&quot;/&quot;</span>, <span class="dv">1</span>)[<span class="dv">0</span>]</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> _here <span class="kw">and</span> _here <span class="kw">not</span> <span class="kw">in</span> sys.path:</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        sys.path.insert(<span class="dv">0</span>, _here)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">NameError</span>:</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgui</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pcgfx <span class="im">import</span> WHITE, YELLOW, CYAN, RED, GOLD, COBALT, LITEGRAY</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nwdata</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nwquery</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="co"># --- text helpers (%-formatting: solid on MicroPython) --------</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fit(s, n):</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Left-justify s into exactly n characters (truncating if</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a><span class="co">    need be).&quot;&quot;&quot;</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> <span class="bu">str</span>(s)</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(s) <span class="op">&gt;=</span> n:</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> s[:n]</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> s <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">*</span> (n <span class="op">-</span> <span class="bu">len</span>(s))</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> money(x):</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;</span><span class="sc">%.2f</span><span class="st">&quot;</span> <span class="op">%</span> (x <span class="kw">or</span> <span class="fl">0.0</span>)</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pick_path():</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Prefer the SD card; fall back to flash if there&#39;s none.&quot;&quot;&quot;</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> os</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>        os.stat(<span class="st">&quot;/sd&quot;</span>)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;/sd/northwind.db&quot;</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;/northwind.db&quot;</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Northwind:</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, g, con):</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.g <span class="op">=</span> g</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.con <span class="op">=</span> con</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.done <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cust_rows <span class="op">=</span> []     <span class="co"># rows behind lbCust</span></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order_rows <span class="op">=</span> []    <span class="co"># rows behind lbOrders</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- build the screen -------------------------------------</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> build_ui(<span class="va">self</span>):</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>        g <span class="op">=</span> <span class="va">self</span>.g</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>        g.caption(<span class="dv">8</span>, <span class="dv">8</span>, <span class="st">&quot;NORTHWIND TRADERS&quot;</span>, fg<span class="op">=</span>YELLOW, font<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>        g.caption(<span class="dv">360</span>, <span class="dv">12</span>, <span class="st">&quot;on-device SQLite + GUI&quot;</span>,</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>                  fg<span class="op">=</span>LITEGRAY, font<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">556</span>, <span class="dv">6</span>, <span class="dv">76</span>, <span class="dv">24</span>, <span class="st">&quot;EXIT&quot;</span>, fg<span class="op">=</span>WHITE, bg<span class="op">=</span>RED,</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>                 callback<span class="op">=</span><span class="va">self</span>.on_exit)</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>        <span class="co"># search row</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>        g.caption(<span class="dv">8</span>, <span class="dv">40</span>, <span class="st">&quot;Find&quot;</span>, fg<span class="op">=</span>WHITE, font<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tbFind <span class="op">=</span> g.textbox(<span class="dv">48</span>, <span class="dv">34</span>, <span class="dv">170</span>, <span class="dv">22</span>, text<span class="op">=</span><span class="st">&quot;&quot;</span>,</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>                                callback<span class="op">=</span><span class="va">self</span>.on_find)</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">224</span>, <span class="dv">34</span>, <span class="dv">60</span>, <span class="dv">22</span>, <span class="st">&quot;Clear&quot;</span>,</span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>                 callback<span class="op">=</span><span class="va">self</span>.on_clear)</span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>        <span class="co"># dynamic headers (displayboxes repaint cleanly)</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbCustHdr <span class="op">=</span> g.displaybox(<span class="dv">8</span>, <span class="dv">64</span>, <span class="dv">250</span>, <span class="dv">20</span>,</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">&quot;Customers&quot;</span>, fg<span class="op">=</span>CYAN)</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbOrdHdr <span class="op">=</span> g.displaybox(<span class="dv">266</span>, <span class="dv">64</span>, <span class="dv">366</span>, <span class="dv">20</span>,</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;Orders&quot;</span>, fg<span class="op">=</span>CYAN)</span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the two master lists</span></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lbCust <span class="op">=</span> g.listbox(<span class="dv">8</span>, <span class="dv">88</span>, <span class="dv">250</span>, <span class="dv">216</span>, [], font<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>                                callback<span class="op">=</span><span class="va">self</span>.on_cust)</span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lbOrders <span class="op">=</span> g.listbox(<span class="dv">266</span>, <span class="dv">88</span>, <span class="dv">366</span>, <span class="dv">216</span>, [], font<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>                                  callback<span class="op">=</span><span class="va">self</span>.on_order)</span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>        <span class="co"># detail header + running total, then the detail list</span></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbDetHdr <span class="op">=</span> g.displaybox(<span class="dv">8</span>, <span class="dv">314</span>, <span class="dv">476</span>, <span class="dv">20</span>,</span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;Order lines&quot;</span>, fg<span class="op">=</span>CYAN)</span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbTotal <span class="op">=</span> g.displaybox(<span class="dv">492</span>, <span class="dv">314</span>, <span class="dv">140</span>, <span class="dv">20</span>,</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;Total: 0.00&quot;</span>, fg<span class="op">=</span>GOLD)</span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lbDetail <span class="op">=</span> g.listbox(<span class="dv">8</span>, <span class="dv">338</span>, <span class="dv">624</span>, <span class="dv">104</span>, [], font<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a>        <span class="co"># report bar</span></span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">8</span>, <span class="dv">448</span>, <span class="dv">150</span>, <span class="dv">26</span>, <span class="st">&quot;Top Products&quot;</span>,</span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>                 bg<span class="op">=</span>COBALT, callback<span class="op">=</span><span class="va">self</span>.rep_top)</span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">166</span>, <span class="dv">448</span>, <span class="dv">150</span>, <span class="dv">26</span>, <span class="st">&quot;By Category&quot;</span>,</span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>                 bg<span class="op">=</span>COBALT, callback<span class="op">=</span><span class="va">self</span>.rep_cat)</span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">324</span>, <span class="dv">448</span>, <span class="dv">150</span>, <span class="dv">26</span>, <span class="st">&quot;By Employee&quot;</span>,</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>                 bg<span class="op">=</span>COBALT, callback<span class="op">=</span><span class="va">self</span>.rep_emp)</span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">482</span>, <span class="dv">448</span>, <span class="dv">150</span>, <span class="dv">26</span>, <span class="st">&quot;Low Stock&quot;</span>,</span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>                 bg<span class="op">=</span>COBALT, callback<span class="op">=</span><span class="va">self</span>.rep_stock)</span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- filling the lists ------------------------------------</span></span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _set_list(<span class="va">self</span>, lb, items):</span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a>        lb.items <span class="op">=</span> items</span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a>        lb.top <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>        lb._value <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>        lb.draw()</span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> load_customers(<span class="va">self</span>, like<span class="op">=</span><span class="st">&quot;&quot;</span>):</span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cust_rows <span class="op">=</span> nwquery.customers(<span class="va">self</span>.con, like)</span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>        <span class="co"># &quot;Company (City)&quot; per row</span></span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;</span><span class="sc">%s</span><span class="st">  (</span><span class="sc">%s</span><span class="st">)&quot;</span> <span class="op">%</span> (r[<span class="dv">1</span>], r[<span class="dv">2</span>])</span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> <span class="va">self</span>.cust_rows]</span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._set_list(<span class="va">self</span>.lbCust, items)</span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbCustHdr.value <span class="op">=</span> (<span class="st">&quot;Customers (</span><span class="sc">%d</span><span class="st">)&quot;</span></span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>                                <span class="op">%</span> <span class="bu">len</span>(<span class="va">self</span>.cust_rows))</span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a>        <span class="co"># show the first customer&#39;s orders, or clear if none</span></span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.cust_rows:</span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.show_orders(<span class="dv">0</span>)</span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._set_list(<span class="va">self</span>.lbOrders, [])</span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.order_rows <span class="op">=</span> []</span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.dbOrdHdr.value <span class="op">=</span> <span class="st">&quot;Orders&quot;</span></span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.clear_detail()</span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> show_orders(<span class="va">self</span>, idx):</span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a>        <span class="co"># cust: (id, company, city, country)</span></span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a>        cust <span class="op">=</span> <span class="va">self</span>.cust_rows[idx]</span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order_rows <span class="op">=</span> nwquery.orders_for_customer(</span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.con, cust[<span class="dv">0</span>])</span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>        <span class="co"># row: (OrderID, OrderDate, Employee, Shipper, Total)</span></span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;#</span><span class="sc">%d</span><span class="st">  </span><span class="sc">%s</span><span class="st">  </span><span class="sc">%s</span><span class="st">  </span><span class="sc">%s</span><span class="st">&quot;</span></span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a>                 <span class="op">%</span> (r[<span class="dv">0</span>], r[<span class="dv">1</span>], fit(money(r[<span class="dv">4</span>]), <span class="dv">9</span>), r[<span class="dv">2</span>])</span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> <span class="va">self</span>.order_rows]</span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._set_list(<span class="va">self</span>.lbOrders, items)</span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbOrdHdr.value <span class="op">=</span> (<span class="st">&quot;Orders for </span><span class="sc">%s</span><span class="st"> (</span><span class="sc">%d</span><span class="st">)&quot;</span></span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a>                               <span class="op">%</span> (cust[<span class="dv">1</span>], <span class="bu">len</span>(<span class="va">self</span>.order_rows)))</span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.order_rows:</span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.show_lines(<span class="dv">0</span>)</span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.clear_detail()</span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> show_lines(<span class="va">self</span>, idx):</span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a>        <span class="co"># order: (id, date, emp, shipper, total)</span></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a>        order <span class="op">=</span> <span class="va">self</span>.order_rows[idx]</span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a>        lines <span class="op">=</span> nwquery.order_lines(<span class="va">self</span>.con, order[<span class="dv">0</span>])</span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>        <span class="co"># row: (ProductName, UnitPrice, Quantity, Discount,</span></span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a>        <span class="co">#       LineTotal)</span></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;</span><span class="sc">%s</span><span class="st"> </span><span class="sc">%3d</span><span class="st"> x </span><span class="sc">%8s</span><span class="st">  -%2.0f</span><span class="sc">%%</span><span class="st">  = </span><span class="sc">%9s</span><span class="st">&quot;</span></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a>                 <span class="op">%</span> (fit(r[<span class="dv">0</span>], <span class="dv">28</span>), r[<span class="dv">2</span>], money(r[<span class="dv">1</span>]),</span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a>                    r[<span class="dv">3</span>] <span class="op">*</span> <span class="dv">100</span>, money(r[<span class="dv">4</span>]))</span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> lines]</span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._set_list(<span class="va">self</span>.lbDetail, items)</span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbDetHdr.value <span class="op">=</span> (<span class="st">&quot;Order #</span><span class="sc">%d</span><span class="st">  -  </span><span class="sc">%d</span><span class="st"> line(s)&quot;</span></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a>                               <span class="op">%</span> (order[<span class="dv">0</span>], <span class="bu">len</span>(lines)))</span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbTotal.value <span class="op">=</span> <span class="st">&quot;Total: </span><span class="sc">%s</span><span class="st">&quot;</span> <span class="op">%</span> money(order[<span class="dv">4</span>])</span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> clear_detail(<span class="va">self</span>):</span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._set_list(<span class="va">self</span>.lbDetail, [])</span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbDetHdr.value <span class="op">=</span> <span class="st">&quot;Order lines&quot;</span></span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbTotal.value <span class="op">=</span> <span class="st">&quot;Total: 0.00&quot;</span></span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _report(<span class="va">self</span>, title, items):</span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbDetHdr.value <span class="op">=</span> title</span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dbTotal.value <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._set_list(<span class="va">self</span>.lbDetail, items)</span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- control callbacks ------------------------------------</span></span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_cust(<span class="va">self</span>, lb):</span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.cust_rows:</span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.show_orders(lb.value)</span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_order(<span class="va">self</span>, lb):</span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.order_rows:</span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.show_lines(lb.value)</span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_find(<span class="va">self</span>, tb):</span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.load_customers(tb.value.strip())</span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_clear(<span class="va">self</span>, b):</span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tbFind.value <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.load_customers(<span class="st">&quot;&quot;</span>)</span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> rep_top(<span class="va">self</span>, b):</span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a>        rows <span class="op">=</span> nwquery.top_products(<span class="va">self</span>.con, <span class="dv">12</span>)</span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;</span><span class="sc">%s</span><span class="st">  units </span><span class="sc">%4d</span><span class="st">    revenue </span><span class="sc">%10s</span><span class="st">&quot;</span></span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>                 <span class="op">%</span> (fit(r[<span class="dv">0</span>], <span class="dv">30</span>), r[<span class="dv">1</span>], money(r[<span class="dv">2</span>]))</span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> rows]</span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._report(<span class="st">&quot;Top products by revenue&quot;</span>, items)</span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> rep_cat(<span class="va">self</span>, b):</span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>        rows <span class="op">=</span> nwquery.sales_by_category(<span class="va">self</span>.con)</span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;</span><span class="sc">%s</span><span class="st">    revenue </span><span class="sc">%10s</span><span class="st">&quot;</span></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a>                 <span class="op">%</span> (fit(r[<span class="dv">0</span>], <span class="dv">20</span>), money(r[<span class="dv">1</span>]))</span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> rows]</span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._report(<span class="st">&quot;Sales by category&quot;</span>, items)</span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> rep_emp(<span class="va">self</span>, b):</span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a>        rows <span class="op">=</span> nwquery.sales_by_employee(<span class="va">self</span>.con)</span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;</span><span class="sc">%s</span><span class="st">  orders </span><span class="sc">%2d</span><span class="st">    revenue </span><span class="sc">%10s</span><span class="st">&quot;</span></span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a>                 <span class="op">%</span> (fit(r[<span class="dv">0</span>], <span class="dv">22</span>), r[<span class="dv">1</span>], money(r[<span class="dv">2</span>]))</span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> rows]</span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._report(<span class="st">&quot;Sales by employee&quot;</span>, items)</span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> rep_stock(<span class="va">self</span>, b):</span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a>        rows <span class="op">=</span> nwquery.low_stock(<span class="va">self</span>.con, <span class="dv">15</span>)</span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a>        items <span class="op">=</span> [<span class="st">&quot;</span><span class="sc">%s</span><span class="st">  stock </span><span class="sc">%3d</span><span class="st">    reorder from </span><span class="sc">%s</span><span class="st">&quot;</span></span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a>                 <span class="op">%</span> (fit(r[<span class="dv">0</span>], <span class="dv">28</span>), r[<span class="dv">1</span>], r[<span class="dv">2</span>])</span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> r <span class="kw">in</span> rows]</span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._report(<span class="st">&quot;Low stock (15 or fewer)&quot;</span>, items)</span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_exit(<span class="va">self</span>, b):</span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.done <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Opening Northwind database (first run builds it)...&quot;</span>)</span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a>    con <span class="op">=</span> nwdata.open_db(pick_path())</span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a>    ver <span class="op">=</span> con.execute(<span class="st">&quot;SELECT sqlite_version()&quot;</span>).fetchone()[<span class="dv">0</span>]</span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;SQLite&quot;</span>, ver, <span class="st">&quot;ready&quot;</span>)</span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a>    screen(hdmi.RGB640)</span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">3</span>)              <span class="co"># let the monitor re-lock</span></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>    console(<span class="st">&quot;serial&quot;</span>)</span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a>    hdmi.fb().fill(<span class="dv">0</span>)</span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> pcgui.GUI()</span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>    g.start()</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a>    app <span class="op">=</span> Northwind(g, con)</span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a>    app.build_ui()</span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>    app.load_customers()</span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="kw">not</span> app.done:</span>
+<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a>            g.poll()</span>
+<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a>            time.sleep_ms(<span class="dv">10</span>)</span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a>        g.stop()</span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a>        console()</span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a>        con.close()</span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Northwind closed&quot;</span>)</span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div>
+<p>Copy the <code>northwind/</code> folder to <code>/sd</code> and run
+it:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> run(<span class="st">&quot;/sd/northwind/northwind.py&quot;</span>)</span></code></pre></div>
+<p>Everything in this chapter is standing behind that one screen. When
+you click a customer and their orders and totals appear instantly, that
+is a three-table <code>JOIN</code> and a <code>GROUP BY</code> running
+on the same chip that draws the window — a real database and a real
+interface, meeting on a machine that fits in your hand.</p>
+<h2 data-number="28.7" id="experiments-27">Experiments</h2>
+<ol type="1">
+<li>Give <code>scores.py</code> a per-game board: add a
+<code>game TEXT</code> column, ask for the game name too, and change
+<code>top()</code> to take a game and add <code>WHERE game = ?</code>.
+One column, one clause — a feature that would have been a rewrite with
+files.</li>
+<li>Add a report to Northwind: a query that sums revenue grouped by
+country (join <code>OrderDetails → Orders → Customers</code>, then
+<code>GROUP BY Country</code>), wired to a new button in the
+<code>rep_*</code> style. Three tables, one answer — the pattern every
+business report is made of.</li>
+<li>Delete and update at the <code>&gt;&gt;&gt;</code> prompt
+(experiment 4 shows how to open the database):
+<code>DELETE FROM OrderDetails WHERE OrderID = ?</code>, and
+<code>UPDATE Products SET UnitPrice = ? WHERE ProductID = ?</code>.
+Re-run a report and watch the totals move — the database is
+<em>live</em>, not a snapshot.</li>
+<li>Ask Northwind a question of your own at the
+<code>&gt;&gt;&gt;</code> prompt:
+<code>import sys; sys.path.append("/sd/northwind")</code>, then
+<code>import nwdata</code>,
+<code>con = nwdata.open_db("/sd/northwind.db")</code>, and write a
+<code>SELECT</code> — the busiest month, the customer in the most
+countries, whatever you’re curious about. This is what a database is
+<em>for</em>.</li>
+</ol>
+<h2 data-number="28.8" id="challenges-27">Challenges</h2>
+<ol type="1">
+<li><strong>The library.</strong> Model a book collection:
+<code>Books</code>, <code>Authors</code>, and a <code>Loans</code> table
+recording who has what out. A GUI that lists books, shows an author’s
+whole shelf on a click, and a button for “everything currently on loan”
+(a <code>JOIN</code> where the return date is <code>NULL</code>). You
+have just re-invented what every library runs.</li>
+<li><strong>A search box.</strong> Give Northwind’s product list a
+<code>textbox</code> (chapter 27’s pop-up keyboard) that filters as you
+type, feeding what you type into <code>WHERE ProductName LIKE ?</code>
+with <code>%</code> around it. The real <code>northwind.py</code> does
+exactly this — build it yourself first, then compare.</li>
+<li><strong>The logger.</strong> A background program (chapter 34) that
+every minute writes one row — a sensor reading, the free memory, the
+time — into a <code>readings</code> table, forever. Then a second
+program that plots the last hour with the maths lab (chapter 31). Days
+of data in a file that never needs emptying, and SQL to slice it any way
+you ask.</li>
+<li><strong>Export.</strong> Write a function that turns any query’s
+results into a <code>.csv</code> file (chapter 12’s writing, one row per
+line, commas between) so a day’s orders can leave the machine for a
+spreadsheet. A database that can’t share is an island; give yours a
+bridge.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="27-chapter-27-building-apps-the-gui-toolkit.html" rel="prev">←&nbsp;Chapter 27 — Building apps: the GUI toolkit</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="29-chapter-29-time-and-schedules-the-real-time-clock.html" rel="next">Chapter 29 — Time and schedules: the real-time clock&nbsp;→</a>
+</nav>
+</body>
+</html>

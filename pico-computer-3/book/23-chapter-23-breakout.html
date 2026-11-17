@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 23 — Breakout – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="22-chapter-22-anatomy-of-a-game.html" rel="prev" accesskey="p">←&nbsp;Chapter 22 — Anatomy of a game</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="24-chapter-24-asteroids-vectors-crowds-and-particles.html" rel="next" accesskey="n">Chapter 24 — Asteroids: vectors, crowds and particles&nbsp;→</a>
+</nav>
+<h1 data-number="23" id="chapter-23-breakout">Chapter 23 — Breakout</h1>
+<p>Four years after Pong, the same company wondered what would happen if
+the wall you rallied against could <em>break</em>. The answer financed
+Apple Computer (really — look it up), and it is your game this chapter.
+Breakout is Pong turned ninety degrees plus three new disciplines:
+<strong>a destructible world stored as data</strong>, <strong>rectangle
+collisions that know which side was struck</strong>, and <strong>the
+lives-levels-score economy</strong> that turns a toy into an arcade
+game. Everything else — clock, states, deflection, the collar — you
+built last chapter and will now reuse without ceremony. That, too, is
+the lesson.</p>
+<h2 data-number="23.1" id="the-whole-game">The whole game</h2>
+<p>One listing this time — Breakout is Pong’s cousin, and you have
+earned the right to read a complete game in one sitting. Type it (or
+<code>autosave</code> it), play it, then meet the dissection below.
+<code>edit("breakout.py")</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># this game is laid out for 640x480</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x080810</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>DIM <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>BW, BH <span class="op">=</span> <span class="dv">72</span>, <span class="dv">20</span>                          <span class="co"># brick cell size</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>ROWS <span class="op">=</span> [(RED, <span class="dv">50</span>), (ORANGE, <span class="dv">40</span>), (YELLOW, <span class="dv">30</span>), (GREEN, <span class="dv">20</span>), (CYAN,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="dv">10</span>)]</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>PW, PH <span class="op">=</span> <span class="dv">80</span>, <span class="dv">10</span>                          <span class="co"># paddle</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>PY <span class="op">=</span> H <span class="op">-</span> <span class="dv">40</span>                              <span class="co"># paddle&#39;s fixed height</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>BS <span class="op">=</span> <span class="dv">8</span>                                   <span class="co"># ball</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> new_wall():</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    bricks <span class="op">=</span> []</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row, (colour, points) <span class="kw">in</span> <span class="bu">enumerate</span>(ROWS):</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>):</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>            bricks.append([<span class="dv">18</span> <span class="op">+</span> col <span class="op">*</span> <span class="dv">76</span>, <span class="dv">60</span> <span class="op">+</span> row <span class="op">*</span> <span class="dv">24</span>,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                           d.colour(colour), points])</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> bricks</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> serve(level):</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    speed <span class="op">=</span> <span class="bu">min</span>(<span class="dv">200</span> <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> (level <span class="op">-</span> <span class="dv">1</span>)), <span class="dv">420</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># from just beneath the wall...</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (W <span class="op">/</span> <span class="dv">2</span>, <span class="fl">200.0</span>,</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...a full second out</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>            random.randint(<span class="op">-</span><span class="dv">100</span>, <span class="dv">100</span>) <span class="op">*</span> <span class="fl">1.0</span>, speed)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>bricks <span class="op">=</span> new_wall()</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>px <span class="op">=</span> (W <span class="op">-</span> PW) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>bx, by, bdx, bdy <span class="op">=</span> serve(<span class="dv">1</span>)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>lives <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>level <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> clock.tick()</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)):</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>                score, lives, level <span class="op">=</span> <span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">1</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>                bricks <span class="op">=</span> new_wall()</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>                bx, by, bdx, bdy <span class="op">=</span> serve(<span class="dv">1</span>)</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>                px <span class="op">=</span> (W <span class="op">-</span> PW) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;play&quot;</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>                clock.reset()</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;play&quot;</span>:</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.LEFT):</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>                px <span class="op">-=</span> <span class="dv">420</span> <span class="op">*</span> dt</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.RIGHT):</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>                px <span class="op">+=</span> <span class="dv">420</span> <span class="op">*</span> dt</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>            px <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(W <span class="op">-</span> PW, px))</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>            bx <span class="op">+=</span> bdx <span class="op">*</span> dt</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>            by <span class="op">+=</span> bdy <span class="op">*</span> dt</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> bx <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> bx <span class="op">&gt;</span> W <span class="op">-</span> BS:              <span class="co"># side walls</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>                bx <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(W <span class="op">-</span> BS, bx))</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>                bdx <span class="op">=</span> <span class="op">-</span>bdx</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">440</span>, <span class="dv">12</span>)</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> by <span class="op">&lt;</span> <span class="dv">0</span>:                             <span class="co"># ceiling</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>                by <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>                bdy <span class="op">=</span> <span class="op">-</span>bdy</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">440</span>, <span class="dv">12</span>)</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>            <span class="co"># the paddle -- only on the way down</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (bdy <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> PY <span class="op">-</span> BS <span class="op">&lt;=</span> by <span class="op">&lt;=</span> PY</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>                <span class="kw">and</span> px <span class="op">-</span> BS <span class="op">&lt;</span> bx <span class="op">&lt;</span> px <span class="op">+</span> PW):</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>                rel <span class="op">=</span> (bx <span class="op">+</span> BS <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> px) <span class="op">/</span> PW <span class="op">-</span> <span class="fl">0.5</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>                bdx <span class="op">=</span> rel <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">320</span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>                bdy <span class="op">=</span> <span class="op">-</span><span class="bu">abs</span>(bdy)</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">880</span>, <span class="dv">12</span>)</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>            <span class="co"># the bricks -- at most one per frame</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> b <span class="kw">in</span> bricks:</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>                x, y, colour, points <span class="op">=</span> b</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> x <span class="op">-</span> BS <span class="op">&lt;</span> bx <span class="op">&lt;</span> x <span class="op">+</span> BW <span class="kw">and</span> y <span class="op">-</span> BS <span class="op">&lt;</span> by <span class="op">&lt;</span> y <span class="op">+</span> BH:</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>                    from_x <span class="op">=</span> <span class="bu">min</span>(bx <span class="op">+</span> BS <span class="op">-</span> x, x <span class="op">+</span> BW <span class="op">-</span> bx)</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>                    from_y <span class="op">=</span> <span class="bu">min</span>(by <span class="op">+</span> BS <span class="op">-</span> y, y <span class="op">+</span> BH <span class="op">-</span> by)</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># struck a side face</span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> from_x <span class="op">&lt;</span> from_y:</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>                        bdx <span class="op">=</span> <span class="op">-</span>bdx</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># struck top or bottom</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">else</span>:</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>                        bdy <span class="op">=</span> <span class="op">-</span>bdy</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>                    bricks.remove(b)</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>                    score <span class="op">+=</span> points</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>                    beep(<span class="dv">400</span> <span class="op">+</span> points <span class="op">*</span> <span class="dv">10</span>, <span class="dv">15</span>)</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">break</span></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>            <span class="co"># level cleared!</span></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> bricks:</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>                level <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>                bricks <span class="op">=</span> new_wall()</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>                bx, by, bdx, bdy <span class="op">=</span> serve(level)</span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">1320</span>, <span class="dv">300</span>)</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>            <span class="co"># lost below the paddle</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> by <span class="op">&gt;</span> H:</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>                lives <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">220</span>, <span class="dv">300</span>)</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> lives <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>                    state <span class="op">=</span> <span class="st">&quot;over&quot;</span></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>                    bx, by, bdx, bdy <span class="op">=</span> serve(level)</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;over&quot;</span>:</span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)):</span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- draw</span></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>        d.fill(BG)</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> x, y, colour, points <span class="kw">in</span> bricks:</span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(<span class="bu">int</span>(x), <span class="bu">int</span>(y), BW <span class="op">-</span> <span class="dv">4</span>, BH <span class="op">-</span> <span class="dv">4</span>, colour)</span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(<span class="bu">int</span>(px), PY, PW, PH, INK)</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;play&quot;</span>:</span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(<span class="bu">int</span>(bx), <span class="bu">int</span>(by), BS, BS, INK)</span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;SCORE </span><span class="sc">{</span>score<span class="sc">:5}</span><span class="ss">&quot;</span>, <span class="dv">8</span>, <span class="dv">8</span>, DIM, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;LEVEL </span><span class="sc">{</span>level<span class="sc">}</span><span class="ss">&quot;</span>, W <span class="op">-</span> <span class="dv">260</span>, <span class="dv">8</span>, DIM, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(lives):</span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(W <span class="op">-</span> <span class="dv">20</span> <span class="op">-</span> i <span class="op">*</span> <span class="dv">16</span>, <span class="dv">14</span>, <span class="dv">12</span>, <span class="dv">6</span>, INK)</span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;B R E A K O U T&quot;</span>, W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">240</span>, <span class="dv">200</span>, INK,</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>                      <span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;LEFT/RIGHT to steer -- SPACE to start&quot;</span>,</span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>                      W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">148</span>, <span class="dv">280</span>, DIM)</span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;over&quot;</span>:</span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;GAME OVER&quot;</span>, W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">144</span>, <span class="dv">200</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>,</span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>                      <span class="dv">3</span>)</span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;SPACE to try again&quot;</span>, W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">72</span>, <span class="dv">280</span>, DIM)</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Play a full game before the autopsy — at least one lost life, at
+least one cleared level. The feel of the row-by-row pitch rising as you
+dig toward the red bricks is data you’ll want for what follows.</p>
+<h2 data-number="23.2" id="the-wall-is-a-list">The wall is a list</h2>
+<p><code>new_wall()</code> builds forty bricks as a <strong>list of
+<code>[x, y, colour, points]</code> entries</strong> — chapter 10,
+load-bearing as ever. Three consequences flow from that one
+decision:</p>
+<ul>
+<li>Drawing the wall is <code>for ... in bricks</code> — no grid
+bookkeeping, no “is this one alive?” flags. <strong>A destroyed brick
+isn’t marked dead; it’s <em>removed</em></strong>
+(<code>bricks.remove(b)</code>), so the draw loop, the collision loop
+and the level-cleared test (<code>if not bricks:</code> — the
+empty-list-is-False idiom from chapter 10) all stay pristine.</li>
+<li>The wall’s <em>shape</em> is the loop that builds it. Rewrite
+<code>new_wall</code> and the same game plays pyramids, checkerboards,
+your initials — experiment 1 goes there.</li>
+<li>Colour and points travel together in each entry — the tuple lesson,
+even inside a list.</li>
+</ul>
+<p>The row constants earn a look too: rows are worth 50 down to 10, so
+digging deep pays — the score system <em>creating</em> the game’s
+ambition without a single extra rule.</p>
+<h2 data-number="23.3" id="which-face-did-the-ball-hit">Which face did
+the ball hit?</h2>
+<p>The chapter’s new physics. Pong’s paddles only ever reflected
+<code>dx</code>; a brick can be struck from any side, and reflecting the
+wrong axis looks <em>wrong</em> instantly (the ball appears to burrow
+through). The test in the listing is the standard trick, worth knowing
+forever:</p>
+<p>When the ball overlaps a brick, measure the overlap on each axis
+—</p>
+<pre><code>from_x = min(ball_right - brick_left, brick_right - ball_left)
+from_y = min(ball_bottom - brick_top, brick_bottom - ball_top)</code></pre>
+<p>— and <strong>the shallower overlap names the face it came
+through</strong>: a ball that just crossed a side edge has barely
+penetrated in x but overlaps generously in y, so
+<code>from_x &lt; from_y</code> means a side strike (flip
+<code>dx</code>); otherwise it came through the top or bottom (flip
+<code>dy</code>). Two <code>min</code>s and a comparison: that’s the
+whole algorithm, and it reads as geometry once you draw one picture of
+it. Corner strikes are genuinely ambiguous — the comparison just picks
+the shallower axis, and nobody watching sixty frames a second will ever
+dispute it.</p>
+<p>And the <code>break</code> — <strong>at most one brick per
+frame</strong> — is not laziness but correctness twice over: the ball
+can overlap two bricks at once (edge between neighbours), and destroying
+both with one flip each would cancel the bounce entirely; worse, we’re
+<em>removing from the list we’re looping over</em>, which chapter 10
+would remind you to never continue past. Strike one, bounce, leave; the
+second brick gets its turn next frame, eight milliseconds later.</p>
+<h2 data-number="23.4" id="the-economy-lives-levels-ramp">The economy:
+lives, levels, ramp</h2>
+<p>Notice what lives and levels are <em>not</em>: new states, new loops,
+new screens. They are two integers, adjusted inside <code>play</code>,
+that decide which of the existing paths runs — down a life and
+<code>serve</code>, or <code>state = "over"</code>; wall empty and it’s
+<code>new_wall()</code> plus a faster <code>serve(level)</code>. The
+<code>min(..., 420)</code> cap on serve speed is an honest engineering
+note in one number: past a certain speed, a ball can step
+<em>through</em> the paddle band between two frames (“tunnelling” — the
+step-per-frame exceeding the paddle’s thickness). Capping speed is the
+beginner-honest fix; chapter 35 mentions the grown-up ones.</p>
+<p>The difficulty ramp is <code>0.15</code> per level, and the paddle
+deflection is Pong’s formula rotated (relative strike position steering
+<code>bdx</code> now). The serve numbers carry a story worth telling:
+this book’s own hardware playtest found the first draft <em>unfair</em>
+— the ball launched from mid-court at 260, giving a paddle stranded at
+one wall half a second to cross. The shipped serve starts just beneath
+the wall and opens at 200, a full second’s travel — because a player who
+dies feeling cheated stops playing, while one who dies feeling
+<em>slow</em> presses SPACE again. Every one of those numbers is
+negotiable, tuned on humans; that’s why they’re at the top of sections,
+not buried.</p>
+<h2 data-number="23.5" id="someone-elses-breakout">Someone else’s
+Breakout</h2>
+<p>One more discipline, best learned early: <strong>reading another
+implementation after writing your own.</strong> The firmware source
+repository carries the port’s own Breakout
+(<code>boards/PICO_COMPUTER_3/tests/breakout.py</code>, from the MMBasic
+original) — and it makes a fascinatingly different choice: the brick
+wall is a chapter 19 <strong>tile map</strong>, collision comes from
+tile attributes, and the paddle and ball are blitted tiles. Same game,
+same physics ideas, entirely different data structure — and neither of
+you is wrong. When you can read it and <em>argue with its choices</em>,
+you have stopped being a beginner.</p>
+<h2 data-number="23.6" id="experiments-22">Experiments</h2>
+<ol type="1">
+<li>New architecture, free: make <code>new_wall</code> build a pyramid
+(rows of decreasing width, centred) — then a checkerboard
+(<code>if (row + col) % 2:</code>, chapter 8’s remainder trick drawing
+again).</li>
+<li>Silver bricks: give some entries a fifth element,
+<code>hits = 2</code>; a struck silver brick decrements and repaints
+<code>GRAY</code> instead of dying. (Careful: only <code>remove</code>
+at zero — and notice how naturally the list entry absorbed a new
+field.)</li>
+<li>Shrink the paddle by 8 pixels each level (<code>PW</code> becomes a
+variable reset at title). Classic cruelty; watch a human notice.</li>
+<li>The pitch ladder: brick beeps already rise with row value — make
+wall and paddle sounds drop an octave each lost life instead. Sound as
+information; players feel it before they notice it.</li>
+<li>Serve mercy: after a lost life, hold the ball glued to the paddle
+until SPACE launches it (a <code>serving</code> flag — or is it a fourth
+<em>state</em>? Try it both ways and decide which reads better. There is
+a defensible answer each way, which is the point).</li>
+</ol>
+<h2 data-number="23.7" id="challenges-22">Challenges</h2>
+<ol type="1">
+<li><strong>Power-ups.</strong> When a brick dies, one time in eight
+(<code>random.randint(1, 8) == 1</code>) drop a falling capsule;
+catching it with the paddle grants wide-paddle / slow-ball / extra-life
+for ten seconds (<code>ticks_diff</code> — chapter 21). Falling things
+are a list; you know everything required.</li>
+<li><strong>The level designer.</strong> Walls from text files —
+<code>#</code> is a brick, <code>.</code> a gap, one row per line
+(chapter 12’s reading loop, chapter 19’s cartographer spirit). Ship
+<code>level1.txt</code> through <code>level5.txt</code> and load them in
+sequence.</li>
+<li><strong>The full arcade.</strong> <code>scorelib</code> hall of fame
+with name entry on the over screen, <code>sfx</code> sounds, a
+<code>.mod</code> soundtrack with <code>mod_sample</code> stings
+(chapter 20), and an attract mode (chapter 22, experiment 5). This is a
+<em>finished product</em> — put it on a card, hand it to someone with no
+idea what’s inside.</li>
+<li><strong>Read the rival.</strong> Get the firmware repo’s
+<code>tests/breakout.py</code> onto your machine and actually run and
+read it. Write down two choices it made better than yours, and two you
+made better. (Both lists will be non-empty. They always are.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="22-chapter-22-anatomy-of-a-game.html" rel="prev">←&nbsp;Chapter 22 — Anatomy of a game</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="24-chapter-24-asteroids-vectors-crowds-and-particles.html" rel="next">Chapter 24 — Asteroids: vectors, crowds and particles&nbsp;→</a>
+</nav>
+</body>
+</html>

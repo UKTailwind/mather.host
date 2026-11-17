@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 1 — What is the Pico Computer
+3? – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="index.html" rel="prev" accesskey="p">←&nbsp;Programming the Pico Computer 3</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="2-chapter-2-getting-started-flashing-and-first-boot.html" rel="next" accesskey="n">Chapter 2 — Getting started: flashing and first boot&nbsp;→</a>
+</nav>
+<h1 data-number="1" id="chapter-1-what-is-the-pico-computer-3">Chapter 1
+— What is the Pico Computer 3?</h1>
+<p>Switch on the Pico Computer 3 and, a moment later, a prompt appears
+on the screen:</p>
+<pre><code>MicroPython on PICO COMPUTER 3 with RP2350B
+&gt;&gt;&gt;</code></pre>
+<p>(Your screen will also show the MicroPython and firmware version
+numbers, which change as the software is updated.) That
+<code>&gt;&gt;&gt;</code> is an invitation. The machine is waiting for
+you to tell it what to do — and the language it speaks is
+<strong>Python</strong>, the most widely used programming language in
+the world.</p>
+<p>That makes the Pico Computer 3 a slightly unusual machine, and it is
+worth taking a page to explain what it is before we plug anything
+in.</p>
+<h2 data-number="1.1"
+id="a-computer-that-boots-straight-into-a-language">A computer that
+boots straight into a language</h2>
+<p>Most computers today hide programming away. A laptop starts up into a
+desktop full of icons, and writing a program means installing special
+software, and the machine does a thousand other things that compete for
+your attention.</p>
+<p>Home computers of the 1980s — machines like the BBC Micro, the ZX
+Spectrum and the Commodore 64 — were different. You switched them on
+and, within a second, you were <em>in</em> the programming language. The
+machine’s whole purpose was to be programmed, and an entire generation
+learned to code because the invitation was right there on the
+screen.</p>
+<p>The Pico Computer 3 revives that idea with modern parts and a modern
+language. There is no desktop and nothing to install. You plug in a
+monitor and a keyboard, switch on, and you are programming. Everything
+the machine can do — draw graphics, play music, read the keyboard and
+mouse, browse its files, connect to Wi-Fi — you do by typing commands,
+and anything you can type as a command you can put in a program.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this will feel familiar — the
+Pico Computer 3 is a close cousin of the PicoMite, and much of its
+firmware is ported directly from PicoMite MMBasic. The difference is the
+language: Python instead of BASIC. Throughout this book, boxes like this
+one translate MMBasic ideas into their Python equivalents.</p>
+</blockquote>
+<blockquote>
+<p><strong>Also on a Colour Maximite 2.</strong> Everything in this book
+also runs on a Colour Maximite 2 — the G1, G2 or G3 — with its
+MicroPython app: the same MicroPython, the same libraries, every example
+program. Appendix K lists the few differences: how you start it, where
+your files are, and which connector pin is which.</p>
+</blockquote>
+<h2 data-number="1.2" id="a-tour-of-the-hardware">A tour of the
+hardware</h2>
+<p>Under the hood, the Pico Computer 3 is built around the
+<strong>RP2350B</strong>, a chip designed by Raspberry Pi. Here is what
+you are getting, in plain terms:</p>
+<figure>
+<img src="figs/01-system.png"
+alt="What’s on the board: the RP2350B at the centre, with its memory, HDMI display, USB host, wireless, audio, clock, storage, power/console and I/O all hanging off it." />
+<figcaption aria-hidden="true">What’s on the board: the RP2350B at the
+centre, with its memory, HDMI display, USB host, wireless, audio, clock,
+storage, power/console and I/O all hanging off it.</figcaption>
+</figure>
+<p><strong>The brain.</strong> The RP2350B has <em>two</em> processor
+cores running at 252 MHz (they can be pushed to 378 MHz — chapter 35).
+One core runs your Python programs; the other is dedicated full-time to
+generating the video picture, which is why graphics feel effortless. By
+the standards of the machines that inspired this one, it is a monster:
+thousands of times faster than a BBC Micro, with tens of thousands of
+times more memory.</p>
+<p><strong>Memory.</strong> Three kinds, and the distinction will matter
+later:</p>
+<ul>
+<li><strong>16 MB of flash</strong> — permanent storage. 12 MB of it is
+a filing system where your programs and files live. Nothing here is lost
+when the power goes off.</li>
+<li><strong>8 MB of PSRAM</strong> — the workspace where your running
+program keeps its variables, images and sounds. Cleared at
+power-off.</li>
+<li><strong>512 KB of fast SRAM</strong> — used by the system itself,
+mostly to hold the screen image.</li>
+</ul>
+<p><strong>The display.</strong> A standard HDMI socket drives any HDMI
+monitor or TV. The machine starts up at 640 × 480 in 256 colours, and
+can go as high as 1024 × 600. The video signal is generated by the chip
+itself — there is no separate graphics card.</p>
+<p><strong>The keyboard, mouse and touch.</strong> The board has its own
+built-in USB hub (a CH334U) supporting up to four devices at once, so a
+normal USB keyboard, a mouse and even a touch screen all plug straight
+in. These are <em>host</em> sockets: they are where you plug devices in,
+not a way to connect the Pico Computer to a PC — the board is the
+computer now, not an accessory.</p>
+<p><strong>Two more ports.</strong> A <strong>USB-C</strong> socket
+supplies the board’s power (through a push-on/push-off switch) and
+doubles as the <em>serial console</em> — a second copy of the Python
+prompt that a PC can connect to; you will use it to send files to the
+machine and as a lifeline if the screen is ever misconfigured. A
+<strong>micro-USB</strong> socket labelled <strong>Prog</strong> is used
+only for installing firmware. Both are explained in chapter 2.</p>
+<p><strong>Storage you can carry.</strong> An SD card slot, mounted as
+<code>/sd</code>. Cards can be swapped while the machine is running, and
+because they are standard FAT cards you can also fill them from a PC —
+handy for images and music.</p>
+<p><strong>Sound.</strong> A proper audio DAC (a PCM5102) feeds a
+standard 3.5 mm stereo jack — plug in headphones or powered speakers.
+The firmware can play WAV, MP3 and FLAC files, generate tones, run a
+four-voice synthesiser, and play classic <code>.mod</code> tracker music
+— chapter 20.</p>
+<p><strong>A clock that keeps time.</strong> A battery-backed DS3231
+real-time clock keeps the date and time even when the machine is
+unplugged, so your programs always know what day it is.</p>
+<p><strong>Wi-Fi and Bluetooth.</strong> A CYW43 wireless chip connects
+the machine to your network and the internet — chapter 30. (A small
+status LED also lives on this chip; you will blink it in the next
+chapter.)</p>
+<p><strong>Room to grow.</strong> Like its Raspberry Pi Pico relatives,
+the board can control electronics you add yourself. An I/O header
+exposes over twenty general-purpose input/output (GPIO) pins plus power,
+for LEDs, buttons, sensors and motors you wire up; and a
+<strong>QWIIC</strong> socket accepts the huge family of plug-together
+I2C modules (SparkFun Qwiic, Adafruit STEMMA QT, Pimoroni Qw/ST) with no
+soldering at all — chapter 32.</p>
+<figure>
+<img src="board.jpg" style="width:100.0%"
+alt="The Pico Computer 3. Along the top: the HEARTBEAT jumper, the wireless module, the CR2032 clock battery and the audio jack. Down the right edge: RESET, the USB-C power/console port with the ON/OFF switch, HDMI, and the I/O header (BOOT just inboard of it). Bottom-left: the micro-SD slot and the SYSTEM I2C (QWIIC) socket. Up the left edge: the USB keyboard/mouse sockets, the Prog port and the USB HUB switch." />
+<figcaption aria-hidden="true">The Pico Computer 3. Along the top: the
+HEARTBEAT jumper, the wireless module, the CR2032 clock battery and the
+audio jack. Down the right edge: RESET, the USB-C power/console port
+with the ON/OFF switch, HDMI, and the I/O header (BOOT just inboard of
+it). Bottom-left: the micro-SD slot and the SYSTEM I2C (QWIIC) socket.
+Up the left edge: the USB keyboard/mouse sockets, the <em>Prog</em> port
+and the USB HUB switch.</figcaption>
+</figure>
+<h2 data-number="1.3" id="what-is-a-program">What is a program?</h2>
+<p>A computer, for all its speed, does nothing on its own. A
+<strong>program</strong> is a list of instructions, written out in
+advance, that the computer follows exactly and very, very fast.
+Programming is the craft of writing those instructions — and the fun of
+it is that a correct list of instructions can do apparently magical
+things: draw a spiral, run a game of Breakout, fetch the weather from
+the internet.</p>
+<p>The catch is that the computer follows your instructions
+<em>exactly</em>, including the wrong ones. It has no idea what you
+meant — only what you typed. Learning to program is partly learning a
+language, and mostly learning to think precisely enough to say what you
+mean. This book teaches both, in small steps, with something to show on
+screen at every step.</p>
+<h2 data-number="1.4" id="why-python">Why Python?</h2>
+<p>The instructions have to be written in a language the machine
+understands. This machine speaks <strong>Python</strong>, and it is hard
+to imagine a better first language:</p>
+<ul>
+<li>It reads almost like English.
+<code>if lives == 0: print("Game over")</code> means exactly what it
+looks like it means.</li>
+<li>It is <em>interactive</em>. You can type one instruction and see the
+result instantly, which is how this whole book works.</li>
+<li>It is real. The Python you learn here is the same language used
+professionally for science, artificial intelligence, web services and
+more. Nothing you learn on this machine is a toy skill.</li>
+</ul>
+<p>Strictly, the machine runs <strong>MicroPython</strong> — a lean,
+real implementation of Python built for small computers. It <em>is</em>
+Python: the language, the way of thinking, and almost every program in
+this book would run unchanged on a desktop. But it is not quite
+<em>desktop</em> Python — it trims a few corners to fit a machine this
+size, and those differences, though small, can catch you out if you
+assume they aren’t there. This book points them out as they arise.</p>
+<p>The Pico Computer 3 also <strong>adds</strong> things that plain
+MicroPython has no notion of: friendly one-word commands like
+<code>run</code>, <code>edit</code> and <code>ls</code>, the file
+manager, and the graphics, sound and input helpers that make this a
+<em>computer</em> and not just a chip. These are genuine conveniences —
+but they live on <em>this</em> machine, not in MicroPython everywhere.
+So whenever a feature is one of these home comforts, the book flags it
+<strong>Pico Computer 3 specific</strong> and, where it helps, shows the
+standard MicroPython way beside it. That way you always know which
+skills travel to other boards and which stay here.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> Python’s biggest culture shock
+is that <em>layout matters</em> — where BASIC marks a block with
+<code>FOR…NEXT</code> or <code>IF…ENDIF</code>, Python marks it by
+indenting the lines inside. You will meet this properly in chapter 7,
+and the full translation table is appendix B.</p>
+</blockquote>
+<h2 data-number="1.5" id="how-to-use-this-book">How to use this
+book</h2>
+<p>The book is a course, not a reference manual — chapters build on each
+other, and each one is built around something you <em>make</em>. Part I
+(you are in it) gets the machine running and teaches you to drive it.
+Part II teaches the Python language itself, using the screen so every
+idea is visible. Part III covers graphics, sound and input; Part IV
+builds four complete games; Part V builds real applications, from GUI
+programs to internet-connected gadgets; Part VI looks under the
+hood.</p>
+<p>Three habits will serve you well from the start:</p>
+<ol type="1">
+<li><strong>Type the examples.</strong> Typing, making mistakes and
+fixing them is where the learning happens. Copy-paste teaches
+nothing.</li>
+<li><strong>Do the Experiments</strong> at the end of each chapter —
+they are small tweaks to what you just built, and each one cements an
+idea.</li>
+<li><strong>Break things.</strong> You cannot damage this machine by
+typing the wrong thing. The worst that happens is an error message or,
+rarely, a frozen program — and chapter 2 shows you how to recover from
+both.</li>
+</ol>
+<p>When you eventually need the fine detail of some command, that lives
+in the <em>Pico Computer 3 User Manual</em> — the machine’s reference
+document. This book points there whenever you are ready for more.</p>
+<h2 data-number="1.6" id="experiments">Experiments</h2>
+<ol type="1">
+<li>Find each connector on your board: HDMI, the keyboard/mouse USB
+sockets, the USB-C console port, the micro-USB <em>Prog</em> port (and
+its <em>USB HUB</em> switch), the SD slot, audio and power. Which ones
+will you use every day, and which just occasionally?</li>
+<li>If you used a home computer of the 1980s (or MMBasic today): what is
+one thing you could do the moment it switched on that a modern laptop
+makes you work for?</li>
+</ol>
+<h2 data-number="1.7" id="challenges">Challenges</h2>
+<ol type="1">
+<li>The RP2350B runs at 252 MHz; a BBC Micro ran at 2 MHz. Estimate how
+many instructions per second each performs, and how long the Pico
+Computer 3 takes to do what took the BBC Micro a full second. (Hint in
+appendix F.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="index.html" rel="prev">←&nbsp;Programming the Pico Computer 3</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="2-chapter-2-getting-started-flashing-and-first-boot.html" rel="next">Chapter 2 — Getting started: flashing and first boot&nbsp;→</a>
+</nav>
+</body>
+</html>

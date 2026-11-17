@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 35 — Performance and
+memory – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="34-chapter-34-doing-several-things-at-once.html" rel="prev" accesskey="p">←&nbsp;Chapter 34 — Doing several things at once</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="36-chapter-36-the-system-itself.html" rel="next" accesskey="n">Chapter 36 — The system itself&nbsp;→</a>
+</nav>
+<h1 data-number="35" id="chapter-35-performance-and-memory">Chapter 35 —
+Performance and memory</h1>
+<p>Sooner or later a program of yours will be too slow — the shooter
+stutters at forty rocks, the plot takes eleven seconds, the gadget
+pauses mid-song. This chapter is the discipline for that day. It has one
+law, a ladder of remedies, and a second resource — memory — whose
+management <em>is</em> speed more often than beginners suspect. The law
+comes first because everything else depends on it:</p>
+<p><strong>Measure. Never guess.</strong> Programmers’ intuitions about
+what is slow are famously, reliably wrong — and you own a microsecond
+stopwatch.</p>
+<h2 data-number="35.1" id="the-stopwatch-made-permanent">The stopwatch,
+made permanent</h2>
+<p><code>edit("bench.py")</code> — the last resident of your toolkit
+library shelf:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># bench.py -- measure before you optimise.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   import bench</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># bench.it(my_function)          # prints and returns best-of</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># microseconds</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> it(fn, repeat<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Time fn() five times; report the BEST run in</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    microseconds.&quot;&quot;&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    best <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(repeat):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        t0 <span class="op">=</span> time.ticks_us()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        fn()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        us <span class="op">=</span> time.ticks_diff(time.ticks_us(), t0)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> best <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> us <span class="op">&lt;</span> best:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            best <span class="op">=</span> us</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>fn<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>best<span class="sc">}</span><span class="ss"> us  (best of </span><span class="sc">{</span>repeat<span class="sc">}</span><span class="ss">)&quot;</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> best</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> nothing():</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    it(nothing)                    <span class="co"># the cost of measuring itself</span></span></code></pre></div>
+<p>Why <em>best-of</em>, not average? Because the slow runs are
+interruptions — a timer callback, a garbage collection — and you are
+measuring your code, not the weather. (<code>ticks_us</code> is
+<code>ticks_ms</code>’s sharper sibling; same wrap-safe
+<code>ticks_diff</code>.)</p>
+<h2 data-number="35.2" id="why-python-costs-what-it-costs">Why Python
+costs what it costs</h2>
+<p>Every innocent line — <code>x = x + 1</code> — is, underneath, a name
+lookup, a type check, an object created for the result. At 252 MHz the
+machine does this fantastically fast <em>per step</em>, and a loop of a
+hundred thousand steps still adds up. Knowing where the costs hide is
+the craft; here they are, measured rather than asserted.
+<code>edit("speedlab.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> micropython</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bench</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="dv">20000</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> globals_loop():</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> gx</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    gx <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        gx <span class="op">=</span> gx <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> locals_loop():</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dotted():</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># module.name looked up N times</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> math.sin(<span class="fl">0.5</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> hoisted():</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    sin <span class="op">=</span> math.sin                  <span class="co"># looked up ONCE</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> sin(<span class="fl">0.5</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> churner():</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N <span class="op">//</span> <span class="dv">10</span>):</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> <span class="st">&quot;score: &quot;</span> <span class="op">+</span> <span class="bu">str</span>(i)      <span class="co"># a new string every lap</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="at">@micropython.native</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> native_loop():</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;--- </span><span class="sc">{</span>N<span class="sc">}</span><span class="ss"> laps each ---&quot;</span>)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> bench.it(globals_loop)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> bench.it(locals_loop)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>bench.it(dotted)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>bench.it(hoisted)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>bench.it(churner)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> bench.it(native_loop)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">locals beat globals by </span><span class="sc">{</span>g <span class="op">/</span> l<span class="sc">:.1f}</span><span class="ss">x; native beats &quot;</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f&quot;plain &quot;</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f&quot;by </span><span class="sc">{</span>l <span class="op">/</span> n<span class="sc">:.1f}</span><span class="ss">x&quot;</span>)</span></code></pre></div>
+<p>Run it and keep the printout — those are <em>your machine’s</em>
+numbers. The lessons, in expected order of magnitude:</p>
+<ul>
+<li><strong>Local variables are fast; globals are dictionary
+lookups.</strong> This is why real work belongs in functions (chapter 11
+was quietly a performance chapter). Inside a hot loop, even a module
+attribute deserves hoisting into a local — <code>sin = math.sin</code>
+before, <code>sin(...)</code> within.</li>
+<li><strong>Allocation is the hidden tax.</strong> <code>churner</code>
+makes two thousand strings nobody keeps; each costs time now and
+garbage-collection time later. Hot loops should <em>reuse</em>, not
+manufacture — the memory half of this chapter returns to it.</li>
+<li><strong><code>@micropython.native</code></strong> — one decorator,
+roughly double the speed. Nothing to install: the
+<code>micropython</code> module is built into the interpreter itself
+(like <code>machine</code>), and the firmware carries a real ARM
+compiler — when a decorated function is <em>defined</em>, machine code
+is generated on the spot, living in RAM alongside your other objects (so
+it costs memory, not flash; keep it for the measured-hot few). Its
+extreme sibling <code>@micropython.viper</code> goes several times
+further with C-like typed integers — a Part VI door to open the day a
+measured loop truly demands it — and, for completeness,
+<code>@micropython.asm_thumb</code> writes inline ARM assembly, the last
+rung before C itself. The MicroPython docs hold the rules for all
+three.</li>
+<li>And <code>micropython.const(...)</code>: module-level integer
+“variables” declared <code>_X = const(42)</code> are folded in at
+compile time — free speed for magic numbers in hot code.</li>
+</ul>
+<h2 data-number="35.3" id="the-real-ladder">The real ladder</h2>
+<p>Micro-craft is the <em>bottom</em> rung. When something is slow,
+climb from the top:</p>
+<ol type="1">
+<li><strong>A better algorithm beats a faster loop, always.</strong> You
+have lived this: Breakout struck one brick per frame instead of testing
+pairs twice; Asteroids compared <em>squared</em> distances and never
+called <code>sqrt</code>. (And chapter 23’s promised grown-up answer to
+tunnelling lives here: don’t cap speed — <em>sub-step</em>: move in
+several small steps per frame, testing each; or test the swept line from
+old to new position. Better algorithm, not faster arithmetic.)</li>
+<li><strong>Let C do the loops.</strong> Every <code>fill</code>,
+<code>blit</code>, <code>tilemap</code> and <code>pcsprite</code> call
+is thousands of pixel-loops done in C — the reason this book never once
+set pixels in a Python loop to clear a screen. Likewise
+<strong>ulab</strong>: chapter 31’s arrays are C loops in costume;
+array-shaped work belongs there (“a hundredfold” was measured, not
+marketed).</li>
+<li><strong>Python micro-craft</strong> — the speedlab lessons — for the
+hot loop that remains.</li>
+<li><strong><code>native</code>/<code>viper</code></strong> for the
+measured-hot few.</li>
+<li><strong>More hertz</strong>: <code>screen(hdmi.RGB640, 378)</code>
+runs the whole machine half again faster (Appendix D’s table; the
+display couples to the clock, which is why it’s set together). Honest
+last resort — it speeds bad code and good code equally.</li>
+</ol>
+<h2 data-number="35.4"
+id="where-the-frame-lives-fast-ram-versus-psram">Where the frame lives:
+fast RAM versus PSRAM</h2>
+<p>The ladder’s rungs were about <em>instructions</em>; there is one
+more lever, and it is about <strong>bytes</strong>. This machine has two
+kinds of RAM (chapter 1 mentioned it quietly): 512 KB of <strong>on-chip
+SRAM</strong> — the processor’s own, answering in a cycle or two — and
+the 8 MB of external <strong>PSRAM</strong> where the heap lives,
+reached over a serial bus at several times the cost per byte. Palatial,
+but out of town.</p>
+<figure>
+<img src="figs/35-sram-psram.png"
+alt="The machine’s two memories: a small, fast on-chip SRAM — where the screen and the fast buffers live — and a large, slow external PSRAM reached over a serial bus, where the heap lives. A frame left in PSRAM pays that bus toll twice every frame." />
+<figcaption aria-hidden="true">The machine’s two memories: a small, fast
+on-chip SRAM — where the screen and the fast buffers live — and a large,
+slow external PSRAM reached over a serial bus, where the heap lives. A
+frame left in PSRAM pays that bus toll twice every frame.</figcaption>
+</figure>
+<p>Why a games chapter cares: a double-buffered frame (chapter 17) is,
+before it is anything else, a byte-moving exercise. Fill F, draw the
+scene on F, copy F to the screen — every frame touches every byte of a
+screen or two. The visible screen sits in on-chip video RAM (the scanout
+hardware reads it sixty times a second; it could hardly live anywhere
+slower). But <code>hdmi.create()</code>’s F buffer comes from the heap —
+PSRAM — and in <code>RGB640</code> that is ~300,000 bytes crossing the
+slow bus twice every frame: once as you draw, once as the copy reads
+them back.</p>
+<p>The firmware’s trick: three modes don’t <em>fill</em> the video RAM,
+and <code>create()</code> claims the idle space — on-chip — instead of
+the heap:</p>
+<ul>
+<li><strong><code>hdmi.RGB640_4</code></strong> — 640 × 480 in 16
+colours: 4 bits a pixel is a 150 KB frame, half the video RAM, so F
+takes the other half. (Fewer colours is also <em>half the bytes to
+touch</em> — the saving compounds.)</li>
+<li><strong><code>hdmi.RGB320</code></strong> — 320 × 240 in full colour
+is also a 150 KB frame, and the same deal applies <strong>if you
+<code>create()</code> before <code>layer()</code></strong>: the spare
+half is first come, first served, and whichever of the two asks second
+is told so (<code>layer()</code> raises; close F and it works).</li>
+<li><strong><code>hdmi.RGB320_8</code></strong> — 320 × 240 in 256
+colours is a 75 KB frame, a <em>quarter</em> of the video RAM — so the
+screen, the chapter-17 overlay layer <strong>and</strong> the F buffer
+all fit on-chip <em>at the same time</em>, no first-come rule, and a
+full <code>copy("F","N")</code> is half of RGB320’s. The only mode that
+offers an overlay and a fast double buffer together: scenery on N, HUD
+on L, compose on F.</li>
+</ul>
+<figure>
+<img src="figs/35-frame-ram.png"
+alt="How the ~300 KB of on-chip video RAM is spent in each mode. Fewer colours or smaller pixels make a smaller frame, leaving room for the off-screen F buffer on-chip — and in RGB320_8, room for N, L and F at once. In RGB640 the frame fills the video RAM, so F is exiled to slow PSRAM." />
+<figcaption aria-hidden="true">How the ~300 KB of on-chip video RAM is
+spent in each mode. Fewer colours or smaller pixels make a smaller
+frame, leaving room for the off-screen <code>F</code> buffer on-chip —
+and in <code>RGB320_8</code>, room for <code>N</code>, <code>L</code>
+and <code>F</code> at once. In <code>RGB640</code> the frame fills the
+video RAM, so <code>F</code> is exiled to slow PSRAM.</figcaption>
+</figure>
+<p>Numbers, not marketing — this chapter’s rule. The port’s 3D ship demo
+at 378 MHz went from <strong>19 fps</strong> (8-bit mode, F in PSRAM) to
+<strong>past MMBasic’s 42 fps</strong> (RGB640_4, both buffers on-chip),
+the two big contributors being the engine’s single-precision hardware
+maths and this section’s change of address. Same algorithm, same drawing
+code; the difference is which RAM the bytes lived in. MMBasic’s fastest
+3D uses exactly this layout — its famous 4-bit game mode — which is why
+the port grew one to match.</p>
+<p>So when a drawing-heavy game disappoints, ask <em>where its bytes
+live</em> before tuning another loop: at 640 × 480, sixteen colours with
+both buffers on-chip out-runs two hundred and fifty-six with one buffer
+out of town — and for wireframe-and-sprite games sixteen is not even a
+compromise, it is the aesthetic.</p>
+<h2 data-number="35.5" id="memory-the-other-resource">Memory: the other
+resource</h2>
+<p>The heap — where every object lives — is the 8 MB PSRAM (chapter 1),
+which is <em>palatial</em> for this class of machine. You will not run
+out by accident; you <em>will</em> meet its two subtler taxes. First,
+the meter:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gc</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(gc.mem_free())               <span class="co"># bytes available right now</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># take out the recycling, on demand</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>gc.collect()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(gc.mem_free())               <span class="co"># ...usually more</span></span></code></pre></div>
+<p><code>edit("memlab.py")</code> — watch objects cost and return:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gc</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>gc.collect()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> gc.mem_free()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;free at start:      </span><span class="sc">{</span>start<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>junk <span class="op">=</span> [<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">10</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2000</span>)]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>after <span class="op">=</span> gc.mem_free()</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;after 2000 lists:   </span><span class="sc">{</span>after<span class="sc">}</span><span class="ss">   (cost </span><span class="sc">{</span>start <span class="op">-</span> after<span class="sc">}</span><span class="ss">)&quot;</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>junk <span class="op">=</span> <span class="va">None</span>                        <span class="co"># drop the only reference...</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>gc.collect()                       <span class="co"># ...and reclaim</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>end <span class="op">=</span> gc.mem_free()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;after collect:      </span><span class="sc">{</span>end<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>The two taxes, then:</p>
+<ul>
+<li><strong>The collection pause.</strong> Garbage isn’t reclaimed when
+you drop it but when the collector <em>runs</em> — automatically,
+whenever the heap wants — and a collection takes milliseconds. In a 16
+ms game frame, that is the mysterious stutter. The cures cooperate:
+<em>allocate less per frame</em> (reuse buffers and lists;
+<code>churner</code> was the villain demo), and <em>collect on your
+schedule</em> — <code>gc.collect()</code> at a level change, a menu, a
+serve, so the pause lands where no player can feel it.</li>
+<li><strong>Fragmentation.</strong> Long-running gadgets that constantly
+make big-then-bigger objects can end with plenty of free memory in
+useless small pieces (<code>MemoryError</code> with megabytes “free”).
+The professional habit: <strong>pre-allocate the big things once, at
+start-up</strong> — <code>bytearray(4096)</code> buffers reused forever,
+the particle list made at boot and recycled — which is precisely how the
+firmware’s own buffers behave, and why your uptime-champion gadget
+(chapter 34) should own all its furniture before the loop begins.</li>
+</ul>
+<h2 data-number="35.6" id="the-worked-session-a-swarm-tuned">The worked
+session: a swarm, tuned</h2>
+<p>Four hundred falling stars, written naively, then tuned by this
+chapter’s rules — with the stopwatch adjudicating.
+<code>edit("swarm.py")</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bench</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>W, H, N <span class="op">=</span> <span class="dv">640</span>, <span class="dv">480</span>, <span class="dv">400</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_stars():</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[i <span class="op">*</span> <span class="fl">1.6</span> <span class="op">%</span> W, (i <span class="op">*</span> <span class="fl">7.3</span>) <span class="op">%</span> H,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            <span class="fl">40.0</span> <span class="op">+</span> (i <span class="op">%</span> <span class="dv">5</span>) <span class="op">*</span> <span class="dv">30</span>] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N)]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- version 1: innocent</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> naive(stars, dt):</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> stars:</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        s[<span class="dv">1</span>] <span class="op">=</span> s[<span class="dv">1</span>] <span class="op">+</span> s[<span class="dv">2</span>] <span class="op">*</span> dt</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> s[<span class="dv">1</span>] <span class="op">&gt;</span> H:</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            s[<span class="dv">1</span>] <span class="op">=</span> s[<span class="dv">1</span>] <span class="op">-</span> H</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a string, every frame,</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        label <span class="op">=</span> <span class="st">&quot;stars: &quot;</span> <span class="op">+</span> <span class="bu">str</span>(<span class="bu">len</span>(stars))</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> label                                 <span class="co"># for no one</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># --- version 2: this chapter applied</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tuned(stars, dt, _H<span class="op">=</span>H):</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> stars:</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># locals, one calculation</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> s[<span class="dv">1</span>] <span class="op">+</span> s[<span class="dv">2</span>] <span class="op">*</span> dt</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> y <span class="op">&gt;</span> _H:</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>            y <span class="op">-=</span> _H</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        s[<span class="dv">1</span>] <span class="op">=</span> y</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the HUD can update ITSELF</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>                                                 <span class="co"># when the count</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>                                                 <span class="co"># CHANGES</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>stars <span class="op">=</span> make_stars()</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>f1 <span class="op">=</span> bench.it(<span class="kw">lambda</span>: naive(stars, <span class="fl">0.016</span>), repeat<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>stars <span class="op">=</span> make_stars()</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>f2 <span class="op">=</span> bench.it(<span class="kw">lambda</span>: tuned(stars, <span class="fl">0.016</span>), repeat<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">tuned is </span><span class="sc">{</span>f1 <span class="op">/</span> f2<span class="sc">:.2f}</span><span class="ss">x quicker -- same stars, same &quot;</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f&quot;physics&quot;</span>)</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>budget <span class="op">=</span> <span class="dv">16667</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;frame budget at 60 fps: </span><span class="sc">{</span>budget<span class="sc">}</span><span class="ss"> us&quot;</span>)</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;  naive swarm uses </span><span class="sc">{</span>f1 <span class="op">*</span> <span class="dv">100</span> <span class="op">//</span> budget<span class="sc">}</span><span class="ss">% of it&quot;</span>)</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;  tuned swarm uses </span><span class="sc">{</span>f2 <span class="op">*</span> <span class="dv">100</span> <span class="op">//</span> budget<span class="sc">}</span><span class="ss">% of it&quot;</span>)</span></code></pre></div>
+<p>(The lambdas wrap arguments for <code>bench.it</code> — chapter 27’s
+trick in lab clothes.) The tuned version does <em>the same physics</em>
+— it merely stops paying rent it never owed: no per-frame string, no
+repeated subscript arithmetic, the bound <code>_H</code> local. On
+big-array days, rung 2 awaits: the same update as
+<code>ys = ys + spds * dt</code> in ulab is another order again (chapter
+31’s race, now with a purpose). And the pattern scales straight into
+chapter 24: put <code>clock.fps</code> on the shooter’s screen,
+<code>bench.it</code> its update phase, hoist and de-churn its hottest
+loop, and watch a number you can defend go up.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> the deal hasn’t changed —
+MMBasic was quick <em>because</em> its heavy commands were C, and its
+escape hatch was the CSUB. Here the C commands are
+<code>blit</code>/<code>tilemap</code>/ulab and the escape hatches are
+<code>native</code>, <code>viper</code> and (chapter 36 points the way)
+C modules of your own.</p>
+</blockquote>
+<h2 data-number="35.7" id="experiments-34">Experiments</h2>
+<ol type="1">
+<li>Instrument a real game: in your Breakout, <code>ticks_us</code>
+around the whole loop body, keep a <code>worst</code> variable, show it
+in the HUD. Play a level. Where do the spikes land — and do they
+coincide with sounds, serves, or (aha) garbage collections?</li>
+<li>Add <code>gc.collect()</code> to Breakout’s serve moment and
+re-measure the worst frame. Scheduled housekeeping, measured benefit —
+this is the whole discipline in one edit.</li>
+<li>Overclock A/B: <code>speedlab.py</code> at 252, then
+<code>screen(hdmi.RGB640, 378)</code> and again. Does everything scale
+by exactly 1.5? (Nearly — and <em>why</em> nearly is a lovely rabbit
+hole: PSRAM and peripherals have clocks of their own.)</li>
+<li>The <code>const</code> experiment: a hot loop using module-level
+<code>LIMIT = 42</code> vs <code>_LIMIT = const(42)</code>. Small, real,
+and now <em>your</em> number rather than folklore.</li>
+<li>Watch fragmentation happen: in a loop, allocate a
+<code>bytearray</code> 10% bigger each time, printing
+<code>gc.mem_free()</code> — how big is the last success? Now
+pre-allocate that size <em>first</em> at a fresh boot and note how much
+further you get. (Chapter 31’s “mind the RAM”, explained at last.)</li>
+<li>Fast RAM A/B, one variable changed: in <code>RGB320</code>,
+<code>close(); create()</code> (F lands on-chip) versus
+<code>close(); layer(); create()</code> (F pushed to PSRAM) — same mode,
+same bytes — and <code>ticks_us</code> around
+<code>hdmi.copy("F", "N")</code>, best of fifty, for each. The ratio you
+measure is the bus toll from “Where the frame lives”, isolated to a
+single number.</li>
+</ol>
+<h2 data-number="35.8" id="challenges-34">Challenges</h2>
+<ol type="1">
+<li><strong>The shooter, certified.</strong> Chapter 24’s Asteroids with
+an engineering report: <code>clock.fps</code> and worst-frame in the
+HUD, the update phase benched before and after tuning, particle list
+pre-allocated and <em>recycled</em> (an object pool: dead sparks are
+reused, never collected), <code>gc.collect()</code> on wave change.
+Target: sixty solid at wave five, numbers to prove it.</li>
+<li><strong>Viper initiation.</strong> The MicroPython docs’ viper
+rules, applied: a plasma effect (per-pixel sine colour cycling into a
+<code>bytearray</code>, blitted as a <code>(buffer, w, h)</code> surface
+— chapter 16’s tuple form) fast enough to be hypnotic. Per-pixel Python
+is exactly what viper is for, and exactly once in this book, it’s worth
+it.</li>
+<li><strong>The memory dashboard.</strong> A chapter 27 GUI gadget:
+<code>gc.mem_free()</code> as a live gauge, a CHURN button that
+allocates junk, a COLLECT button, and a strip-chart (chapter 31’s plot,
+<code>clear=False</code>) of free memory over time. Watching the
+sawtooth teaches more than any paragraph — including this one.</li>
+<li><strong>Race the port authors.</strong> The firmware’s
+<code>tests/breakout.py</code> (the tile-map one) versus your chapter 23
+build: bench both loop bodies, read <em>why</em> the faster one is
+faster, and write three sentences you could defend to the port’s author.
+(You have been able to read that program since chapter 19; now you can
+<em>audit</em> it.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="34-chapter-34-doing-several-things-at-once.html" rel="prev">←&nbsp;Chapter 34 — Doing several things at once</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="36-chapter-36-the-system-itself.html" rel="next">Chapter 36 — The system itself&nbsp;→</a>
+</nav>
+</body>
+</html>

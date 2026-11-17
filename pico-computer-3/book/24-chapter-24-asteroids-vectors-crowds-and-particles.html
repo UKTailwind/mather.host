@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 24 — Asteroids: vectors, crowds and
+particles – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="23-chapter-23-breakout.html" rel="prev" accesskey="p">←&nbsp;Chapter 23 — Breakout</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html" rel="next" accesskey="n">Chapter 25 — The adventure: NPCs, dialogue and saved worlds&nbsp;→</a>
+</nav>
+<h1 data-number="24"
+id="chapter-24-asteroids-vectors-crowds-and-particles">Chapter 24 —
+Asteroids: vectors, crowds and particles</h1>
+<p>Pong gave you the loop; Breakout gave you a destructible world. The
+1979 masterpiece this chapter rebuilds adds the three tools that carry
+every action game since: <strong>rotation</strong> (a ship that points
+where it likes, from two lines of trigonometry), <strong>entity
+crowds</strong> (rocks, bullets and sparks as lists that grow and shrink
+mid-flight), and <strong>momentum</strong> — because what made Asteroids
+immortal was not the shooting but the <em>drift</em>. We honour the
+original’s look, too: vector graphics, drawn fresh each frame, no sprite
+sheet required — the machine can afford what Atari’s engineers bled
+for.</p>
+<p>Two stages again: tonight the ship alone — flight is half the game —
+then the rocks, the guns and the crowd.</p>
+<h2 data-number="24.1" id="the-two-lines-of-trigonometry">The two lines
+of trigonometry</h2>
+<p>Everything new in stage one is this helper:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pt(cx, cy, ang, dist):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> math.radians(ang)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cx <span class="op">+</span> math.sin(r) <span class="op">*</span> dist, cy <span class="op">-</span> math.cos(r) <span class="op">*</span> dist</span></code></pre></div>
+<p><em>The point <code>dist</code> pixels from <code>(cx, cy)</code>, in
+direction <code>ang</code>.</em> Angles work exactly like the turtle’s
+heading (chapter 9): 0° is up, 90° is right, clockwise. <code>sin</code>
+supplies the x-share of the step and <code>cos</code> the y-share
+(minus, because screen y runs down) — that is the entire mathematics of
+rotation in 2-D, and with it you can place a ship’s nose, its wingtips,
+its exhaust flame, or a bullet’s launch point, all from one position and
+one heading. (<code>math</code> covers 2-D games completely; the
+firmware’s <code>pcmath</code> adds quaternions and 3-D vectors for the
+day you leave flatland.)</p>
+<figure>
+<img src="figs/24-vectors.png"
+alt="Placing anything from a position and a heading: sin(a) is the x-step and −cos(a) the y-step (minus, because screen y runs down), with 0° pointing up. Add that step to the ship’s velocity rather than its position and you get momentum." />
+<figcaption aria-hidden="true">Placing anything from a position and a
+heading: <code>sin(a)</code> is the x-step and <code>−cos(a)</code> the
+y-step (minus, because screen y runs down), with 0° pointing up. Add
+that step to the ship’s <em>velocity</em> rather than its position and
+you get momentum.</figcaption>
+</figure>
+<h2 data-number="24.2" id="stage-one-flight">Stage one: flight</h2>
+<p><code>edit("flight.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pt(cx, cy, ang, dist):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> math.radians(ang)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cx <span class="op">+</span> math.sin(r) <span class="op">*</span> dist, cy <span class="op">-</span> math.cos(r) <span class="op">*</span> dist</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x000008</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>FLAME <span class="op">=</span> d.colour(ORANGE)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>STAR <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">4</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>stars <span class="op">=</span> [(random.randint(<span class="dv">0</span>, W <span class="op">-</span> <span class="dv">1</span>), random.randint(<span class="dv">0</span>, H <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>         <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">60</span>)]</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> W <span class="op">/</span> <span class="dv">2</span>, H <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>vx <span class="op">=</span> vy <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co"># heading, degrees, 0 = up</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> clock.tick()</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.LEFT):</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>            a <span class="op">-=</span> <span class="dv">220</span> <span class="op">*</span> dt</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.RIGHT):</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>            a <span class="op">+=</span> <span class="dv">220</span> <span class="op">*</span> dt</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        thrusting <span class="op">=</span> held(keyboard.UP)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> thrusting:</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> math.radians(a)</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>            <span class="co"># thrust adds to VELOCITY</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>            vx <span class="op">+=</span> math.sin(r) <span class="op">*</span> <span class="dv">240</span> <span class="op">*</span> dt</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>            vy <span class="op">-=</span> math.cos(r) <span class="op">*</span> <span class="dv">240</span> <span class="op">*</span> dt</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a whisper of drag</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        vx <span class="op">*=</span> <span class="dv">1</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> dt</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>        vy <span class="op">*=</span> <span class="dv">1</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> dt</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> (x <span class="op">+</span> vx <span class="op">*</span> dt) <span class="op">%</span> W                    <span class="co"># space wraps</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> (y <span class="op">+</span> vy <span class="op">*</span> dt) <span class="op">%</span> H</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>        d.fill(BG)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> sx, sy <span class="kw">in</span> stars:</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>            d.pixel(sx, sy, STAR)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>        nx, ny <span class="op">=</span> pt(x, y, a, <span class="dv">11</span>)                 <span class="co"># nose</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        lx, ly <span class="op">=</span> pt(x, y, a <span class="op">+</span> <span class="dv">140</span>, <span class="dv">9</span>)            <span class="co"># wingtips</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        rx, ry <span class="op">=</span> pt(x, y, a <span class="op">-</span> <span class="dv">140</span>, <span class="dv">9</span>)</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        d.line(<span class="bu">int</span>(nx), <span class="bu">int</span>(ny), <span class="bu">int</span>(lx), <span class="bu">int</span>(ly), INK, <span class="dv">1</span>)</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>        d.line(<span class="bu">int</span>(nx), <span class="bu">int</span>(ny), <span class="bu">int</span>(rx), <span class="bu">int</span>(ry), INK, <span class="dv">1</span>)</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        d.line(<span class="bu">int</span>(lx), <span class="bu">int</span>(ly), <span class="bu">int</span>(rx), <span class="bu">int</span>(ry), INK, <span class="dv">1</span>)</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> thrusting:</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>            fx, fy <span class="op">=</span> pt(x, y, a <span class="op">+</span> <span class="dv">180</span>, <span class="dv">8</span>)</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>            d.line(<span class="bu">int</span>(x), <span class="bu">int</span>(y), <span class="bu">int</span>(fx), <span class="bu">int</span>(fy), FLAME, <span class="dv">1</span>)</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    console()</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    screen(hdmi.RGB640)</span></code></pre></div>
+<p>Fly it until the physics is in your hands — it takes a minute, and
+then it takes hold. What you are feeling:</p>
+<ul>
+<li><strong>Thrust changes velocity, not position.</strong>
+<code>vx += ...</code> — the engine pushes, momentum keeps. Releasing
+thrust doesn’t stop you; pointing backwards and burning does. This one
+design choice <em>is</em> Asteroids. (The <code>1 - 0.3 * dt</code> drag
+is a small modern mercy — set it to <code>1.0</code> exactly for the
+pitiless 1979 handling and see which your thumbs prefer.)</li>
+<li><strong>Space wraps.</strong> <code>% W</code> — off the right edge
+is onto the left. One operator, chapter 3’s remainder, and the little
+screen becomes a boundless torus. Every moving thing in stage two
+inherits it.</li>
+</ul>
+<figure>
+<img src="figs/24-wrap.png"
+alt="% W and % H glue each edge to its opposite: leave one side of the screen and reappear on the other. The little screen becomes a boundless torus." />
+<figcaption aria-hidden="true"><code>% W</code> and <code>% H</code>
+glue each edge to its opposite: leave one side of the screen and
+reappear on the other. The little screen becomes a boundless
+torus.</figcaption>
+</figure>
+<ul>
+<li><strong>The ship is three lines</strong>, re-placed each frame by
+<code>pt()</code> from one <code>(x, y, a)</code> — rotation without a
+single rotated bitmap. The flame is a fourth line, drawn only while
+burning: instant feedback, zero cost.</li>
+<li>We’re in <code>RGB320</code> — the crowd is coming, and the smaller
+framebuffer keeps whole-frame fills and flips cheap (it’s why the
+firmware’s own demos live here too). Note the <code>finally</code>
+returns the survivor to <code>RGB640</code>.</li>
+</ul>
+<h2 data-number="24.3" id="stage-two-the-game">Stage two: the game</h2>
+<p>Rocks that split, bullets that expire, sparks that scatter — three
+<strong>crowds</strong>, each a plain list of
+<code>[x, y, vx, vy, ...]</code> entries, walked, moved and culled every
+frame. This is the “sprite groups” idea in its rawest, most honest form:
+nothing but chapter 10. <code>edit("asteroids.py")</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pt(cx, cy, ang, dist):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> math.radians(ang)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cx <span class="op">+</span> math.sin(r) <span class="op">*</span> dist, cy <span class="op">-</span> math.cos(r) <span class="op">*</span> dist</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x000008</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>FLAME <span class="op">=</span> d.colour(ORANGE)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>STAR <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>ROCKC <span class="op">=</span> d.colour(LITEGRAY)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>RADIUS <span class="op">=</span> {<span class="dv">3</span>: <span class="dv">15</span>, <span class="dv">2</span>: <span class="dv">9</span>, <span class="dv">1</span>: <span class="dv">5</span>}            <span class="co"># rock size -&gt; radius</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>POINTS <span class="op">=</span> {<span class="dv">3</span>: <span class="dv">20</span>, <span class="dv">2</span>: <span class="dv">50</span>, <span class="dv">1</span>: <span class="dv">100</span>}         <span class="co"># small rocks pay best</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_rocks(n):</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    rocks <span class="op">=</span> []</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># spawn on the border: centre is safe</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> random.randint(<span class="dv">0</span>, <span class="dv">1</span>):</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>            rx, ry <span class="op">=</span> random.randint(<span class="dv">0</span>, W <span class="op">-</span> <span class="dv">1</span>), <span class="dv">0</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>            rx, ry <span class="op">=</span> <span class="dv">0</span>, random.randint(<span class="dv">0</span>, H <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        rocks.append([rx <span class="op">*</span> <span class="fl">1.0</span>, ry <span class="op">*</span> <span class="fl">1.0</span>,</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>                      random.randint(<span class="op">-</span><span class="dv">60</span>, <span class="dv">60</span>) <span class="op">*</span> <span class="fl">1.0</span>,</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>                      random.randint(<span class="op">-</span><span class="dv">60</span>, <span class="dv">60</span>) <span class="op">*</span> <span class="fl">1.0</span>, <span class="dv">3</span>])</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rocks</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> burst(x, y, n):</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>        ang <span class="op">=</span> random.randint(<span class="dv">0</span>, <span class="dv">359</span>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        speed <span class="op">=</span> random.randint(<span class="dv">40</span>, <span class="dv">140</span>)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> math.radians(ang)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>        particles.append([x, y, math.sin(r) <span class="op">*</span> speed,</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                         <span class="op">-</span>math.cos(r) <span class="op">*</span> speed,</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>                          random.randint(<span class="dv">20</span>, <span class="dv">45</span>) <span class="op">/</span> <span class="dv">60</span>])</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="co"># different rocks every game</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>random.seed()</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>stars <span class="op">=</span> [(random.randint(<span class="dv">0</span>, W <span class="op">-</span> <span class="dv">1</span>), random.randint(<span class="dv">0</span>, H <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>         <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">60</span>)]</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>rocks <span class="op">=</span> make_rocks(<span class="dv">4</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>bullets <span class="op">=</span> []</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>particles <span class="op">=</span> []</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>x, y <span class="op">=</span> W <span class="op">/</span> <span class="dv">2</span>, H <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>vx <span class="op">=</span> vy <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>lives <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>wave <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>cooldown <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a><span class="co"># seconds of respawn safety</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>shield <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>thrusting <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="co"># soundtrack, if one&#39;s aboard</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    play(<span class="st">&quot;/sd/asteroids.mod&quot;</span>, loop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> clock.tick()</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)):</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>                score, lives, wave <span class="op">=</span> <span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">1</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>                rocks <span class="op">=</span> make_rocks(<span class="dv">4</span>)</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>                bullets <span class="op">=</span> []</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>                particles <span class="op">=</span> []</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>                x, y, vx, vy, a <span class="op">=</span> W <span class="op">/</span> <span class="dv">2</span>, H <span class="op">/</span> <span class="dv">2</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>                shield <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;play&quot;</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>                clock.reset()</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;play&quot;</span>:</span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.LEFT):</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>                a <span class="op">-=</span> <span class="dv">220</span> <span class="op">*</span> dt</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.RIGHT):</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>                a <span class="op">+=</span> <span class="dv">220</span> <span class="op">*</span> dt</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>            thrusting <span class="op">=</span> held(keyboard.UP)</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> thrusting:</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>                r <span class="op">=</span> math.radians(a)</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>                vx <span class="op">+=</span> math.sin(r) <span class="op">*</span> <span class="dv">240</span> <span class="op">*</span> dt</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>                vy <span class="op">-=</span> math.cos(r) <span class="op">*</span> <span class="dv">240</span> <span class="op">*</span> dt</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>            cooldown <span class="op">=</span> <span class="bu">max</span>(<span class="fl">0.0</span>, cooldown <span class="op">-</span> dt)</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>            shield <span class="op">=</span> <span class="bu">max</span>(<span class="fl">0.0</span>, shield <span class="op">-</span> dt)</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)) <span class="kw">and</span> cooldown <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>                <span class="kw">and</span> <span class="bu">len</span>(bullets) <span class="op">&lt;</span> <span class="dv">4</span>):</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>                nx, ny <span class="op">=</span> pt(x, y, a, <span class="dv">11</span>)</span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>                r <span class="op">=</span> math.radians(a)</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>                bullets.append([nx, ny,</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>                                vx <span class="op">+</span> math.sin(r) <span class="op">*</span> <span class="dv">260</span>,</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>                                vy <span class="op">-</span> math.cos(r) <span class="op">*</span> <span class="dv">260</span>, <span class="fl">0.9</span>])</span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>                cooldown <span class="op">=</span> <span class="fl">0.25</span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">1568</span>, <span class="dv">12</span>)</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>            vx <span class="op">*=</span> <span class="dv">1</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> dt</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>            vy <span class="op">*=</span> <span class="dv">1</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> dt</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> (x <span class="op">+</span> vx <span class="op">*</span> dt) <span class="op">%</span> W</span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>            y <span class="op">=</span> (y <span class="op">+</span> vy <span class="op">*</span> dt) <span class="op">%</span> H</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> b <span class="kw">in</span> bullets:</span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>                b[<span class="dv">0</span>] <span class="op">=</span> (b[<span class="dv">0</span>] <span class="op">+</span> b[<span class="dv">2</span>] <span class="op">*</span> dt) <span class="op">%</span> W</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>                b[<span class="dv">1</span>] <span class="op">=</span> (b[<span class="dv">1</span>] <span class="op">+</span> b[<span class="dv">3</span>] <span class="op">*</span> dt) <span class="op">%</span> H</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>                b[<span class="dv">4</span>] <span class="op">-=</span> dt</span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>            bullets <span class="op">=</span> [b <span class="cf">for</span> b <span class="kw">in</span> bullets <span class="cf">if</span> b[<span class="dv">4</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> rk <span class="kw">in</span> rocks:</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>                rk[<span class="dv">0</span>] <span class="op">=</span> (rk[<span class="dv">0</span>] <span class="op">+</span> rk[<span class="dv">2</span>] <span class="op">*</span> dt) <span class="op">%</span> W</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>                rk[<span class="dv">1</span>] <span class="op">=</span> (rk[<span class="dv">1</span>] <span class="op">+</span> rk[<span class="dv">3</span>] <span class="op">*</span> dt) <span class="op">%</span> H</span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> p <span class="kw">in</span> particles:</span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>                p[<span class="dv">0</span>] <span class="op">+=</span> p[<span class="dv">2</span>] <span class="op">*</span> dt</span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>                p[<span class="dv">1</span>] <span class="op">+=</span> p[<span class="dv">3</span>] <span class="op">*</span> dt</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>                p[<span class="dv">4</span>] <span class="op">-=</span> dt</span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>            particles <span class="op">=</span> [p <span class="cf">for</span> p <span class="kw">in</span> particles <span class="cf">if</span> p[<span class="dv">4</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>            <span class="co"># bullets vs rocks: circle test, no square roots</span></span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>            <span class="co"># needed</span></span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> b <span class="kw">in</span> bullets:</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> rk <span class="kw">in</span> rocks:</span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>                    rr <span class="op">=</span> RADIUS[rk[<span class="dv">4</span>]]</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> ((b[<span class="dv">0</span>] <span class="op">-</span> rk[<span class="dv">0</span>]) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> (b[<span class="dv">1</span>] <span class="op">-</span> rk[<span class="dv">1</span>]) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>                        <span class="op">&lt;</span> rr <span class="op">*</span> rr):</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>                        <span class="co"># bullet spent</span></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>                        b[<span class="dv">4</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a>                        score <span class="op">+=</span> POINTS[rk[<span class="dv">4</span>]]</span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>                        burst(rk[<span class="dv">0</span>], rk[<span class="dv">1</span>], <span class="dv">10</span>)</span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a>                        beep(<span class="dv">180</span>, <span class="dv">25</span>)</span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>                        <span class="co"># big rocks split in two</span></span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> rk[<span class="dv">4</span>] <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a>                                rocks.append([rk[<span class="dv">0</span>], rk[<span class="dv">1</span>],</span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>                                              random.randint(<span class="op">-</span><span class="dv">90</span>,</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a>                                                  <span class="dv">90</span>) <span class="op">*</span> <span class="fl">1.0</span>,</span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a>                                              random.randint(<span class="op">-</span><span class="dv">90</span>,</span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a>                                                  <span class="dv">90</span>) <span class="op">*</span> <span class="fl">1.0</span>,</span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a>                                              rk[<span class="dv">4</span>] <span class="op">-</span> <span class="dv">1</span>])</span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a>                        rocks.remove(rk)</span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">break</span></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>            bullets <span class="op">=</span> [b <span class="cf">for</span> b <span class="kw">in</span> bullets <span class="cf">if</span> b[<span class="dv">4</span>] <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ship vs rocks</span></span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> shield <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> rk <span class="kw">in</span> rocks:</span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a>                    rr <span class="op">=</span> RADIUS[rk[<span class="dv">4</span>]] <span class="op">+</span> <span class="dv">6</span></span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> ((x <span class="op">-</span> rk[<span class="dv">0</span>]) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> (y <span class="op">-</span> rk[<span class="dv">1</span>]) <span class="op">**</span> <span class="dv">2</span> <span class="op">&lt;</span> rr</span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>                        <span class="op">*</span> rr):</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a>                        lives <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a>                        burst(x, y, <span class="dv">24</span>)</span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a>                        beep(<span class="dv">120</span>, <span class="dv">400</span>)</span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>                        x, y <span class="op">=</span> W <span class="op">/</span> <span class="dv">2</span>, H <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>                        vx, vy, a <span class="op">=</span> <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span></span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a>                        shield <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> lives <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>                            state <span class="op">=</span> <span class="st">&quot;over&quot;</span></span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">break</span></span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a>            <span class="co"># wave cleared</span></span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> rocks:</span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a>                wave <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a>                rocks <span class="op">=</span> make_rocks(<span class="dv">3</span> <span class="op">+</span> wave)</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a>                shield <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">1320</span>, <span class="dv">250</span>)</span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;over&quot;</span>:</span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)):</span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- draw</span></span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a>        d.fill(BG)</span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> sx, sy <span class="kw">in</span> stars:</span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a>            d.pixel(sx, sy, STAR)</span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> particles:</span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a>            d.pixel(<span class="bu">int</span>(p[<span class="dv">0</span>]) <span class="op">%</span> W, <span class="bu">int</span>(p[<span class="dv">1</span>]) <span class="op">%</span> H, FLAME)</span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rk <span class="kw">in</span> rocks:</span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a>            d.ellipse(<span class="bu">int</span>(rk[<span class="dv">0</span>]), <span class="bu">int</span>(rk[<span class="dv">1</span>]), RADIUS[rk[<span class="dv">4</span>]],</span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a>                      RADIUS[rk[<span class="dv">4</span>]],</span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a>                      ROCKC)</span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b <span class="kw">in</span> bullets:</span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(<span class="bu">int</span>(b[<span class="dv">0</span>]), <span class="bu">int</span>(b[<span class="dv">1</span>]), <span class="dv">2</span>, <span class="dv">2</span>, INK)</span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (state <span class="op">==</span> <span class="st">&quot;play&quot;</span> <span class="kw">and</span> (shield <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a>            <span class="kw">or</span> <span class="bu">int</span>(shield <span class="op">*</span> <span class="dv">8</span>) <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>)):</span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a>            nx, ny <span class="op">=</span> pt(x, y, a, <span class="dv">11</span>)</span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a>            lx, ly <span class="op">=</span> pt(x, y, a <span class="op">+</span> <span class="dv">140</span>, <span class="dv">9</span>)</span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a>            rx2, ry2 <span class="op">=</span> pt(x, y, a <span class="op">-</span> <span class="dv">140</span>, <span class="dv">9</span>)</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a>            d.line(<span class="bu">int</span>(nx), <span class="bu">int</span>(ny), <span class="bu">int</span>(lx), <span class="bu">int</span>(ly), INK, <span class="dv">1</span>)</span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a>            d.line(<span class="bu">int</span>(nx), <span class="bu">int</span>(ny), <span class="bu">int</span>(rx2), <span class="bu">int</span>(ry2), INK, <span class="dv">1</span>)</span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a>            d.line(<span class="bu">int</span>(lx), <span class="bu">int</span>(ly), <span class="bu">int</span>(rx2), <span class="bu">int</span>(ry2), INK, <span class="dv">1</span>)</span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> thrusting:</span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a>                fx, fy <span class="op">=</span> pt(x, y, a <span class="op">+</span> <span class="dv">180</span>, <span class="dv">8</span>)</span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a>                d.line(<span class="bu">int</span>(x), <span class="bu">int</span>(y), <span class="bu">int</span>(fx), <span class="bu">int</span>(fy), FLAME, <span class="dv">1</span>)</span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;</span><span class="sc">{</span>score<span class="sc">:5}</span><span class="ss">&quot;</span>, <span class="dv">8</span>, <span class="dv">6</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;WAVE </span><span class="sc">{</span>wave<span class="sc">}</span><span class="ss">&quot;</span>, W <span class="op">-</span> <span class="dv">76</span>, <span class="dv">6</span>, STAR)</span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(lives):</span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a>            d.line(<span class="dv">12</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">12</span>, <span class="dv">36</span>, <span class="dv">8</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">12</span>, <span class="dv">44</span>, INK, <span class="dv">1</span>)</span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a>            d.line(<span class="dv">12</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">12</span>, <span class="dv">36</span>, <span class="dv">16</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">12</span>, <span class="dv">44</span>, INK, <span class="dv">1</span>)</span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;A S T E R O I D S&quot;</span>, <span class="dv">24</span>, <span class="dv">90</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;arrows steer - space fires&quot;</span>, <span class="dv">56</span>, <span class="dv">140</span>, STAR)</span>
+<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;over&quot;</span>:</span>
+<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;GAME OVER&quot;</span>, <span class="dv">88</span>, <span class="dv">90</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;space to try again&quot;</span>, <span class="dv">88</span>, <span class="dv">140</span>, STAR)</span>
+<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a>    stop()</span>
+<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a>    console()</span>
+<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a>    screen(hdmi.RGB640)</span></code></pre></div>
+<p>A hundred and change lines past the flight model, and every addition
+is a pattern with a name:</p>
+<ul>
+<li><strong>Crowds are lists; culling is a comprehension.</strong>
+Bullets and sparks carry a <em>lifetime</em> in their last slot, ticked
+down by <code>dt</code> and swept with
+<code>[b for b in bullets if b[4] &gt; 0]</code> — build-the- survivors,
+rather than remove-while-looping (Breakout dodged that trap with
+<code>break</code>; the comprehension <em>is</em> the general
+answer).</li>
+<li><strong>Circle collision, without the square root.</strong> Compare
+<em>squared</em> distance against <em>squared</em> radius — same
+verdict, no <code>sqrt</code>, and with dozens of bullet-rock pairs per
+frame the saving is real. This is the round world’s answer to Breakout’s
+rectangle test.</li>
+<li><strong>Rocks split.</strong> A dead size-3 rock appends two size-2s
+before its <code>remove</code> — the crowd <em>grows</em> from
+destruction (count the maximum: 4 rocks become at most 16 small ones —
+your frame budget was sized for it). Small rocks pay five times what big
+ones do: risk, priced.</li>
+<li><strong>Particles are the cheapest magic in games.</strong> An
+explosion is ten pixels with velocities and a lifetime — thirty lines
+total for <code>burst</code> plus its update and draw, and every impact
+in the game now <em>feels</em> like one. The same trick does exhaust
+trails, rain and confetti.</li>
+<li><strong>The shield timer</strong> does double duty: 2 seconds of
+safety after every respawn <em>and</em> the blink that shows it
+(<code>int(shield * 8) % 2</code> — the eraser-trick’s flashing cousin).
+Timers-as-floats, counted down by <code>dt</code>, are how games do
+<em>everything</em> temporary; this file has three
+(<code>cooldown</code>, <code>shield</code>, particle lifetimes).</li>
+<li>And the soundtrack: <code>play(..., loop=True)</code> inside a
+<code>try</code> — the game is complete without the file, richer with
+it. <code>stop()</code> in the <code>finally</code>, of course. (Chapter
+20’s <code>mod_sample</code> upgrade is challenge 2.)</li>
+</ul>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> nothing here needed the sprite
+engine — and that is a lesson in itself. Vector shapes, pixel particles
+and list-crowds compose in the F buffer at full speed;
+<code>pcsprite</code> earns its keep when artwork gets rich (chapter 18)
+rather than numerous.</p>
+</blockquote>
+<h2 data-number="24.4" id="experiments-23">Experiments</h2>
+<ol type="1">
+<li>The classic cheat: hold fire and never thrust. Which wave ends the
+strategy? Now make wave speed scale — <code>make_rocks</code> taking a
+<code>speed</code> argument of <code>40 + 15 * wave</code> — and
+re-price the cheat.</li>
+<li>Make the flame flicker: alternate <code>FLAME</code> and
+<code>INK</code> on odd frames (any counter <code>% 2</code>), and
+lengthen it while thrusting hard (<code>vmag</code>-ish:
+<code>abs(vx) + abs(vy)</code> is a cheap stand-in). Feel beats
+physics.</li>
+<li>Hyperspace: the H key teleports the ship to a random position — the
+1979 panic button, complete with its risk (no shield!). Four lines.</li>
+<li>The wrap seam: shoot a rock that is <em>half off</em> the right edge
+— the bullet sails through its missing half. Fix it the honest way for
+the largest rocks only: test the distance three times (at
+<code>rk[0]</code>, <code>rk[0] - W</code>, <code>rk[0] + W</code>).
+Then decide — as the original’s authors did — whether anyone would ever
+notice.</li>
+<li>Score-keeping under pressure: wire in
+<code>scorelib.add(score, name)</code> on the over screen,
+<code>input()</code> and all — then discover why arcade games invented
+three-initial entry (chapter 21’s <code>keydown</code> version is
+challenge 3’s warm-up).</li>
+</ol>
+<h2 data-number="24.5" id="challenges-23">Challenges</h2>
+<ol type="1">
+<li><strong>The saucer.</strong> Every 20 seconds without one on screen,
+a small UFO crosses horizontally, firing at the <em>ship</em> every 1.5
+s (aim: <code>math.atan2</code> — look it up, it’s <code>pt()</code>’s
+inverse). 200 points, great fear. One more crowd of one.</li>
+<li><strong>The full 1979 soundtrack.</strong> That heartbeat — two
+alternating low notes, <em>quickening as rocks thin out</em>
+(<code>sound()</code> voice 4, period from <code>len(rocks)</code>) —
+plus <code>mod_sample</code> stings if a <code>.mod</code> is aboard.
+The heartbeat is famously half the game’s tension; prove it by turning
+it off.</li>
+<li><strong>Three-initial entry.</strong> An arcade-true high-score
+screen: three letters, LEFT/RIGHT to spin each A–Z, fire to lock — no
+<code>input()</code>, pure <code>keydown</code>, chapter 21 discipline.
+Then it goes in <em>every</em> game you own.</li>
+<li><strong>Asteroids Deluxe.</strong> Rocks as slowly rotating
+<em>polygons</em>: five <code>pt()</code> points per rock at fixed
+offset angles, redrawn with a per-rock spin — the vector look,
+completed. (Budget check with <code>clock.fps</code> before and after —
+chapter 22, experiment 1 — and welcome to real graphics
+engineering.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="23-chapter-23-breakout.html" rel="prev">←&nbsp;Chapter 23 — Breakout</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html" rel="next">Chapter 25 — The adventure: NPCs, dialogue and saved worlds&nbsp;→</a>
+</nav>
+</body>
+</html>

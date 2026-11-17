@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Appendix I — Classes beyond the
+cottage – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="44-appendix-h-troubleshooting.html" rel="prev" accesskey="p">←&nbsp;Appendix H — Troubleshooting</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="46-appendix-j-the-northwind-database.html" rel="next" accesskey="n">Appendix J — The Northwind database&nbsp;→</a>
+</nav>
+<h1 data-number="45" id="appendix-i-classes-beyond-the-cottage">Appendix
+I — Classes beyond the cottage</h1>
+<p>Chapter 14 stopped deliberately: the cottage version of classes is
+all this machine <em>requires</em> of you. But Python built the whole
+neighbourhood, you will meet the rest in other people’s code, and some
+of it will genuinely improve your own. This appendix is the guided tour
+— one section per idea, one runnable example each, and, most
+importantly, <em>when to reach for it</em>. Read it any time after
+chapter 14; skim it now and return when a section’s problem becomes
+yours.</p>
+<p>Everything here runs on the Pico Computer 3 — each example has been
+tested on this firmware’s MicroPython. The one CPython difference that
+matters is flagged in the privacy section.</p>
+<h2 data-number="45.1"
+id="inheritance-blueprints-from-blueprints">Inheritance: blueprints from
+blueprints</h2>
+<p>A class can be built <em>on top of</em> another, inheriting
+everything and changing only what differs:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hero:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, health<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">=</span> health</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> describe(<span class="va">self</span>):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>health<span class="sc">}</span><span class="ss"> HP)&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># a Goblin IS a Hero, plus...</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Goblin(Hero):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(name, health<span class="op">=</span><span class="dv">8</span>)  <span class="co"># run Hero&#39;s setup first</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.loot <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...and describes differently</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> describe(<span class="va">self</span>):</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">super</span>().describe() <span class="op">+</span> <span class="st">&quot; [goblin]&quot;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> Goblin(<span class="st">&quot;Grumble&quot;</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(g.describe())          <span class="co"># Grumble (8 HP) [goblin]</span></span></code></pre></div>
+<p><code>class Goblin(Hero):</code> reads “a Goblin is a kind of Hero”.
+Goblins get <code>take_damage</code>, <code>is_alive</code> and friends
+for free; where the subclass defines its own method
+(<code>describe</code>), that <strong>overrides</strong> the parent’s,
+and <code>super()</code> reaches the parent’s version when the override
+wants to <em>extend</em> rather than replace — the
+<code>super().__init__(...)</code> call in <code>__init__</code> is
+near-mandatory practice, so the parent’s setup always runs.</p>
+<p><strong>When to reach for it:</strong> less often than the big books
+imply. The test is the sentence — <em>a Goblin is a Hero</em> rings
+true; <em>a Game is a Screen</em> does not (a game <strong>has</strong>
+a screen: make it an attribute). Prefer has-a (composition) when in
+doubt; it stays easier to change. The honest everyday uses of is-a are
+the next section, and extending a library class to tweak one
+behaviour.</p>
+<p><code>isinstance(g, Hero)</code> answers <code>True</code> for
+subclasses too — occasionally useful, though the duck-typing section
+below is the more Pythonic instinct.</p>
+<h2 data-number="45.2"
+id="custom-exceptions-inheritance-youll-actually-use">Custom exceptions:
+inheritance you’ll actually use</h2>
+<p>The most immediately profitable subclass in Python is two lines:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GameOver(<span class="pp">Exception</span>):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># deep inside the game...</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> hero.health <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> GameOver(<span class="st">&quot;the goblin won&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># at the top level:</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    play()</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> GameOver <span class="im">as</span> e:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;GAME OVER -- </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    scorelib.add(score, name)</span></code></pre></div>
+<p>Chapter 13 taught you to catch precisely; defining your <em>own</em>
+exception types is how your programs grow precise things to catch.
+<code>GameOver</code> cannot be confused with a <code>ValueError</code>
+from bad input — each gets its own <code>except</code>, and the alarm
+can be raised five functions deep and caught once, cleanly, at the top.
+Name them after the <em>situation</em> (<code>OutOfFuel</code>,
+<code>SaveFileCorrupt</code>), inherit from <code>Exception</code>, and
+<code>pass</code> is a complete implementation.</p>
+<h2 data-number="45.3"
+id="repr__-the-other-voice"><code>__repr__</code>: the other voice</h2>
+<p>Chapter 14 gave objects a <code>__str__</code> for humans. Its
+sibling <code>__repr__</code> speaks to <em>programmers</em> — it is
+what the REPL’s echo and error messages use, and the convention is that
+it looks like the code to rebuild the object:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Vec2:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x, y):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> x</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.y <span class="op">=</span> y</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;Vec2(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>x<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>y<span class="sc">}</span><span class="ss">)&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Vec2(<span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Vec2(<span class="dv">3</span>, <span class="dv">4</span>)</span></code></pre></div>
+<p>Debugging a list of objects goes from
+<code>&lt;Vec2 object at 2000a730&gt;</code> ×10 to something you can
+actually read. Rule of thumb: <code>__str__</code> when your object
+faces users, <code>__repr__</code> always — and if you define only
+<code>__repr__</code>, printing falls back to it.</p>
+<h2 data-number="45.4"
+id="operator-hooks-teaching-and-your-types">Operator hooks: teaching
+<code>+</code> and <code>&lt;</code> your types</h2>
+<p>The double-underscore pattern extends to the operators themselves.
+Two earn their keep constantly on this machine:</p>
+<p><strong><code>__add__</code> and friends</strong> — arithmetic for
+your types. Game positions and velocities beg for it:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Vec2:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x, y):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> x</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.y <span class="op">=</span> y</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Vec2(<span class="va">self</span>.x <span class="op">+</span> other.x, <span class="va">self</span>.y <span class="op">+</span> other.y)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__eq__</span>(<span class="va">self</span>, other):</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.x <span class="op">==</span> other.x <span class="kw">and</span> <span class="va">self</span>.y <span class="op">==</span> other.y</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;Vec2(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>x<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>y<span class="sc">}</span><span class="ss">)&quot;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> Vec2(<span class="dv">100</span>, <span class="dv">50</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>vel <span class="op">=</span> Vec2(<span class="dv">3</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> pos <span class="op">+</span> vel          <span class="co"># readable physics</span></span></code></pre></div>
+<p>The menagerie maps one operator each: <code>__sub__</code>
+(<code>-</code>), <code>__mul__</code> (<code>*</code>),
+<code>__eq__</code> (<code>==</code>), <code>__lt__</code>
+(<code>&lt;</code>), and so on. Define only what makes sense — a
+<code>Vec2</code> you can add is wonderful; a <code>Hero</code> you can
+multiply is a code review comment.</p>
+<p><strong><code>__lt__</code> unlocks sorting.</strong> Chapter 10’s
+<code>sort</code> compares with <code>&lt;</code>, so one hook makes
+your objects sortable, no <code>key=</code> required:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hero:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__lt__</span>(<span class="va">self</span>, other):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.health <span class="op">&lt;</span> other.health</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>party.sort()             <span class="co"># weakest first, ready for triage</span></span></code></pre></div>
+<p>(Both routes are respectable: <code>__lt__</code> bakes in
+<em>the</em> natural order, <code>sort(key=...)</code> picks an order
+per occasion. When a type has one obvious ordering, bake it.)</p>
+<h2 data-number="45.5"
+id="len__-and-__getitem__-passing-for-a-list"><code>__len__</code> and
+<code>__getitem__</code>: passing for a list</h2>
+<p>Give a class these two and it can stand wherever a sequence
+stands:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Deck:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, cards):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cards <span class="op">=</span> cards</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.cards)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, i):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.cards[i]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> Deck([<span class="st">&quot;ace&quot;</span>, <span class="st">&quot;two&quot;</span>, <span class="st">&quot;three&quot;</span>])</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(d), d[<span class="dv">1</span>])       <span class="co"># 3 two</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># yes -- __getitem__ alone makes it loopable</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> card <span class="kw">in</span> d:</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(card)</span></code></pre></div>
+<p>That last line is a pleasant surprise: <code>for</code> will happily
+drive <code>__getitem__</code> with 0, 1, 2… until an
+<code>IndexError</code> says stop. Your <code>Deck</code>,
+<code>ScoreTable</code> or <code>TileRow</code> can <em>be</em>
+loop-able and index-able while keeping its rules — a guarded list, which
+is frequently the class you actually wanted.</p>
+<h2 data-number="45.6"
+id="class-attributes-one-value-all-instances">Class attributes: one
+value, all instances</h2>
+<p>Attributes made in <code>__init__</code> belong to each object. Names
+assigned <em>directly in the class body</em> belong to the
+<strong>class</strong> — one copy, shared:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Counter:</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># class attribute: one for ALL Counters</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    made <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        Counter.made <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>Counter()<span class="op">;</span> Counter()<span class="op">;</span> Counter()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(Counter.made)              <span class="co"># 3</span></span></code></pre></div>
+<p>Reach for them for constants shared by every instance
+(<code>Goblin.max_loot = 3</code>) and tallies like the above. One trap
+to know: <em>reading</em> <code>self.made</code> finds the class
+attribute, but <em>assigning</em> <code>self.made = 5</code> quietly
+creates a per-object attribute that shadows it — which is why the
+increment above says <code>Counter.made</code>, naming the class on
+purpose. When a value should be per-object, set it in
+<code>__init__</code>; when truly shared, address it by class name.</p>
+<h2 data-number="45.7"
+id="property-computed-attributes"><code>@property</code>: computed
+attributes</h2>
+<p>Sometimes a “field” is really a calculation. A
+<strong>property</strong> is a method in attribute’s clothing — read
+without brackets:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Circle:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._r <span class="op">=</span> r</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@property</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> area(<span class="va">self</span>):</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">3.14159</span> <span class="op">*</span> <span class="va">self</span>._r <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> Circle(<span class="dv">2</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 12.56636 -- no brackets; computed on demand</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(c.area)</span></code></pre></div>
+<p>The <code>@property</code> line is a <strong>decorator</strong> — an
+annotation that changes how the <code>def</code> beneath it behaves; you
+have now met the species, and two more of its members close this
+appendix. Properties can also guard assignment:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>    <span class="at">@property</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> r(<span class="va">self</span>):</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._r</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@r.setter</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> r(<span class="va">self</span>, value):</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> value <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;radius must be positive&quot;</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._r <span class="op">=</span> value</span></code></pre></div>
+<p>Now <code>c.r = -1</code> raises, yet callers still write plain,
+honest <code>c.r = 3</code> — chapter 14’s bank-grade rules without
+asking anyone to call methods. The deeper gift: <strong>start with a
+plain attribute</strong>, and if rules or computation arrive later,
+upgrade it to a property — every line of calling code continues to work
+unchanged. That promise is why Python has no culture of
+<code>get_x()</code>/<code>set_x()</code> boilerplate.</p>
+<h2 data-number="45.8"
+id="classmethod-and-staticmethod"><code>@classmethod</code> and
+<code>@staticmethod</code></h2>
+<p>Two more decorators, both about methods that don’t concern one
+particular object. A <strong>classmethod</strong> receives the
+<em>class</em> (as <code>cls</code>) instead of an instance — its star
+role is the alternate constructor:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Score:</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, points, name):</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.points <span class="op">=</span> points</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> from_line(cls, line):</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        points, name <span class="op">=</span> line.strip().split(<span class="st">&quot;,&quot;</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> cls(<span class="bu">int</span>(points), name)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> valid(line):</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;,&quot;</span> <span class="kw">in</span> line</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co"># called on the CLASS, not an object</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> Score.from_line(<span class="st">&quot;91,Ada&quot;</span>)</span></code></pre></div>
+<p><code>Score.from_line(...)</code> reads beautifully next to
+<code>Score(91, "Ada")</code> — two doors into the same class, one for
+fresh values, one for parsing chapter 12’s file lines. A
+<strong>staticmethod</strong> is simply a related function stored in the
+class for tidiness — no <code>self</code>, no <code>cls</code>; the
+class is acting as its namespace.</p>
+<h2 data-number="45.9" id="privacy-the-underscore-treaty">Privacy: the
+underscore treaty</h2>
+<p>Python has no <code>PRIVATE</code> keyword. The convention carrying
+its weight is the single leading underscore: <code>self._r</code>,
+<code>_helper()</code> — meaning <em>“mine; not part of the promise;
+touch at your own risk.”</em> Nothing stops outsiders; everything warns
+them, and in practice the treaty holds.</p>
+<p>A CPython footnote that does <strong>not</strong> hold here: CPython
+slightly scrambles double-underscore names (<code>self.__hidden</code>
+becomes <code>_ClassName__hidden</code> — “name mangling”) to keep
+subclasses from colliding. <strong>MicroPython does not mangle</strong>
+— <code>self.__hidden</code> is plainly reachable on this machine. Write
+to the treaty, not the mangling: one underscore, meant sincerely.</p>
+<h2 data-number="45.10"
+id="duck-typing-the-interface-is-the-behaviour">Duck typing: the
+interface is the behaviour</h2>
+<p>A question chapter 14 left implicit: how does code <em>know</em> it
+received the right kind of object? Python’s answer — it doesn’t check;
+it <em>tries</em>. Any object with the right methods passes:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NullTurtle:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Draws nothing -- for testing shape code without a</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">    screen.&quot;&quot;&quot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, d): <span class="cf">pass</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> right(<span class="va">self</span>, a<span class="op">=</span><span class="dv">90</span>): <span class="cf">pass</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> pencolor(<span class="va">self</span>, c): <span class="cf">pass</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># runs happily; draws nowhere</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>shapes.flower(NullTurtle(), <span class="dv">12</span>, <span class="dv">70</span>)</span></code></pre></div>
+<p><code>flower</code> never demanded a genuine <code>Turtle</code> —
+only something that walks and turns. (“If it quacks like a duck…”) This
+is why chapter 11 passed <code>t</code> as a parameter, and it is a real
+technique: a <code>NullTurtle</code> tests geometry without a screen; a
+<code>LoggingAccount</code> with the same methods as
+<code>Account</code> can stand in during debugging. Reach for
+<code>isinstance</code> only when behaving differently <em>by type</em>
+is the actual requirement; most days, the duck suffices.</p>
+<h2 data-number="45.11" id="when-not-to-use-any-of-this">When
+<em>not</em> to use any of this</h2>
+<p>The most advanced class technique is restraint:</p>
+<ul>
+<li>A pile of related functions with no shared data —
+<code>handy.py</code> — is a <strong>module</strong>, and better for
+it.</li>
+<li>Pure data with no rules riding along is a <strong>tuple or
+dictionary</strong>.</li>
+<li>One instance, made once, used everywhere? A module with variables
+often serves more simply than a class with one object.</li>
+<li>And inheritance is the <em>last</em> tool, after an attribute
+(has-a) has been given first refusal.</li>
+</ul>
+<p>The heuristics of chapter 14 scale all the way up: bundle when data
+and rules travel together; guard the rules where the data lives; and
+choose the simplest shape that holds what you actually have.</p>
+<h2 data-number="45.12" id="where-to-read-further">Where to read
+further</h2>
+<ul>
+<li>MicroPython’s documentation (differences from CPython included):
+https://docs.micropython.org/ — but <strong>read the version that
+matches your firmware</strong>. Pick the <em>released</em> version from
+the selector at the top (v1.28 as this is written), <strong>not</strong>
+the <code>/latest/</code> pages: those document features that aren’t in
+any release yet, so code copied from them may simply not run. This is
+the single most common trap for new MicroPython programmers — it is what
+the pink version banner on every page is warning you about.</li>
+<li>The full data model — every <code>__hook__</code> Python offers —
+lives in the CPython reference; explore it once <code>__init__</code>
+and <code>__str__</code> feel like old friends.</li>
+</ul>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="44-appendix-h-troubleshooting.html" rel="prev">←&nbsp;Appendix H — Troubleshooting</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="46-appendix-j-the-northwind-database.html" rel="next">Appendix J — The Northwind database&nbsp;→</a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 20 — Sound and
+music – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html" rel="prev" accesskey="p">←&nbsp;Chapter 19 — Tile maps: big worlds from small pieces</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html" rel="next" accesskey="n">Chapter 21 — Reading the player: keyboard, mouse and touch&nbsp;→</a>
+</nav>
+<h1 data-number="20" id="chapter-20-sound-and-music">Chapter 20 — Sound
+and music</h1>
+<p>The machine has been beeping at you since chapter 2; time it learned
+to <em>sing</em>. Behind the 3.5 mm jack sits a proper audio DAC and
+four different noise-making engines — a file player, a tone generator, a
+four-voice synthesiser and an Amiga-style music tracker — all running
+<strong>in the background</strong>, so the prompt (and your game loop)
+never waits for a note to finish. Plug in the headphones or speakers
+from chapter 2 and set a civilised volume before anything else:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>volume(<span class="dv">60</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>beep()</span></code></pre></div>
+<h2 data-number="20.1" id="playing-files">Playing files</h2>
+<p>Anything musical you can put on the SD card, the machine plays:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># also .wav, .flac, .mod -- by extension</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>play(<span class="st">&quot;/sd/music/song.mp3&quot;</span>)</span></code></pre></div>
+<p>…and <em>keeps playing</em> while you type, draw, or run a program —
+audio lives on its own machinery. The transport controls are what you’d
+hope: <code>pause()</code>, <code>resume()</code>, <code>stop()</code>,
+<code>is_playing()</code>, and <code>volume(v)</code> (0–100;
+<code>volume()</code> reads it back). <code>play(path, wait=True)</code>
+blocks until the song ends, for the rare time you want that. You met the
+friendly face of all this in chapter 4 — <code>fm</code>’s Enter-to-play
+<em>is</em> <code>play()</code>.</p>
+<h2 data-number="20.2" id="a-one-minute-physics-lesson">A one-minute
+physics lesson</h2>
+<p>Everything else in this chapter is built on one fact: <strong>a
+musical note is a frequency</strong>, in vibrations per second (Hz). The
+A that orchestras tune to is 440 Hz; doubling a frequency raises the
+note an octave (880 is also an A, higher); and the familiar do-re-mi
+steps fall at well-known values in between. One octave’s worth, rounded
+to whole Hz:</p>
+<table>
+<thead>
+<tr>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+<th>F</th>
+<th>G</th>
+<th>A</th>
+<th>B</th>
+<th>C5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>262</td>
+<td>294</td>
+<td>330</td>
+<td>349</td>
+<td>392</td>
+<td>440</td>
+<td>494</td>
+<td>523</td>
+</tr>
+</tbody>
+</table>
+<p>That table is about to become a dictionary, because — chapter 10
+reflex — a <em>melody</em> is data: notes and durations, in a list.</p>
+<figure>
+<img src="figs/20-waveform.png"
+alt="A musical note is a wave. Its frequency — cycles per second — sets the pitch; its amplitude — the wave’s height — sets the volume. tone() plays a pure sine, one per ear." />
+<figcaption aria-hidden="true">A musical note is a wave. Its frequency —
+cycles per second — sets the pitch; its amplitude — the wave’s height —
+sets the volume. <code>tone()</code> plays a pure sine, one per
+ear.</figcaption>
+</figure>
+<h2 data-number="20.3"
+id="tone-two-sine-waves-endless-patience"><code>tone()</code>: two sine
+waves, endless patience</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>tone(<span class="dv">440</span>)                <span class="co"># A, both ears, until further notice</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>tone(<span class="dv">440</span>, <span class="dv">880</span>)           <span class="co"># different note in each ear</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>tone(<span class="dv">262</span>, <span class="dv">262</span>, <span class="dv">500</span>)      <span class="co"># middle C for exactly half a second</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>stop()</span></code></pre></div>
+<p>Two channels (left, right), pure sine waves, and two properties that
+matter more than they look. A timed tone ends <strong>at a zero
+crossing</strong> — no click, ever. And calling <code>tone()</code>
+<em>while a tone plays</em> retunes it seamlessly — which means a melody
+is just a loop of <code>tone()</code> calls, and (challenge 1) a held
+piano key can glide between notes like a singer.
+<code>tone(f, f, ms, wait=True)</code> blocks for the duration — the
+building block of the project below.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>PLAY TONE</code>,
+<code>PLAY SOUND</code>, <code>PLAY MODFILE</code> and
+<code>PLAY MODSAMPLE</code> all kept their behaviour — tones retune live
+and end click-free, the synth’s waveform letters are unchanged, and
+<code>play()</code> dispatches files the way <code>PLAY</code> always
+did.</p>
+</blockquote>
+<h2 data-number="20.4" id="project-the-tune-player">Project: the tune
+player</h2>
+<p>Melody as data, player as machinery — the quiz of chapter 10, reborn
+as an instrument. <code>edit("tunes.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>NOTES <span class="op">=</span> {<span class="st">&quot;C&quot;</span>: <span class="dv">262</span>, <span class="st">&quot;D&quot;</span>: <span class="dv">294</span>, <span class="st">&quot;E&quot;</span>: <span class="dv">330</span>, <span class="st">&quot;F&quot;</span>: <span class="dv">349</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;G&quot;</span>: <span class="dv">392</span>, <span class="st">&quot;A&quot;</span>: <span class="dv">440</span>, <span class="st">&quot;B&quot;</span>: <span class="dv">494</span>, <span class="st">&quot;C5&quot;</span>: <span class="dv">523</span>}</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>ODE <span class="op">=</span> [(<span class="st">&quot;E&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;E&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;F&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;G&quot;</span>, <span class="dv">1</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>       (<span class="st">&quot;G&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;F&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;E&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;D&quot;</span>, <span class="dv">1</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>       (<span class="st">&quot;C&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;C&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;D&quot;</span>, <span class="dv">1</span>), (<span class="st">&quot;E&quot;</span>, <span class="dv">1</span>),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>       (<span class="st">&quot;E&quot;</span>, <span class="fl">1.5</span>), (<span class="st">&quot;D&quot;</span>, <span class="fl">0.5</span>), (<span class="st">&quot;D&quot;</span>, <span class="dv">2</span>)]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> play_tune(melody, bpm<span class="op">=</span><span class="dv">120</span>):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    beat <span class="op">=</span> <span class="dv">60</span> <span class="op">/</span> bpm</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> note, beats <span class="kw">in</span> melody:</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        ms <span class="op">=</span> <span class="bu">int</span>(beats <span class="op">*</span> beat <span class="op">*</span> <span class="dv">1000</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a rest: silence, same length</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> note <span class="op">==</span> <span class="st">&quot;R&quot;</span>:</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            time.sleep(ms <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            tone(NOTES[note], NOTES[note], ms, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a breath between notes</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.02</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>play_tune(ODE, <span class="dv">140</span>)</span></code></pre></div>
+<p>Beethoven, in fifteen tuples. The design is the chapter 10 lesson at
+full power: to play a different tune you write a different <em>list</em>
+— <code>play_tune</code> never changes. Transcribe something you love
+(sheet music optional: hum, hunt the table, adjust), and note the little
+<code>0.02</code> breath — without it, repeated notes merge into one
+long one. Real instruments articulate; so must yours.</p>
+<h2 data-number="20.5"
+id="sound-the-four-voice-synthesiser"><code>sound()</code>: the
+four-voice synthesiser</h2>
+<p><code>tone()</code> is pure and polite. <code>sound()</code> is an
+instrument panel — four independent voices, each with a waveform, a
+side, a frequency and a volume, all changeable <em>live</em>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sound(<span class="dv">1</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;S&quot;</span>, <span class="dv">440</span>)        <span class="co"># voice 1: Sine, Both ears, 440 Hz</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># voice 2: Square wave, Left, quieter</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sound(<span class="dv">2</span>, <span class="st">&quot;L&quot;</span>, <span class="st">&quot;Q&quot;</span>, <span class="dv">110</span>, <span class="dv">15</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>sound(<span class="dv">3</span>, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="dv">1000</span>)       <span class="co"># voice 3: white Noise, Right</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sound(<span class="dv">2</span>, <span class="st">&quot;L&quot;</span>, <span class="st">&quot;O&quot;</span>, <span class="dv">1</span>)          <span class="co"># voice 2 Off</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>stop()                         <span class="co"># everything off</span></span></code></pre></div>
+<p>The waveform letters: <strong>S</strong>ine (smooth),
+s<strong>Q</strong>uare (buzzy, the 8-bit classic),
+<strong>T</strong>riangle (soft), <strong>W</strong> sawtooth (brassy),
+<strong>P</strong>eriodic noise (rumbling) and <strong>N</strong> white
+noise (hiss, surf, explosions) — plus <strong>O</strong>ff. Volume runs
+0–25 <em>per voice</em> (four at full volume exactly fill the output),
+and changes ramp over a few milliseconds so nothing clicks. Three voices
+make a chord; a loop that nudges a frequency makes a siren; noise with a
+falling volume makes the sea. The synthesiser is <code>sound()</code>
+called in loops — which is precisely the project:</p>
+<h2 data-number="20.6" id="project-the-sound-effects-library">Project:
+the sound-effects library</h2>
+<p>Every game in Part IV needs a laser, an explosion, a jump and a coin.
+Build them once, as a library — with a twist at the bottom worth the
+chapter. <code>edit("sfx.py")</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sfx.py -- game sound effects.  import sfx; sfx.coin()</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pcaudio <span class="im">import</span> sound, tone, stop</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> laser():</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> f <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2000</span>, <span class="dv">200</span>, <span class="op">-</span><span class="dv">150</span>):        <span class="co"># a fast falling sweep</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        sound(<span class="dv">1</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;Q&quot;</span>, f, <span class="dv">20</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.01</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    sound(<span class="dv">1</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;O&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boom():</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> v <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">25</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">2</span>):              <span class="co"># noise, fading out</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        sound(<span class="dv">4</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="dv">400</span>, v)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.03</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    sound(<span class="dv">4</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;O&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> jump():</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> f <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">200</span>, <span class="dv">900</span>, <span class="dv">60</span>):           <span class="co"># a quick rising chirp</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        sound(<span class="dv">2</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;T&quot;</span>, f, <span class="dv">18</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.008</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    sound(<span class="dv">2</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;O&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> coin():</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    tone(<span class="dv">988</span>, <span class="dv">988</span>, <span class="dv">80</span>, wait<span class="op">=</span><span class="va">True</span>)           <span class="co"># the two-note classic</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    tone(<span class="dv">1319</span>, <span class="dv">1319</span>, <span class="dv">200</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> siren(times<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(times):</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> f <span class="kw">in</span> (<span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">600</span>, <span class="dv">1200</span>, <span class="dv">25</span>))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                  <span class="op">+</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1200</span>, <span class="dv">600</span>, <span class="op">-</span><span class="dv">25</span>))):</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>            sound(<span class="dv">3</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;S&quot;</span>, f, <span class="dv">16</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>            time.sleep(<span class="fl">0.006</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    sound(<span class="dv">3</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;O&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> keyboard</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> keyboard <span class="im">import</span> keydown</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;SFX BOARD -- 1 laser  2 boom  3 jump  4 coin  5 siren &quot;</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot; Esc quits&quot;</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> keydown(<span class="dv">1</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;1&quot;</span>):</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>            laser()</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;2&quot;</span>):</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>            boom()</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;3&quot;</span>):</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>            jump()</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;4&quot;</span>):</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>            coin()</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;5&quot;</span>):</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>            siren(<span class="dv">1</span>)</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> keyboard.ESC:</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.02</span>)</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    stop()</span></code></pre></div>
+<p>Run it and you have a noise machine; the sounds themselves are
+frequency sweeps and volume fades — loops, wearing sound-designer
+trousers. Change a range and the laser becomes a phaser; that
+<em>is</em> the craft, and it is cheaper to explore than any synthesiser
+ever sold.</p>
+<p>Now the twist:
+<strong><code>if __name__ == "__main__":</code></strong>. When a file is
+<em>run</em>, Python names it <code>"__main__"</code>; when it is
+<em>imported</em>, it gets its own name (<code>"sfx"</code>). So
+everything under that line happens only when the file runs as a program
+— <code>run("sfx.py")</code> gives you the demo board, while
+<code>import sfx</code> in a game gives you silent, obedient functions
+and <em>no</em> demo. One file, both careers. Every library you write
+from today deserves this: its functions above the line, a demonstration
+below.</p>
+<p>And that import at the top —
+<code>from pcaudio import sound, tone, stop</code> — is the same lesson
+seen from the other side. At the prompt, and in any program you
+<code>run()</code>, the board has already laid the table:
+<code>sound</code>, <code>tone</code>, <code>keydown</code> and friends
+are simply <em>there</em>, because boot places them in the main
+program’s namespace and <code>run()</code> hands each program a copy. An
+<strong>imported</strong> module gets no such treatment:
+<code>import sfx</code> gives <code>sfx.py</code> its own clean
+namespace, and a bare <code>sound()</code> inside it would die with
+<code>NameError: name 'sound' isn't defined</code>. So a library must
+import what it uses, from the module each name really lives in — sounds
+from <code>pcaudio</code>, <code>keydown</code> from
+<code>keyboard</code>, colours from <code>pcgfx</code>, the display from
+<code>hdmi</code> (Appendix C maps every boot name to its home module).
+Programs may eat from the table they’re given; libraries pack their own
+lunch.</p>
+<h2 data-number="20.7" id="tracker-music-the-game-soundtrack">Tracker
+music: the game soundtrack</h2>
+<p>One format got special treatment: the Amiga <strong>MOD
+file</strong>, the format an entire generation of games shipped their
+music in. A <code>.mod</code> is sheet music <em>and orchestra in one
+file</em> — instrument samples plus the patterns that play them —
+usually well under 100 KB. The internet’s tracker archives hold decades
+of them (mind the licences), and every MMBasic-era trick works here:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>play(<span class="st">&quot;/sd/game.mod&quot;</span>, loop<span class="op">=</span><span class="va">True</span>)     <span class="co"># background music, forever</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># fire instrument 3 as a sound effect</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>mod_sample(<span class="dv">3</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>mod_sample(<span class="dv">7</span>, rate<span class="op">=</span><span class="dv">24000</span>)           <span class="co"># instrument 7, pitched up</span></span></code></pre></div>
+<p><code>loop=True</code> is the game-music switch. And
+<code>mod_sample</code> is the deep cut: it plays one of the song’s
+<em>own instruments</em> on a spare channel, mixed <strong>over the
+music without interrupting it</strong> — your shots and pickups
+literally scored in the same instruments as the soundtrack, one file for
+the whole audio identity of a game. Chapter 24 uses exactly this.</p>
+<h2 data-number="20.8" id="experiments-19">Experiments</h2>
+<ol type="1">
+<li>Transpose the tune player: <code>play_tune</code> with every
+frequency doubled is the same music an octave up (where do you make the
+change — the data, or the machinery? Argue it, then do it in the
+machinery).</li>
+<li>Fill in the black notes: <code>NOTES</code> is missing sharps —
+<code>"F#": 370</code>, <code>"G#": 415</code>, <code>"A#": 466</code>,
+<code>"C#": 277</code>, <code>"D#": 311</code>. Add them and transcribe
+something that needs one.</li>
+<li>Stereo lab: <code>tone(440, 444)</code> — two ears, four Hz apart.
+The slow <em>wobble</em> you hear is real physics (beats — the
+frequencies drifting in and out of step) and no instrument in this book
+demonstrates it better.</li>
+<li>A chord machine: C major is C, E, G on three voices. Play it with
+sines, then squares, then one of each plus triangle. Same notes — why so
+different? (The waveform <em>is</em> the timbre.)</li>
+<li>Design one new effect for <code>sfx.py</code>: a power-up (rising
+sweep that ends in a <code>coin</code>), an alarm (two squares a
+semitone apart), or rain (quiet <code>P</code> noise, long fade). Name
+it, test it, keep it.</li>
+</ol>
+<h2 data-number="20.9" id="challenges-19">Challenges</h2>
+<ol type="1">
+<li><strong>The piano.</strong> Keys <code>a s d f g h j k</code> are C
+to C5 (chapter 10: a dictionary from key code to frequency). Poll
+<code>keydown(1)</code>: key held → <code>tone()</code> that note
+(retuning live gives glissando for free!); no key → <code>stop()</code>.
+Twenty lines, one real instrument.</li>
+<li><strong>The alarm clock, completed.</strong> Chapter 15’s living
+clock plus this chapter: <code>ask_int</code> an alarm time (chapter
+13’s <code>handy</code>), show it on the face, and at the appointed
+minute <code>play_tune</code> something insistent until a key is
+pressed. <code>/main.py</code>-worthy — this is a genuinely useful
+bedside machine.</li>
+<li><strong>Name that tune.</strong> Five melodies in a dictionary
+(title → note-list), <code>random.choice</code> picks one,
+<code>play_tune</code> it, the player guesses from a printed menu —
+<code>scorelib</code> keeps the championship. Chapters 8, 10, 12 and 20,
+one parlour game.</li>
+<li><strong>The soundtrack audition.</strong> Fetch a <code>.mod</code>
+(or three) onto the SD card, then write the audition rig: play each
+looped for ten seconds, <code>mod_sample</code> a few instruments over
+it while it plays, and print which instruments would make good
+laser/boom/coin sounds. You are casting the orchestra for chapter 24’s
+shooter.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html" rel="prev">←&nbsp;Chapter 19 — Tile maps: big worlds from small pieces</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html" rel="next">Chapter 21 — Reading the player: keyboard, mouse and touch&nbsp;→</a>
+</nav>
+</body>
+</html>

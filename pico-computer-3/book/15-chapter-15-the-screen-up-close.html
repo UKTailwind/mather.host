@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 15 — The screen up
+close – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="14-chapter-14-objects-a-gentle-introduction-to-classes.html" rel="prev" accesskey="p">←&nbsp;Chapter 14 — Objects: a gentle introduction to classes</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="16-chapter-16-bitmap-images-and-sprite-sheets.html" rel="next" accesskey="n">Chapter 16 — Bitmap images and sprite sheets&nbsp;→</a>
+</nav>
+<h1 data-number="15" id="chapter-15-the-screen-up-close">Chapter 15 —
+The screen up close</h1>
+<p>Welcome to Part III. Part II handed you the language; the next seven
+chapters hand you the machine — screen, images, sprites, sound, and
+every way a human can poke it. No new Python from here to Part IV: just
+the good stuff, built out of what you know.</p>
+<blockquote>
+<p><strong>Pico Computer 3 specific.</strong> Almost everything in Part
+III — <code>screen()</code>, the <code>hdmi</code> display, the drawing
+methods, sprites, tile maps, <code>beep()</code>, <code>tone()</code>,
+the sound and image helpers, <code>keydown()</code>,
+<code>mouse()</code>, <code>touch()</code> — is this machine’s hardware,
+wrapped for you. It is not part of standard MicroPython and won’t be
+found on a bare board. That is the point: this is what turns a chip into
+a <em>computer</em>. The <em>language</em> you use to drive it —
+variables, loops, functions, classes — is the portable part; these
+chapters are the home hardware it drives. A Colour Maximite 2’s
+MicroPython app has all of it too (Appendix K).</p>
+</blockquote>
+<p>We start with the screen, because you have been drawing on it for six
+chapters without ever being introduced. The turtle and
+<code>plot()</code> were chauffeur-driven graphics; this chapter gives
+you the keys — every pixel, every colour, every font, under your direct
+command.</p>
+<h2 data-number="15.1" id="how-the-picture-actually-works">How the
+picture actually works</h2>
+<p>There is no magic between your code and the glass. In the machine’s
+memory sits the <strong>framebuffer</strong>: one numbered cell per
+pixel, each holding a colour. Sixty times a second, the second processor
+core (chapter 1’s “other brain”, which does nothing else) ships the
+whole grid to the monitor. That is the entire arrangement — and it
+explains the two facts that govern all graphics here:</p>
+<ul>
+<li><strong>Drawing is just writing numbers into memory.</strong> That
+is why it is fast, and why anything can draw: a line is a loop that
+fills in the right cells.</li>
+<li><strong>Nothing “moves”.</strong> A drawn pixel stays until
+something overdraws it. What looks like motion is drawing, erasing and
+redrawing — a truth that becomes the whole plot of chapter 17.</li>
+</ul>
+<h2 data-number="15.2" id="the-six-screens">The six screens</h2>
+<p>The framebuffer lives in fast memory, and memory is a budget: more
+pixels means fewer bits left per pixel for colour. So the machine offers
+six deals:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Resolution</th>
+<th>Colours</th>
+<th>Character</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hdmi.RGB640</code></td>
+<td>640 × 480</td>
+<td>256</td>
+<td>the all-rounder — <strong>the default</strong></td>
+</tr>
+<tr>
+<td><code>hdmi.RGB320</code></td>
+<td>320 × 240</td>
+<td>65,536</td>
+<td>chunky pixels, gorgeous colour — the <em>games</em> mode</td>
+</tr>
+<tr>
+<td><code>hdmi.RGB512</code></td>
+<td>512 × 300</td>
+<td>65,536</td>
+<td>widescreen, doubled to 1024 × 600</td>
+</tr>
+<tr>
+<td><code>hdmi.RGB1024</code></td>
+<td>1024 × 600</td>
+<td>16</td>
+<td>maximum crispness, palette colour</td>
+</tr>
+<tr>
+<td><code>hdmi.RGB640_4</code></td>
+<td>640 × 480</td>
+<td>16</td>
+<td>the <em>fast game</em> mode — full detail, half the bytes (chapter
+35 explains why that’s a superpower)</td>
+</tr>
+<tr>
+<td><code>hdmi.RGB320_8</code></td>
+<td>320 × 240</td>
+<td>256</td>
+<td>chunky pixels whose buffers are so small that <em>everything</em> —
+screen, overlay, backstage copy — fits in fast memory at once (chapters
+17 and 35 cash this in)</td>
+</tr>
+</tbody>
+</table>
+<p>Switch with <code>screen()</code>, which remembers your choice across
+power-off:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)      <span class="co"># try it -- everything suddenly chunky</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)      <span class="co"># and back</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>screen()                 <span class="co"># what am I on? -&gt; (mode, clock)</span></span></code></pre></div>
+<p>Two practical notes. Monitors take a couple of seconds to lock onto a
+new signal — so a <em>program</em> that switches mode should
+<code>time.sleep(3)</code> before drawing anything it wants seen (at the
+prompt you’re never fast enough for it to matter). And this book teaches
+in the default <code>RGB640</code> — 640 wide, 480 high, 256 colours —
+until the games of Part IV give us reasons to move.</p>
+<p>This chapter’s examples all follow one opening move:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span></code></pre></div>
+<p><code>hdmi.fb()</code> hands you a
+<strong><code>Display</code></strong> object — the framebuffer with a
+toolbox of methods bolted on (a class, as you now know full well):
+MicroPython’s standard <code>framebuf</code> drawing calls, plus a few
+extras of our own. One caution for later: after any
+<code>screen()</code> change, call <code>hdmi.fb()</code> again — the
+old <code>d</code> describes a screen that no longer exists.</p>
+<h2 data-number="15.3" id="the-map-coordinates">The map:
+coordinates</h2>
+<p>You know this from the turtle’s <code>goto</code>: <strong>(0, 0) is
+the top-left</strong> corner, <code>x</code> runs right, and
+<code>y</code> runs <em>down</em> — the legacy of TV tubes scanning top
+to bottom, and universal in computer graphics. So in
+<code>RGB640</code>, bottom-right is (639, 479); the centre is (320,
+240). Better than memorising numbers, ask the machine —
+<code>hdmi.width()</code> and <code>hdmi.height()</code> — and your
+drawings survive mode changes.</p>
+<figure>
+<img src="figs/15-coordinates.png"
+alt="The screen’s coordinate grid in the default RGB640 mode. The origin (0, 0) is the top-left corner; x runs right to 639 and y runs down to 479, so the centre is (320, 240). Any point — here (200, 150) — is read across for x, then down for y." />
+<figcaption aria-hidden="true">The screen’s coordinate grid in the
+default <code>RGB640</code> mode. The origin <code>(0, 0)</code> is the
+top-left corner; <code>x</code> runs right to 639 and <code>y</code>
+runs <em>down</em> to 479, so the centre is <code>(320, 240)</code>. Any
+point — here <code>(200, 150)</code> — is read across for
+<code>x</code>, then down for <code>y</code>.</figcaption>
+</figure>
+<h2 data-number="15.4" id="colour-mixing-light">Colour: mixing
+light</h2>
+<p>A colour here is three numbers, 0–255 each, for <strong>red, green
+and blue light</strong> mixed together — packed into one value written
+in hex: <code>0xRRGGBB</code>. <code>0xFF0000</code> is pure red;
+<code>0x000000</code> all-off black; <code>0xFFFFFF</code> everything-on
+white; <code>0x8000FF</code>, some red and full blue — violet.</p>
+<figure>
+<img src="figs/15-rgb.png"
+alt="Colour is red, green and blue light added together (left), written as one hex number 0xRRGGBB (right) — two digits per channel, 00 (off) to FF (255, full on). 0xFFD700 is full red, most of green and no blue: gold." />
+<figcaption aria-hidden="true">Colour is red, green and blue light added
+together (left), written as one hex number <code>0xRRGGBB</code> (right)
+— two digits per channel, <code>00</code> (off) to <code>FF</code> (255,
+full on). <code>0xFFD700</code> is full red, most of green and no blue:
+gold.</figcaption>
+</figure>
+<p>You already met hex-ish notation in the mode names; here it earns its
+keep: two digits per channel, readable at a glance.</p>
+<p>Twenty-two colours come pre-named — the classic MMBasic sixteen
+(<code>BLACK</code>, <code>BLUE</code>, <code>MYRTLE</code>,
+<code>COBALT</code>, <code>MIDGREEN</code>, <code>CERULEAN</code>,
+<code>GREEN</code>, <code>CYAN</code>, <code>RED</code>,
+<code>MAGENTA</code>, <code>RUST</code>, <code>FUCHSIA</code>,
+<code>BROWN</code>, <code>LILAC</code>, <code>YELLOW</code>,
+<code>WHITE</code>) plus <code>GRAY</code>, <code>LITEGRAY</code>,
+<code>ORANGE</code>, <code>PINK</code>, <code>GOLD</code> and
+<code>SALMON</code>. They are ordinary variables holding
+<code>0xRRGGBB</code> numbers — <code>print(hex(GOLD))</code> if you’re
+curious.</p>
+<p>Now the one rule everyone forgets once: <strong>the drawing methods
+speak native pixel format, not RGB.</strong> Each mode stores colour its
+own way (256-colour bytes, 16-bit words…), so a 24-bit RGB value must be
+converted on its way in — that is <code>d.colour(...)</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ink <span class="op">=</span> d.colour(GOLD)          <span class="co"># or d.colour(0xFFD700), same thing</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>d.fill(ink)</span></code></pre></div>
+<p>Forget the wrapper and nothing crashes — you just get <em>weird
+colours</em>, because your RGB number was misread as native bits. If
+your gold comes out swamp-green, you know what you skipped. (In
+<code>RGB640</code>’s 256 colours, <code>d.colour</code> picks the
+nearest match; the 65,536-colour modes get you closer to exact.)</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> the colour names are MMBasic’s
+own sixteen, and <code>RGB(255, 215, 0)</code> is <code>0xFFD700</code>
+— or literally <code>d.colour(255, 215, 0)</code>, which is accepted
+too. The extra step MMBasic didn’t have is <code>d.colour()</code>’s
+conversion; MMBasic did that behind the curtain.</p>
+</blockquote>
+<h2 data-number="15.5" id="the-toolbox">The toolbox</h2>
+<p>Everything draws through <code>d</code>. The core set:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Call</th>
+<th>Draws</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>d.fill(c)</code></td>
+<td>the whole screen, one colour</td>
+</tr>
+<tr>
+<td><code>d.pixel(x, y, c)</code></td>
+<td>one pixel (omit <code>c</code> to <em>read</em> the pixel)</td>
+</tr>
+<tr>
+<td><code>d.line(x1, y1, x2, y2, c, w)</code></td>
+<td>a line, <code>w</code> pixels thick</td>
+</tr>
+<tr>
+<td><code>d.rect(x, y, w, h, c)</code> /
+<code>d.fill_rect(...)</code></td>
+<td>rectangle, outline / solid</td>
+</tr>
+<tr>
+<td><code>d.rbox(x, y, w, h, r, c, fill=None)</code></td>
+<td>rounded rectangle, optional fill</td>
+</tr>
+<tr>
+<td><code>d.ellipse(x, y, rx, ry, c, True)</code></td>
+<td>ellipse at centre <code>x,y</code>; a sixth argument
+<code>True</code> makes it solid (leave it off for an outline)</td>
+</tr>
+<tr>
+<td><code>d.arc(x, y, r1, r2, a1, a2, c)</code></td>
+<td>a solid ring segment, angles in degrees (0° = up, clockwise;
+<code>a1 == a2</code> = full ring)</td>
+</tr>
+<tr>
+<td><code>d.bezier(points, c)</code></td>
+<td>a smooth curve through <code>(x, y)</code> control points</td>
+</tr>
+<tr>
+<td><code>d.flood(x, y, c)</code></td>
+<td>paint-bucket fill from a point</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>Display</code> is two
+toolboxes in one, and it pays to know which you’re holding.
+<code>pixel</code>, <code>rect</code>, <code>fill_rect</code>,
+<code>ellipse</code> and <code>poly</code> are MicroPython’s own
+standard <code>framebuf</code> calls, unchanged — documented at
+docs.micropython.org, <em>positional only</em>, and where they take a
+“fill” it is a <strong><code>True</code>/<code>False</code> flag, not a
+colour</strong>. MMBasic’s <code>CIRCLE x, y, r, , , c, fill</code>
+ended in a fill <em>colour</em>; here it’s
+<code>d.ellipse(x, y, r, r, c, True)</code> — solid, in <code>c</code>.
+Two traps follow. Writing <code>f=True</code> by name is a
+<code>TypeError</code> (“function doesn’t take keyword arguments”). And
+a colour dropped into that slot doesn’t fill <em>with</em> it — any
+non-zero number just counts as “yes, fill”, in <code>c</code> (and
+<code>BLACK</code>, being 0, counts as “no”). For a disc with a
+contrasting edge, draw it solid in the fill colour, then again as an
+outline in the edge colour. The extras we added — <code>rbox</code>,
+<code>arc</code>, <code>bezier</code>, <code>flood</code>, the thick
+<code>line</code>, and <code>text</code>’s <code>font=</code> — are
+ours, so those <em>do</em> take keywords and, where it makes sense, a
+fill colour.</p>
+</blockquote>
+<p>Try a build-up at the prompt — a landscape in six lines:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>d.fill(d.colour(<span class="bn">0x87CEEB</span>))                              <span class="co"># sky</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">0</span>, <span class="dv">380</span>, <span class="dv">640</span>, <span class="dv">100</span>, d.colour(MIDGREEN))       <span class="co"># ground</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># sun (full disc)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>d.arc(<span class="dv">500</span>, <span class="dv">90</span>, <span class="dv">0</span>, <span class="dv">40</span>, <span class="dv">0</span>, <span class="dv">0</span>, d.colour(YELLOW))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># mountain, left slope</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>d.line(<span class="dv">0</span>, <span class="dv">380</span>, <span class="dv">240</span>, <span class="dv">200</span>, d.colour(GRAY), <span class="dv">4</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># right slope</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>d.line(<span class="dv">240</span>, <span class="dv">200</span>, <span class="dv">480</span>, <span class="dv">380</span>, d.colour(GRAY), <span class="dv">4</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># snow... whole mountain</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>d.flood(<span class="dv">240</span>, <span class="dv">300</span>, d.colour(LITEGRAY))</span></code></pre></div>
+<p>Note the working style: shapes for structure, <code>flood</code> to
+colour enclosed regions in — a colouring book you also drew the outlines
+for. (And notice <code>arc</code> moonlighting: radii from 0 with
+<code>a1 == a2</code> makes a filled circle.)</p>
+<h2 data-number="15.6" id="words-on-the-screen">Words on the screen</h2>
+<p><code>d.text(s, x, y, c)</code> writes in a plain 8×8 font, fine for
+labels. For anything with presence, the machine carries <strong>nine
+bitmap fonts</strong> — MMBasic’s own, same numbers — selected with
+<code>font=</code>, enlarged with <code>scale=</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>d.text(<span class="st">&quot;Hello&quot;</span>, <span class="dv">20</span>, <span class="dv">20</span>, d.colour(WHITE), font<span class="op">=</span><span class="dv">3</span>)           <span class="co"># 16x24</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 8x12, 4x size</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>d.text(<span class="st">&quot;BIG&quot;</span>, <span class="dv">20</span>, <span class="dv">60</span>, d.colour(YELLOW), font<span class="op">=</span><span class="dv">1</span>, scale<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># the digits font</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>hdmi.text(<span class="st">&quot;12:04&quot;</span>, <span class="dv">20</span>, <span class="dv">130</span>, d.colour(GREEN), <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">6</span>)</span></code></pre></div>
+<p>The ones you will actually reach for: <strong>1</strong> (8×12, the
+console font), <strong>3</strong> (16×24, headings), <strong>5</strong>
+(24×32, posters), <strong>6</strong> (32×50 — digits and <code>:</code>
+<em>only</em>, born for clocks and scores), <strong>7/8</strong> (small
+and tiny, for labels). The full table is in the User Manual, section
+5.</p>
+<p>Two facts make layout arithmetic easy. Text backgrounds are
+<strong>transparent by default</strong> (<code>bg=-1</code>) — glyphs
+land on whatever is already drawn; pass a colour as <code>bg</code> to
+get a solid strip instead. And every font is
+<strong>fixed-width</strong>, so a string’s width is just
+<code>len(s) × width × scale</code> — which makes centring a formula
+rather than an art:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>msg <span class="op">=</span> <span class="st">&quot;GAME OVER&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="bu">len</span>(msg) <span class="op">*</span> <span class="dv">16</span> <span class="op">*</span> <span class="dv">2</span>                      <span class="co"># font 3, scale 2</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>hdmi.text(msg, (hdmi.width() <span class="op">-</span> w) <span class="op">//</span> <span class="dv">2</span>, <span class="dv">200</span>, d.colour(RED), <span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>          <span class="dv">3</span>)</span></code></pre></div>
+<h2 data-number="15.7" id="project-the-poster">Project: the poster</h2>
+<p>A full-screen composition — frame, headline, flourishes — and proof
+that “design” is loops and arithmetic wearing a beret.
+<code>edit("poster.py")</code>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>PAPER <span class="op">=</span> d.colour(<span class="bn">0x102040</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>TRIM <span class="op">=</span> d.colour(GOLD)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>GLOW <span class="op">=</span> d.colour(CYAN)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>d.fill(PAPER)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># double frame</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>d.rbox(<span class="dv">8</span>, <span class="dv">8</span>, W <span class="op">-</span> <span class="dv">16</span>, H <span class="op">-</span> <span class="dv">16</span>, <span class="dv">18</span>, TRIM)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>d.rbox(<span class="dv">14</span>, <span class="dv">14</span>, W <span class="op">-</span> <span class="dv">28</span>, H <span class="op">-</span> <span class="dv">28</span>, <span class="dv">14</span>, GLOW)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># headline, centred (font 3 = 16 wide, scale 2)</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>name <span class="op">=</span> <span class="st">&quot;ADA&#39;S WORKSHOP&quot;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="bu">len</span>(name) <span class="op">*</span> <span class="dv">16</span> <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>hdmi.text(name, (W <span class="op">-</span> w) <span class="op">//</span> <span class="dv">2</span>, <span class="dv">56</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co"># a ribbon of two bezier curves</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>d.bezier([(<span class="dv">40</span>, <span class="dv">200</span>), (W <span class="op">//</span> <span class="dv">4</span>, <span class="dv">140</span>), (<span class="dv">3</span> <span class="op">*</span> W <span class="op">//</span> <span class="dv">4</span>, <span class="dv">260</span>), (W <span class="op">-</span> <span class="dv">40</span>,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>         <span class="dv">190</span>)], GLOW)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>d.bezier([(<span class="dv">40</span>, <span class="dv">210</span>), (W <span class="op">//</span> <span class="dv">4</span>, <span class="dv">150</span>), (<span class="dv">3</span> <span class="op">*</span> W <span class="op">//</span> <span class="dv">4</span>, <span class="dv">270</span>), (W <span class="op">-</span> <span class="dv">40</span>,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>         <span class="dv">200</span>)], GLOW)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co"># a row of medals: ring + hanger, spaced by loop arithmetic</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="dv">80</span> <span class="op">+</span> i <span class="op">*</span> (W <span class="op">-</span> <span class="dv">160</span>) <span class="op">//</span> <span class="dv">4</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    d.arc(x, <span class="dv">330</span>, <span class="dv">24</span>, <span class="dv">30</span>, <span class="dv">0</span>, <span class="dv">0</span>, TRIM)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(x <span class="op">-</span> <span class="dv">2</span>, <span class="dv">296</span>, <span class="dv">4</span>, <span class="dv">12</span>, TRIM)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co"># small print (default font, transparent bg)</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>msg <span class="op">=</span> <span class="st">&quot;est. 2026  --  all robots welcome&quot;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="bu">len</span>(msg) <span class="op">*</span> <span class="dv">8</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>hdmi.text(msg, (W <span class="op">-</span> w) <span class="op">//</span> <span class="dv">2</span>, H <span class="op">-</span> <span class="dv">60</span>, d.colour(LITEGRAY))</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>save_image(<span class="st">&quot;poster.bmp&quot;</span>)</span></code></pre></div>
+<p>The last line is worth the chapter on its own:
+<code>save_image</code> writes the framebuffer to a BMP file — your
+poster is now <em>data</em>, copyable to the SD card, viewable in
+<code>fm</code>, printable from a PC. Redesign it around your own name:
+change the palette, add medals, replace the ribbon. (Console text will
+scribble over your masterpiece when the prompt returns —
+<code>run</code> it again any time, or re-<code>save_image</code>
+first.)</p>
+<h2 data-number="15.8" id="project-the-living-clock">Project: the living
+clock</h2>
+<p>Chapter 12 made programs that remember; here is a picture that
+<em>keeps itself true</em> — the battery-backed clock of chapter 1,
+given a face. <code>edit("clockface.py")</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x101828</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>RING <span class="op">=</span> d.colour(GOLD)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>DIGITS <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>d.fill(BG)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>cx <span class="op">=</span> W <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>cy <span class="op">=</span> H <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># font 6 is 32x50: &quot;HH:MM:SS&quot; is 8 characters</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>tw <span class="op">=</span> <span class="dv">8</span> <span class="op">*</span> <span class="dv">32</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> cx <span class="op">-</span> tw <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>y0 <span class="op">=</span> cy <span class="op">-</span> <span class="dv">25</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    h, m, s <span class="op">=</span> gettime()[<span class="dv">3</span>:<span class="dv">6</span>]</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># erase old digits</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(x0, y0, tw, <span class="dv">50</span>, BG)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    hdmi.text(<span class="ss">f&quot;</span><span class="sc">{</span>h<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>m<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>s<span class="sc">:02}</span><span class="ss">&quot;</span>, x0, y0, DIGITS, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">6</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># erase the ring</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    d.arc(cx, cy, <span class="dv">150</span>, <span class="dv">158</span>, <span class="dv">0</span>, <span class="dv">0</span>, BG)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> s:</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># sweep: 6 deg per second</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        d.arc(cx, cy, <span class="dv">150</span>, <span class="dv">158</span>, <span class="dv">0</span>, s <span class="op">*</span> <span class="dv">6</span>, RING)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">1</span>)</span></code></pre></div>
+<p>Study the two techniques, because between them they animate half the
+universe. <strong>The eraser trick</strong>: to change something, first
+paint its old self out in the background colour (<code>fill_rect</code>
+over the digits, a background-coloured ring), then draw the new. And
+<strong>state → angle</strong>: each second is 360/60 = 6°, so the gold
+ring sweeps like a second hand — geometry driven by
+<code>gettime()</code>, the zero-index slice <code>[3:6]</code> picking
+hour, minute, second out of the time tuple.</p>
+<p>Run it. It ticks. Ctrl-C when you tire of the majesty — and know that
+the <em>proper</em> flicker-proof machinery (this one blinks, ever so
+slightly, at each erase — and the console’s own cursor photobombs from
+wherever the prompt left it) is exactly chapter 17’s subject. Some
+readers will already be planning <code>/main.py</code>-ing it beside the
+bed; chapter 29 adds the alarm.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> the whole drawing set maps
+one-to-one — <code>CLS</code> is <code>d.fill()</code>,
+<code>PIXEL</code>/<code>LINE</code>/<code>BOX</code>/<code>RBOX</code>/<code>CIRCLE</code>/<code>ARC</code>
+are the methods above (<code>ARC</code>’s angles behave identically, 0°
+up, clockwise), <code>TEXT</code> is <code>hdmi.text</code>, and the
+font numbers are <em>your</em> font numbers.</p>
+</blockquote>
+<h2 data-number="15.9" id="experiments-14">Experiments</h2>
+<ol type="1">
+<li>Colour lab: fill the screen with <code>0xFF0000</code>,
+<code>0x00FF00</code>, <code>0x0000FF</code> in turn, then mix your own
+sunset orange and compare it with the stock <code>ORANGE</code>
+(<code>print(hex(ORANGE))</code> shows the recipe you are chasing). Then
+deliberately skip <code>d.colour()</code> once and admire the
+swamp.</li>
+<li>Starburst: sixteen thick lines from the screen centre to points
+around the edge — a <code>for</code> over <code>range(0, 640, 40)</code>
+for the top and bottom edges gets you most of the way. Then vary
+<code>w</code> by position.</li>
+<li>Font parade: loop over <code>hdmi.fonts()</code> (it returns
+<code>(number, width, height, ...)</code> tuples — chapter 10!) and
+print each font’s own number in itself, one per row, using the
+<em>height</em> from the tuple to step down the screen.</li>
+<li>The colouring book: draw a face with circles and arcs in outline
+only, then bring it to life with <code>flood</code> — including one
+deliberate leak (a gap in an outline) to learn how flood escapes. Ctrl-C
+stops a runaway flood politely.</li>
+<li>Clock upgrades: erase <em>only</em> the seconds digits (arithmetic:
+they start 6 characters in) so the hours stop flickering; then add a
+minutes ring inside the seconds ring, 6° per minute.</li>
+</ol>
+<h2 data-number="15.10" id="challenges-14">Challenges</h2>
+<ol type="1">
+<li><strong>The test card.</strong> Colour bars, a centred circle,
+corner markers, and the resolution printed in font 3 — like
+<code>hdmi.test()</code>, but yours, and working in every mode (nothing
+hard-coded: <code>width()</code> and <code>height()</code> everywhere).
+Switch modes and run it in each.</li>
+<li><strong>Stained glass.</strong> A dozen random bezier curves in
+<code>BLACK</code> corner to corner, then <code>flood</code> every
+enclosed region in a random colour (random seed points; skip any pixel
+that isn’t background — <code>d.pixel(x, y)</code> <em>reads</em> when
+you omit the colour). Save the best one.</li>
+<li><strong>The scoreboard.</strong> A reusable
+<code>draw_score(points, lives)</code> in your own library:
+right-aligned font-6 score (fixed-width maths), a row of heart-ish
+<code>arc</code> discs for lives, and the eraser trick inside so it can
+be called every frame. You are writing Part IV’s HUD — file it somewhere
+safe.</li>
+<li><strong>Night scene, remastered.</strong> Chapter 9’s turtle night
+sky, redrawn with this chapter’s tools — filled buildings, lit windows
+(<code>fill_rect</code> grids), a <code>bezier</code> skyline, the moon
+an <code>arc</code> disc partly eclipsed by a <code>BG</code>-coloured
+one. Compare programs: where was the turtle better? (Genuine question —
+pathwork <em>is</em> nicer in places. Right tool, right job.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="14-chapter-14-objects-a-gentle-introduction-to-classes.html" rel="prev">←&nbsp;Chapter 14 — Objects: a gentle introduction to classes</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="16-chapter-16-bitmap-images-and-sprite-sheets.html" rel="next">Chapter 16 — Bitmap images and sprite sheets&nbsp;→</a>
+</nav>
+</body>
+</html>

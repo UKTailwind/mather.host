@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="next" href="1-chapter-1-what-is-the-pico-computer-3.html" rel="next" accesskey="n">Chapter 1 — What is the Pico Computer 3?&nbsp;→</a>
+</nav>
+<div class="book-cover">
+  <img src="cover.png" alt="Programming the Pico Computer 3 — cover" />
+</div>
+<nav id="TOC" role="doc-toc">
+<h2 id="toc-title">Contents</h2>
+<ul>
+<li><a
+href="1-chapter-1-what-is-the-pico-computer-3.html#chapter-1-what-is-the-pico-computer-3"
+id="toc-chapter-1-what-is-the-pico-computer-3">Chapter 1 — What is the
+Pico Computer 3?</a>
+<ul>
+<li><a
+href="1-chapter-1-what-is-the-pico-computer-3.html#a-computer-that-boots-straight-into-a-language"
+id="toc-a-computer-that-boots-straight-into-a-language">A computer that
+boots straight into a language</a></li>
+<li><a
+href="1-chapter-1-what-is-the-pico-computer-3.html#a-tour-of-the-hardware"
+id="toc-a-tour-of-the-hardware">A tour of the hardware</a></li>
+<li><a
+href="1-chapter-1-what-is-the-pico-computer-3.html#what-is-a-program"
+id="toc-what-is-a-program">What is a program?</a></li>
+<li><a href="1-chapter-1-what-is-the-pico-computer-3.html#why-python"
+id="toc-why-python">Why Python?</a></li>
+<li><a
+href="1-chapter-1-what-is-the-pico-computer-3.html#how-to-use-this-book"
+id="toc-how-to-use-this-book">How to use this book</a></li>
+<li><a href="1-chapter-1-what-is-the-pico-computer-3.html#experiments"
+id="toc-experiments">Experiments</a></li>
+<li><a href="1-chapter-1-what-is-the-pico-computer-3.html#challenges"
+id="toc-challenges">Challenges</a></li>
+</ul></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#chapter-2-getting-started-flashing-and-first-boot"
+id="toc-chapter-2-getting-started-flashing-and-first-boot">Chapter 2 —
+Getting started: flashing and first boot</a>
+<ul>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#what-you-will-need"
+id="toc-what-you-will-need">What you will need</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#step-1-get-the-firmware"
+id="toc-step-1-get-the-firmware">Step 1 — Get the firmware</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#step-2-flash-the-firmware"
+id="toc-step-2-flash-the-firmware">Step 2 — Flash the firmware</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#step-3-wire-up-and-switch-on"
+id="toc-step-3-wire-up-and-switch-on">Step 3 — Wire up and switch
+on</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#step-4-prove-its-alive"
+id="toc-step-4-prove-its-alive">Step 4 — Prove it’s alive</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#step-5-tell-it-about-your-keyboard"
+id="toc-step-5-tell-it-about-your-keyboard">Step 5 — Tell it about your
+keyboard</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#if-something-doesnt-work"
+id="toc-if-something-doesnt-work">If something doesn’t work</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#experiments-1"
+id="toc-experiments-1">Experiments</a></li>
+<li><a
+href="2-chapter-2-getting-started-flashing-and-first-boot.html#challenges-1"
+id="toc-challenges-1">Challenges</a></li>
+</ul></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#chapter-3-your-first-conversation-with-python"
+id="toc-chapter-3-your-first-conversation-with-python">Chapter 3 — Your
+first conversation with Python</a>
+<ul>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#the-worlds-most-overqualified-calculator"
+id="toc-the-worlds-most-overqualified-calculator">The world’s most
+overqualified calculator</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#two-kinds-of-division"
+id="toc-two-kinds-of-division">Two kinds of division</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#words-not-just-numbers"
+id="toc-words-not-just-numbers">Words, not just numbers</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#print-and-who-is-talking"
+id="toc-print-and-who-is-talking"><code>print()</code>, and who is
+talking</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#breaking-it-on-purpose"
+id="toc-breaking-it-on-purpose">Breaking it on purpose</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#working-comfortably"
+id="toc-working-comfortably">Working comfortably</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#borrowing-more-mathematics"
+id="toc-borrowing-more-mathematics">Borrowing more mathematics</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#experiments-2"
+id="toc-experiments-2">Experiments</a></li>
+<li><a
+href="3-chapter-3-your-first-conversation-with-python.html#challenges-2"
+id="toc-challenges-2">Challenges</a></li>
+</ul></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#chapter-4-finding-your-way-around-files-and-the-shell"
+id="toc-chapter-4-finding-your-way-around-files-and-the-shell">Chapter 4
+— Finding your way around: files and the shell</a>
+<ul>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#two-drives"
+id="toc-two-drives">Two drives</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#where-am-i"
+id="toc-where-am-i">Where am I?</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#making-some-files-to-practise-on"
+id="toc-making-some-files-to-practise-on">Making some files to practise
+on</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#folders-copies-and-moves"
+id="toc-folders-copies-and-moves">Folders, copies, and moves</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#wildcards-acting-on-many-files-at-once"
+id="toc-wildcards-acting-on-many-files-at-once">Wildcards: acting on
+many files at once</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#the-sd-card-and-your-pc"
+id="toc-the-sd-card-and-your-pc">The SD card and your PC</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#fm-the-file-manager"
+id="toc-fm-the-file-manager"><code>fm</code> — the file manager</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#experiments-3"
+id="toc-experiments-3">Experiments</a></li>
+<li><a
+href="4-chapter-4-finding-your-way-around-files-and-the-shell.html#challenges-3"
+id="toc-challenges-3">Challenges</a></li>
+</ul></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#chapter-5-writing-real-programs-the-editor"
+id="toc-chapter-5-writing-real-programs-the-editor">Chapter 5 — Writing
+real programs: the editor</a>
+<ul>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#your-first-program-file"
+id="toc-your-first-program-file">Your first program file</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#getting-comfortable-in-the-editor"
+id="toc-getting-comfortable-in-the-editor">Getting comfortable in the
+editor</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#when-programs-go-wrong-your-first-debugging-workflow"
+id="toc-when-programs-go-wrong-your-first-debugging-workflow">When
+programs go wrong: your first debugging workflow</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#a-program-with-rhythm"
+id="toc-a-program-with-rhythm">A program with rhythm</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#passing-arguments-to-a-program"
+id="toc-passing-arguments-to-a-program">Passing arguments to a
+program</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#getting-programs-in-from-a-pc"
+id="toc-getting-programs-in-from-a-pc">Getting programs in from a
+PC</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#making-a-program-run-at-switch-on"
+id="toc-making-a-program-run-at-switch-on">Making a program run at
+switch-on</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#where-you-now-stand"
+id="toc-where-you-now-stand">Where you now stand</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#experiments-4"
+id="toc-experiments-4">Experiments</a></li>
+<li><a
+href="5-chapter-5-writing-real-programs-the-editor.html#challenges-4"
+id="toc-challenges-4">Challenges</a></li>
+</ul></li>
+<li><a
+href="6-chapter-6-variables-numbers-and-text.html#chapter-6-variables-numbers-and-text"
+id="toc-chapter-6-variables-numbers-and-text">Chapter 6 — Variables,
+numbers and text</a>
+<ul>
+<li><a href="6-chapter-6-variables-numbers-and-text.html#naming-things"
+id="toc-naming-things">Naming things</a></li>
+<li><a
+href="6-chapter-6-variables-numbers-and-text.html#three-kinds-of-value"
+id="toc-three-kinds-of-value">Three kinds of value</a></li>
+<li><a
+href="6-chapter-6-variables-numbers-and-text.html#input-programs-that-listen"
+id="toc-input-programs-that-listen"><code>input()</code>: programs that
+listen</a></li>
+<li><a
+href="6-chapter-6-variables-numbers-and-text.html#f-strings-sentences-with-values-inside"
+id="toc-f-strings-sentences-with-values-inside">f-strings: sentences
+with values inside</a></li>
+<li><a
+href="6-chapter-6-variables-numbers-and-text.html#project-a-program-that-chats-back"
+id="toc-project-a-program-that-chats-back">Project: a program that chats
+back</a></li>
+<li><a
+href="6-chapter-6-variables-numbers-and-text.html#project-a-units-converter"
+id="toc-project-a-units-converter">Project: a units converter</a></li>
+<li><a href="6-chapter-6-variables-numbers-and-text.html#experiments-5"
+id="toc-experiments-5">Experiments</a></li>
+<li><a href="6-chapter-6-variables-numbers-and-text.html#challenges-5"
+id="toc-challenges-5">Challenges</a></li>
+</ul></li>
+<li><a
+href="7-chapter-7-making-decisions-if.html#chapter-7-making-decisions-if"
+id="toc-chapter-7-making-decisions-if">Chapter 7 — Making decisions:
+<code>if</code></a>
+<ul>
+<li><a
+href="7-chapter-7-making-decisions-if.html#questions-with-yesno-answers"
+id="toc-questions-with-yesno-answers">Questions with yes/no
+answers</a></li>
+<li><a href="7-chapter-7-making-decisions-if.html#if-the-fork-itself"
+id="toc-if-the-fork-itself"><code>if</code>: the fork itself</a></li>
+<li><a
+href="7-chapter-7-making-decisions-if.html#else-and-elif-covering-every-road"
+id="toc-else-and-elif-covering-every-road"><code>else</code> and
+<code>elif</code>: covering every road</a></li>
+<li><a href="7-chapter-7-making-decisions-if.html#and-or-not"
+id="toc-and-or-not"><code>and</code>, <code>or</code>,
+<code>not</code></a></li>
+<li><a
+href="7-chapter-7-making-decisions-if.html#secrets-the-random-toolbox"
+id="toc-secrets-the-random-toolbox">Secrets: the <code>random</code>
+toolbox</a></li>
+<li><a
+href="7-chapter-7-making-decisions-if.html#project-the-guessing-game-round-one"
+id="toc-project-the-guessing-game-round-one">Project: the guessing game,
+round one</a></li>
+<li><a href="7-chapter-7-making-decisions-if.html#experiments-6"
+id="toc-experiments-6">Experiments</a></li>
+<li><a href="7-chapter-7-making-decisions-if.html#challenges-6"
+id="toc-challenges-6">Challenges</a></li>
+</ul></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#chapter-8-repeating-yourself-loops"
+id="toc-chapter-8-repeating-yourself-loops">Chapter 8 — Repeating
+yourself: loops</a>
+<ul>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#while-repeat-as-long-as-this-is-true"
+id="toc-while-repeat-as-long-as-this-is-true"><code>while</code>: repeat
+as long as this is true</a></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#the-forever-loop-on-purpose"
+id="toc-the-forever-loop-on-purpose">The forever loop, on
+purpose</a></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#the-rematch-finishing-the-guessing-game"
+id="toc-the-rematch-finishing-the-guessing-game">The rematch: finishing
+the guessing game</a></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#for-and-range-when-you-know-how-many"
+id="toc-for-and-range-when-you-know-how-many"><code>for</code> and
+<code>range()</code>: when you know how many</a></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#loops-you-can-see"
+id="toc-loops-you-can-see">Loops you can see</a></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#break-and-continue-steering-mid-loop"
+id="toc-break-and-continue-steering-mid-loop"><code>break</code> and
+<code>continue</code>: steering mid-loop</a></li>
+<li><a
+href="8-chapter-8-repeating-yourself-loops.html#project-the-times-table-dojo"
+id="toc-project-the-times-table-dojo">Project: the times-table
+dojo</a></li>
+<li><a href="8-chapter-8-repeating-yourself-loops.html#experiments-7"
+id="toc-experiments-7">Experiments</a></li>
+<li><a href="8-chapter-8-repeating-yourself-loops.html#challenges-7"
+id="toc-challenges-7">Challenges</a></li>
+</ul></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#chapter-9-turtle-graphics-loops-you-can-see"
+id="toc-chapter-9-turtle-graphics-loops-you-can-see">Chapter 9 — Turtle
+graphics: loops you can see</a>
+<ul>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#first-steps"
+id="toc-first-steps">First steps</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#the-square-and-the-moment-of-the-chapter"
+id="toc-the-square-and-the-moment-of-the-chapter">The square, and the
+moment of the chapter</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#every-polygon-at-once"
+id="toc-every-polygon-at-once">Every polygon at once</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#stars-when-the-turtle-overshoots"
+id="toc-stars-when-the-turtle-overshoots">Stars: when the turtle
+overshoots</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#spirals-let-the-steps-grow"
+id="toc-spirals-let-the-steps-grow">Spirals: let the steps grow</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#nested-loops-the-flower"
+id="toc-nested-loops-the-flower">Nested loops: the flower</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#project-the-spirograph"
+id="toc-project-the-spirograph">Project: the spirograph</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#experiments-8"
+id="toc-experiments-8">Experiments</a></li>
+<li><a
+href="9-chapter-9-turtle-graphics-loops-you-can-see.html#challenges-8"
+id="toc-challenges-8">Challenges</a></li>
+</ul></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#chapter-10-collections-lists-tuples-and-dictionaries"
+id="toc-chapter-10-collections-lists-tuples-and-dictionaries">Chapter 10
+— Collections: lists, tuples and dictionaries</a>
+<ul>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#lists-an-ordered-changeable-crowd"
+id="toc-lists-an-ordered-changeable-crowd">Lists: an ordered, changeable
+crowd</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#walking-a-list"
+id="toc-walking-a-list">Walking a list</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#slices-a-piece-of-the-list"
+id="toc-slices-a-piece-of-the-list">Slices: a piece of the list</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#sorting"
+id="toc-sorting">Sorting</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#tuples-values-that-belong-together"
+id="toc-tuples-values-that-belong-together">Tuples: values that belong
+together</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#dictionaries-look-things-up-by-name"
+id="toc-dictionaries-look-things-up-by-name">Dictionaries: look things
+up by name</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#choosing-your-container"
+id="toc-choosing-your-container">Choosing your container</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#project-the-high-score-table"
+id="toc-project-the-high-score-table">Project: the high-score
+table</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#project-the-quiz-grown-up"
+id="toc-project-the-quiz-grown-up">Project: the quiz, grown up</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#what-you-now-hold"
+id="toc-what-you-now-hold">What you now hold</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#experiments-9"
+id="toc-experiments-9">Experiments</a></li>
+<li><a
+href="10-chapter-10-collections-lists-tuples-and-dictionaries.html#challenges-9"
+id="toc-challenges-9">Challenges</a></li>
+</ul></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#chapter-11-functions-building-your-own-commands"
+id="toc-chapter-11-functions-building-your-own-commands">Chapter 11 —
+Functions: building your own commands</a>
+<ul>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#def-teaching-then-telling"
+id="toc-def-teaching-then-telling"><code>def</code>: teaching, then
+telling</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#parameters-one-function-a-family-of-jobs"
+id="toc-parameters-one-function-a-family-of-jobs">Parameters: one
+function, a family of jobs</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#return-functions-that-answer"
+id="toc-return-functions-that-answer"><code>return</code>: functions
+that answer</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#scope-the-sealed-room"
+id="toc-scope-the-sealed-room">Scope: the sealed room</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#the-refactor-chapter-9-four-lines-at-a-time"
+id="toc-the-refactor-chapter-9-four-lines-at-a-time">The refactor:
+chapter 9, four lines at a time</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#project-your-shapes-library"
+id="toc-project-your-shapes-library">Project: your shapes
+library</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#what-you-now-hold-1"
+id="toc-what-you-now-hold-1">What you now hold</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#experiments-10"
+id="toc-experiments-10">Experiments</a></li>
+<li><a
+href="11-chapter-11-functions-building-your-own-commands.html#challenges-10"
+id="toc-challenges-10">Challenges</a></li>
+</ul></li>
+<li><a
+href="12-chapter-12-strings-and-files.html#chapter-12-strings-and-files"
+id="toc-chapter-12-strings-and-files">Chapter 12 — Strings and files</a>
+<ul>
+<li><a href="12-chapter-12-strings-and-files.html#strings-are-sequences"
+id="toc-strings-are-sequences">Strings are sequences</a></li>
+<li><a
+href="12-chapter-12-strings-and-files.html#string-methods-the-text-workshop"
+id="toc-string-methods-the-text-workshop">String methods: the text
+workshop</a></li>
+<li><a
+href="12-chapter-12-strings-and-files.html#split-and-join-strings-lists"
+id="toc-split-and-join-strings-lists">Split and join: strings ↔︎
+lists</a></li>
+<li><a href="12-chapter-12-strings-and-files.html#files-the-full-story"
+id="toc-files-the-full-story">Files, the full story</a></li>
+<li><a href="12-chapter-12-strings-and-files.html#project-the-diary"
+id="toc-project-the-diary">Project: the diary</a></li>
+<li><a
+href="12-chapter-12-strings-and-files.html#project-scores-that-survive-a-library"
+id="toc-project-scores-that-survive-a-library">Project: scores that
+survive — a library</a></li>
+<li><a
+href="12-chapter-12-strings-and-files.html#jumping-around-seek-tell-and-fixed-length-records"
+id="toc-jumping-around-seek-tell-and-fixed-length-records">Jumping
+around: <code>seek</code>, <code>tell</code> and fixed-length
+records</a></li>
+<li><a
+href="12-chapter-12-strings-and-files.html#one-more-gift-sort-meets-your-functions"
+id="toc-one-more-gift-sort-meets-your-functions">One more gift:
+<code>sort</code> meets your functions</a></li>
+<li><a href="12-chapter-12-strings-and-files.html#what-you-now-hold-2"
+id="toc-what-you-now-hold-2">What you now hold</a></li>
+<li><a href="12-chapter-12-strings-and-files.html#experiments-11"
+id="toc-experiments-11">Experiments</a></li>
+<li><a href="12-chapter-12-strings-and-files.html#challenges-11"
+id="toc-challenges-11">Challenges</a></li>
+</ul></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#chapter-13-when-things-go-wrong-errors-and-debugging"
+id="toc-chapter-13-when-things-go-wrong-errors-and-debugging">Chapter 13
+— When things go wrong: errors and debugging</a>
+<ul>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#what-an-exception-actually-is"
+id="toc-what-an-exception-actually-is">What an exception actually
+is</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#try-the-safety-net"
+id="toc-try-the-safety-net"><code>try</code>: the safety net</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#catch-precisely"
+id="toc-catch-precisely">Catch precisely</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#hearing-what-happened-as-e"
+id="toc-hearing-what-happened-as-e">Hearing what happened:
+<code>as e</code></a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#raise-sounding-the-alarm-yourself"
+id="toc-raise-sounding-the-alarm-yourself"><code>raise</code>: sounding
+the alarm yourself</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#the-rogues-gallery"
+id="toc-the-rogues-gallery">The rogues’ gallery</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#hunting-bugs-the-other-half"
+id="toc-hunting-bugs-the-other-half">Hunting bugs: the other
+half</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#project-the-bulletproofing-pass"
+id="toc-project-the-bulletproofing-pass">Project: the bulletproofing
+pass</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#what-you-now-hold-3"
+id="toc-what-you-now-hold-3">What you now hold</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#experiments-12"
+id="toc-experiments-12">Experiments</a></li>
+<li><a
+href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html#challenges-12"
+id="toc-challenges-12">Challenges</a></li>
+</ul></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#chapter-14-objects-a-gentle-introduction-to-classes"
+id="toc-chapter-14-objects-a-gentle-introduction-to-classes">Chapter 14
+— Objects: a gentle introduction to classes</a>
+<ul>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#the-problem-classes-solve"
+id="toc-the-problem-classes-solve">The problem classes solve</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#the-blueprint"
+id="toc-the-blueprint">The blueprint</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#methods-the-rules-move-in"
+id="toc-methods-the-rules-move-in">Methods: the rules move in</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#printh-teaching-your-object-to-speak"
+id="toc-printh-teaching-your-object-to-speak"><code>print(h)</code> —
+teaching your object to speak</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#objects-in-collections"
+id="toc-objects-in-collections">Objects in collections</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#project-the-character-sheet-playable"
+id="toc-project-the-character-sheet-playable">Project: the character
+sheet, playable</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#project-the-bank-account"
+id="toc-project-the-bank-account">Project: the bank account</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#youve-been-here-all-along"
+id="toc-youve-been-here-all-along">You’ve been here all along</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#what-you-now-hold-4"
+id="toc-what-you-now-hold-4">What you now hold</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#experiments-13"
+id="toc-experiments-13">Experiments</a></li>
+<li><a
+href="14-chapter-14-objects-a-gentle-introduction-to-classes.html#challenges-13"
+id="toc-challenges-13">Challenges</a></li>
+</ul></li>
+<li><a
+href="15-chapter-15-the-screen-up-close.html#chapter-15-the-screen-up-close"
+id="toc-chapter-15-the-screen-up-close">Chapter 15 — The screen up
+close</a>
+<ul>
+<li><a
+href="15-chapter-15-the-screen-up-close.html#how-the-picture-actually-works"
+id="toc-how-the-picture-actually-works">How the picture actually
+works</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#the-six-screens"
+id="toc-the-six-screens">The six screens</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#the-map-coordinates"
+id="toc-the-map-coordinates">The map: coordinates</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#colour-mixing-light"
+id="toc-colour-mixing-light">Colour: mixing light</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#the-toolbox"
+id="toc-the-toolbox">The toolbox</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#words-on-the-screen"
+id="toc-words-on-the-screen">Words on the screen</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#project-the-poster"
+id="toc-project-the-poster">Project: the poster</a></li>
+<li><a
+href="15-chapter-15-the-screen-up-close.html#project-the-living-clock"
+id="toc-project-the-living-clock">Project: the living clock</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#experiments-14"
+id="toc-experiments-14">Experiments</a></li>
+<li><a href="15-chapter-15-the-screen-up-close.html#challenges-14"
+id="toc-challenges-14">Challenges</a></li>
+</ul></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#chapter-16-bitmap-images-and-sprite-sheets"
+id="toc-chapter-16-bitmap-images-and-sprite-sheets">Chapter 16 — Bitmap
+images and sprite sheets</a>
+<ul>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#putting-a-picture-on-the-screen"
+id="toc-putting-a-picture-on-the-screen">Putting a picture on the
+screen</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#the-colour-squeeze-and-dithering"
+id="toc-the-colour-squeeze-and-dithering">The colour squeeze, and
+dithering</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#transparency-part-one-png-alpha"
+id="toc-transparency-part-one-png-alpha">Transparency, part one: PNG
+alpha</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#sprite-sheets-pictures-held-in-memory"
+id="toc-sprite-sheets-pictures-held-in-memory">Sprite sheets: pictures
+held in memory</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#hdmi.blit-the-universal-rectangle-mover"
+id="toc-hdmi.blit-the-universal-rectangle-mover"><code>hdmi.blit</code>:
+the universal rectangle mover</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#an-asset-pipeline-with-no-pc"
+id="toc-an-asset-pipeline-with-no-pc">An asset pipeline with no
+PC</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#project-the-photo-frame"
+id="toc-project-the-photo-frame">Project: the photo frame</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#experiments-15"
+id="toc-experiments-15">Experiments</a></li>
+<li><a
+href="16-chapter-16-bitmap-images-and-sprite-sheets.html#challenges-15"
+id="toc-challenges-15">Challenges</a></li>
+</ul></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#chapter-17-smooth-motion-buffers-and-the-overlay"
+id="toc-chapter-17-smooth-motion-buffers-and-the-overlay">Chapter 17 —
+Smooth motion: buffers and the overlay</a>
+<ul>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#stage-0-the-smear"
+id="toc-stage-0-the-smear">Stage 0: the smear</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#stage-1-the-eraser-and-the-blink"
+id="toc-stage-1-the-eraser-and-the-blink">Stage 1: the eraser — and the
+blink</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#stage-2-vsync-drawing-between-the-frames"
+id="toc-stage-2-vsync-drawing-between-the-frames">Stage 2:
+<code>vsync</code> — drawing between the frames</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#stage-3-the-off-screen-buffer-frames-built-in-private"
+id="toc-stage-3-the-off-screen-buffer-frames-built-in-private">Stage 3:
+the off-screen buffer — frames built in private</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#the-overlay-motion-without-redrawing-the-world"
+id="toc-the-overlay-motion-without-redrawing-the-world">The overlay:
+motion without redrawing the world</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#the-scenery-cheat-blit-scrolling"
+id="toc-the-scenery-cheat-blit-scrolling">The scenery cheat:
+blit-scrolling</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#choosing-your-weapon"
+id="toc-choosing-your-weapon">Choosing your weapon</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#project-the-immortal-screensaver"
+id="toc-project-the-immortal-screensaver">Project: the immortal
+screensaver</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#experiments-16"
+id="toc-experiments-16">Experiments</a></li>
+<li><a
+href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html#challenges-16"
+id="toc-challenges-16">Challenges</a></li>
+</ul></li>
+<li><a href="18-chapter-18-sprites.html#chapter-18-sprites"
+id="toc-chapter-18-sprites">Chapter 18 — Sprites</a>
+<ul>
+<li><a href="18-chapter-18-sprites.html#a-small-loan-from-chapter-21"
+id="toc-a-small-loan-from-chapter-21">A small loan from chapter
+21</a></li>
+<li><a href="18-chapter-18-sprites.html#sprites-from-nowhere-grab"
+id="toc-sprites-from-nowhere-grab">Sprites from nowhere:
+<code>grab</code></a></li>
+<li><a href="18-chapter-18-sprites.html#collisions-the-engine-speaks"
+id="toc-collisions-the-engine-speaks">Collisions: the engine
+speaks</a></li>
+<li><a href="18-chapter-18-sprites.html#project-the-shooting-gallery"
+id="toc-project-the-shooting-gallery">Project: the shooting
+gallery</a></li>
+<li><a href="18-chapter-18-sprites.html#experiments-17"
+id="toc-experiments-17">Experiments</a></li>
+<li><a href="18-chapter-18-sprites.html#challenges-17"
+id="toc-challenges-17">Challenges</a></li>
+</ul></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#chapter-19-tile-maps-big-worlds-from-small-pieces"
+id="toc-chapter-19-tile-maps-big-worlds-from-small-pieces">Chapter 19 —
+Tile maps: big worlds from small pieces</a>
+<ul>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#forging-the-tileset"
+id="toc-forging-the-tileset">Forging the tileset</a></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#a-first-map"
+id="toc-a-first-map">A first map</a></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#the-camera-worlds-beyond-the-screen"
+id="toc-the-camera-worlds-beyond-the-screen">The camera: worlds beyond
+the screen</a></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#walking-on-the-world"
+id="toc-walking-on-the-world">Walking on the world</a></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#project-the-island"
+id="toc-project-the-island">Project: the island</a></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#experiments-18"
+id="toc-experiments-18">Experiments</a></li>
+<li><a
+href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html#challenges-18"
+id="toc-challenges-18">Challenges</a></li>
+</ul></li>
+<li><a
+href="20-chapter-20-sound-and-music.html#chapter-20-sound-and-music"
+id="toc-chapter-20-sound-and-music">Chapter 20 — Sound and music</a>
+<ul>
+<li><a href="20-chapter-20-sound-and-music.html#playing-files"
+id="toc-playing-files">Playing files</a></li>
+<li><a
+href="20-chapter-20-sound-and-music.html#a-one-minute-physics-lesson"
+id="toc-a-one-minute-physics-lesson">A one-minute physics
+lesson</a></li>
+<li><a
+href="20-chapter-20-sound-and-music.html#tone-two-sine-waves-endless-patience"
+id="toc-tone-two-sine-waves-endless-patience"><code>tone()</code>: two
+sine waves, endless patience</a></li>
+<li><a href="20-chapter-20-sound-and-music.html#project-the-tune-player"
+id="toc-project-the-tune-player">Project: the tune player</a></li>
+<li><a
+href="20-chapter-20-sound-and-music.html#sound-the-four-voice-synthesiser"
+id="toc-sound-the-four-voice-synthesiser"><code>sound()</code>: the
+four-voice synthesiser</a></li>
+<li><a
+href="20-chapter-20-sound-and-music.html#project-the-sound-effects-library"
+id="toc-project-the-sound-effects-library">Project: the sound-effects
+library</a></li>
+<li><a
+href="20-chapter-20-sound-and-music.html#tracker-music-the-game-soundtrack"
+id="toc-tracker-music-the-game-soundtrack">Tracker music: the game
+soundtrack</a></li>
+<li><a href="20-chapter-20-sound-and-music.html#experiments-19"
+id="toc-experiments-19">Experiments</a></li>
+<li><a href="20-chapter-20-sound-and-music.html#challenges-19"
+id="toc-challenges-19">Challenges</a></li>
+</ul></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#chapter-21-reading-the-player-keyboard-mouse-and-touch"
+id="toc-chapter-21-reading-the-player-keyboard-mouse-and-touch">Chapter
+21 — Reading the player: keyboard, mouse and touch</a>
+<ul>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#keydown-the-whole-truth"
+id="toc-keydown-the-whole-truth"><code>keydown()</code>, the whole
+truth</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#keyboard.on_key-the-doorbell"
+id="toc-keyboard.on_key-the-doorbell"><code>keyboard.on_key()</code>:
+the doorbell</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#the-mouse"
+id="toc-the-mouse">The mouse</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#the-touch-panel"
+id="toc-the-touch-panel">The touch panel</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#project-paint"
+id="toc-project-paint">Project: paint</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#interlude-a-stopwatch-for-the-machine"
+id="toc-interlude-a-stopwatch-for-the-machine">Interlude: a stopwatch
+for the machine</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#project-the-reaction-duel"
+id="toc-project-the-reaction-duel">Project: the reaction duel</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#experiments-20"
+id="toc-experiments-20">Experiments</a></li>
+<li><a
+href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html#challenges-20"
+id="toc-challenges-20">Challenges</a></li>
+</ul></li>
+<li><a
+href="22-chapter-22-anatomy-of-a-game.html#chapter-22-anatomy-of-a-game"
+id="toc-chapter-22-anatomy-of-a-game">Chapter 22 — Anatomy of a game</a>
+<ul>
+<li><a href="22-chapter-22-anatomy-of-a-game.html#the-loop"
+id="toc-the-loop">The loop</a></li>
+<li><a
+href="22-chapter-22-anatomy-of-a-game.html#frame-timing-the-metronome"
+id="toc-frame-timing-the-metronome">Frame timing: the metronome</a></li>
+<li><a
+href="22-chapter-22-anatomy-of-a-game.html#game-state-one-variable-whole-architecture"
+id="toc-game-state-one-variable-whole-architecture">Game state: one
+variable, whole architecture</a></li>
+<li><a
+href="22-chapter-22-anatomy-of-a-game.html#project-pong-part-one-the-rally"
+id="toc-project-pong-part-one-the-rally">Project: Pong, part one — the
+rally</a></li>
+<li><a
+href="22-chapter-22-anatomy-of-a-game.html#project-pong-part-two-the-match"
+id="toc-project-pong-part-two-the-match">Project: Pong, part two — the
+match</a></li>
+<li><a href="22-chapter-22-anatomy-of-a-game.html#what-you-now-hold-5"
+id="toc-what-you-now-hold-5">What you now hold</a></li>
+<li><a href="22-chapter-22-anatomy-of-a-game.html#experiments-21"
+id="toc-experiments-21">Experiments</a></li>
+<li><a href="22-chapter-22-anatomy-of-a-game.html#challenges-21"
+id="toc-challenges-21">Challenges</a></li>
+</ul></li>
+<li><a href="23-chapter-23-breakout.html#chapter-23-breakout"
+id="toc-chapter-23-breakout">Chapter 23 — Breakout</a>
+<ul>
+<li><a href="23-chapter-23-breakout.html#the-whole-game"
+id="toc-the-whole-game">The whole game</a></li>
+<li><a href="23-chapter-23-breakout.html#the-wall-is-a-list"
+id="toc-the-wall-is-a-list">The wall is a list</a></li>
+<li><a href="23-chapter-23-breakout.html#which-face-did-the-ball-hit"
+id="toc-which-face-did-the-ball-hit">Which face did the ball
+hit?</a></li>
+<li><a href="23-chapter-23-breakout.html#the-economy-lives-levels-ramp"
+id="toc-the-economy-lives-levels-ramp">The economy: lives, levels,
+ramp</a></li>
+<li><a href="23-chapter-23-breakout.html#someone-elses-breakout"
+id="toc-someone-elses-breakout">Someone else’s Breakout</a></li>
+<li><a href="23-chapter-23-breakout.html#experiments-22"
+id="toc-experiments-22">Experiments</a></li>
+<li><a href="23-chapter-23-breakout.html#challenges-22"
+id="toc-challenges-22">Challenges</a></li>
+</ul></li>
+<li><a
+href="24-chapter-24-asteroids-vectors-crowds-and-particles.html#chapter-24-asteroids-vectors-crowds-and-particles"
+id="toc-chapter-24-asteroids-vectors-crowds-and-particles">Chapter 24 —
+Asteroids: vectors, crowds and particles</a>
+<ul>
+<li><a
+href="24-chapter-24-asteroids-vectors-crowds-and-particles.html#the-two-lines-of-trigonometry"
+id="toc-the-two-lines-of-trigonometry">The two lines of
+trigonometry</a></li>
+<li><a
+href="24-chapter-24-asteroids-vectors-crowds-and-particles.html#stage-one-flight"
+id="toc-stage-one-flight">Stage one: flight</a></li>
+<li><a
+href="24-chapter-24-asteroids-vectors-crowds-and-particles.html#stage-two-the-game"
+id="toc-stage-two-the-game">Stage two: the game</a></li>
+<li><a
+href="24-chapter-24-asteroids-vectors-crowds-and-particles.html#experiments-23"
+id="toc-experiments-23">Experiments</a></li>
+<li><a
+href="24-chapter-24-asteroids-vectors-crowds-and-particles.html#challenges-23"
+id="toc-challenges-23">Challenges</a></li>
+</ul></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#chapter-25-the-adventure-npcs-dialogue-and-saved-worlds"
+id="toc-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds">Chapter
+25 — The adventure: NPCs, dialogue and saved worlds</a>
+<ul>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#the-forge-extended"
+id="toc-the-forge-extended">The forge, extended</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#the-game"
+id="toc-the-game">The game</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#the-just-pressed-pattern"
+id="toc-the-just-pressed-pattern">The just-pressed pattern</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#dialogue-is-a-state-and-the-words-are-data"
+id="toc-dialogue-is-a-state-and-the-words-are-data">Dialogue is a state,
+and the words are data</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#the-save-file-derive-dont-store"
+id="toc-the-save-file-derive-dont-store">The save file: derive, don’t
+store</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#what-this-chapter-proves"
+id="toc-what-this-chapter-proves">What this chapter proves</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#experiments-24"
+id="toc-experiments-24">Experiments</a></li>
+<li><a
+href="25-chapter-25-the-adventure-npcs-dialogue-and-saved-worlds.html#challenges-24"
+id="toc-challenges-24">Challenges</a></li>
+</ul></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#chapter-26-polish-the-last-ten-percent"
+id="toc-chapter-26-polish-the-last-ten-percent">Chapter 26 — Polish: the
+last ten percent</a>
+<ul>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#the-juice-lab"
+id="toc-the-juice-lab">The juice lab</a></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#the-component-three-initial-entry"
+id="toc-the-component-three-initial-entry">The component: three-initial
+entry</a></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#difficulty-the-curve-is-the-game"
+id="toc-difficulty-the-curve-is-the-game">Difficulty: the curve is the
+game</a></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#playtesting-the-mum-test"
+id="toc-playtesting-the-mum-test">Playtesting: the mum test</a></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#the-shippable-checklist"
+id="toc-the-shippable-checklist">The shippable checklist</a></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#experiments-25"
+id="toc-experiments-25">Experiments</a></li>
+<li><a
+href="26-chapter-26-polish-the-last-ten-percent.html#challenges-25"
+id="toc-challenges-25">Challenges</a></li>
+</ul></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#chapter-27-building-apps-the-gui-toolkit"
+id="toc-chapter-27-building-apps-the-gui-toolkit">Chapter 27 — Building
+apps: the GUI toolkit</a>
+<ul>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#the-model-describe-then-poll"
+id="toc-the-model-describe-then-poll">The model: describe, then
+poll</a></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#the-pointer-pccursor"
+id="toc-the-pointer-pccursor">The pointer:
+<code>pccursor</code></a></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#the-catalogue-briskly"
+id="toc-the-catalogue-briskly">The catalogue, briskly</a></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#project-the-calculator"
+id="toc-project-the-calculator">Project: the calculator</a></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#project-the-settings-screen"
+id="toc-project-the-settings-screen">Project: the settings
+screen</a></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#experiments-26"
+id="toc-experiments-26">Experiments</a></li>
+<li><a
+href="27-chapter-27-building-apps-the-gui-toolkit.html#challenges-26"
+id="toc-challenges-26">Challenges</a></li>
+</ul></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#chapter-28-databases-keeping-and-querying-real-data"
+id="toc-chapter-28-databases-keeping-and-querying-real-data">Chapter 28
+— Databases: keeping and querying real data</a>
+<ul>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#a-table-in-ten-seconds"
+id="toc-a-table-in-ten-seconds">A table in ten seconds</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#the-golden-rule-parameters-never-patchwork"
+id="toc-the-golden-rule-parameters-never-patchwork">The golden rule:
+parameters, never patchwork</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#a-real-program-the-high-score-table"
+id="toc-a-real-program-the-high-score-table">A real program: the
+high-score table</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#asking-sharper-questions"
+id="toc-asking-sharper-questions">Asking sharper questions</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#relationships-joining-tables"
+id="toc-relationships-joining-tables">Relationships: joining
+tables</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#the-project-northwind"
+id="toc-the-project-northwind">The project: Northwind</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#experiments-27"
+id="toc-experiments-27">Experiments</a></li>
+<li><a
+href="28-chapter-28-databases-keeping-and-querying-real-data.html#challenges-27"
+id="toc-challenges-27">Challenges</a></li>
+</ul></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#chapter-29-time-and-schedules-the-real-time-clock"
+id="toc-chapter-29-time-and-schedules-the-real-time-clock">Chapter 29 —
+Time and schedules: the real-time clock</a>
+<ul>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#the-three-clocks"
+id="toc-the-three-clocks">The three clocks</a></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#anatomy-of-a-time"
+id="toc-anatomy-of-a-time">Anatomy of a time</a></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#date-arithmetic-mktime"
+id="toc-date-arithmetic-mktime">Date arithmetic:
+<code>mktime</code></a></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#project-the-kitchen-timer"
+id="toc-project-the-kitchen-timer">Project: the kitchen timer</a></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#project-the-bedside-alarm-clock"
+id="toc-project-the-bedside-alarm-clock">Project: the bedside alarm
+clock</a></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#experiments-28"
+id="toc-experiments-28">Experiments</a></li>
+<li><a
+href="29-chapter-29-time-and-schedules-the-real-time-clock.html#challenges-28"
+id="toc-challenges-28">Challenges</a></li>
+</ul></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#chapter-30-going-online-wi-fi-and-the-internet"
+id="toc-chapter-30-going-online-wi-fi-and-the-internet">Chapter 30 —
+Going online: Wi-Fi and the internet</a>
+<ul>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#connecting"
+id="toc-connecting">Connecting</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#the-first-fruit-atomic-time"
+id="toc-the-first-fruit-atomic-time">The first fruit: atomic
+time</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#asking-the-web-a-question"
+id="toc-asking-the-web-a-question">Asking the web a question</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#json-the-internets-data-in-a-familiar-costume"
+id="toc-json-the-internets-data-in-a-familiar-costume">JSON: the
+internet’s data, in a familiar costume</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#project-the-weather-panel"
+id="toc-project-the-weather-panel">Project: the weather panel</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#a-taste-of-mqtt-machines-talking-to-machines"
+id="toc-a-taste-of-mqtt-machines-talking-to-machines">A taste of MQTT:
+machines talking to machines</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#experiments-29"
+id="toc-experiments-29">Experiments</a></li>
+<li><a
+href="30-chapter-30-going-online-wi-fi-and-the-internet.html#challenges-29"
+id="toc-challenges-29">Challenges</a></li>
+</ul></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#chapter-31-numbers-at-speed-the-maths-lab"
+id="toc-chapter-31-numbers-at-speed-the-maths-lab">Chapter 31 — Numbers
+at speed: the maths lab</a>
+<ul>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#plot-properly-this-time"
+id="toc-plot-properly-this-time"><code>plot()</code>, properly this
+time</a></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#arrays-the-loops-vanish"
+id="toc-arrays-the-loops-vanish">Arrays: the loops vanish</a></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#where-the-rest-lives"
+id="toc-where-the-rest-lives">Where the rest lives</a></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#the-pcmath-bench"
+id="toc-the-pcmath-bench">The <code>pcmath</code> bench</a></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#project-the-maths-lab"
+id="toc-project-the-maths-lab">Project: the maths lab</a></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#experiments-30"
+id="toc-experiments-30">Experiments</a></li>
+<li><a
+href="31-chapter-31-numbers-at-speed-the-maths-lab.html#challenges-30"
+id="toc-challenges-30">Challenges</a></li>
+</ul></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#chapter-32-talking-to-the-outside-world-gpio"
+id="toc-chapter-32-talking-to-the-outside-world-gpio">Chapter 32 —
+Talking to the outside world: GPIO</a>
+<ul>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#the-header-map"
+id="toc-the-header-map">The header map</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#output-your-first-electron"
+id="toc-output-your-first-electron">Output: your first electron</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#input-buttons-and-why-pins-float"
+id="toc-input-buttons-and-why-pins-float">Input: buttons, and why pins
+float</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#analogue-the-knob"
+id="toc-analogue-the-knob">Analogue: the knob</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#pwm-pretending-very-fast"
+id="toc-pwm-pretending-very-fast">PWM: pretending, very fast</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#i2c-and-the-qwiic-socket-the-module-ecosystem"
+id="toc-i2c-and-the-qwiic-socket-the-module-ecosystem">I2C and the QWIIC
+socket: the module ecosystem</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#project-the-paddle-controller"
+id="toc-project-the-paddle-controller">Project: the paddle
+controller</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#experiments-31"
+id="toc-experiments-31">Experiments</a></li>
+<li><a
+href="32-chapter-32-talking-to-the-outside-world-gpio.html#challenges-31"
+id="toc-challenges-31">Challenges</a></li>
+</ul></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#chapter-33-standing-on-others-shoulders"
+id="toc-chapter-33-standing-on-others-shoulders">Chapter 33 — Standing
+on others’ shoulders</a>
+<ul>
+<li><a href="33-chapter-33-standing-on-others-shoulders.html#the-method"
+id="toc-the-method">The method</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#a-library-with-no-wires-qr-codes"
+id="toc-a-library-with-no-wires-qr-codes">A library with no wires: QR
+codes</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#is-this-library-any-good"
+id="toc-is-this-library-any-good">Is this library any good?</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#a-library-over-a-wire-gps"
+id="toc-a-library-over-a-wire-gps">A library over a wire: GPS</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#the-same-shape-a-different-bus-an-i2c-sensor"
+id="toc-the-same-shape-a-different-bus-an-i2c-sensor">The same shape, a
+different bus: an I2C sensor</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#three-gotchas-worth-the-ink"
+id="toc-three-gotchas-worth-the-ink">Three gotchas worth the
+ink</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#project-the-machines-business-card"
+id="toc-project-the-machines-business-card">Project: the machine’s
+business card</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#experiments-32"
+id="toc-experiments-32">Experiments</a></li>
+<li><a
+href="33-chapter-33-standing-on-others-shoulders.html#challenges-32"
+id="toc-challenges-32">Challenges</a></li>
+</ul></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#chapter-34-doing-several-things-at-once"
+id="toc-chapter-34-doing-several-things-at-once">Chapter 34 — Doing
+several things at once</a>
+<ul>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#the-tap-on-the-shoulder"
+id="toc-the-tap-on-the-shoulder">The tap on the shoulder</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#pin-interrupts-the-doorbell"
+id="toc-pin-interrupts-the-doorbell">Pin interrupts: the
+doorbell</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#the-promise-kept-waking-to-the-ds3231"
+id="toc-the-promise-kept-waking-to-the-ds3231">The promise kept: waking
+to the DS3231</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#the-watchdog-for-machines-left-alone"
+id="toc-the-watchdog-for-machines-left-alone">The watchdog: for machines
+left alone</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#the-rules-of-the-tap"
+id="toc-the-rules-of-the-tap">The rules of the tap</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#asyncio-the-polite-jugglers"
+id="toc-asyncio-the-polite-jugglers"><code>asyncio</code>: the polite
+jugglers</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#project-the-game-that-downloads"
+id="toc-project-the-game-that-downloads">Project: the game that
+downloads</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#a-note-on-threads-and-why-not"
+id="toc-a-note-on-threads-and-why-not">A note on threads, and why
+not</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#experiments-33"
+id="toc-experiments-33">Experiments</a></li>
+<li><a
+href="34-chapter-34-doing-several-things-at-once.html#challenges-33"
+id="toc-challenges-33">Challenges</a></li>
+</ul></li>
+<li><a
+href="35-chapter-35-performance-and-memory.html#chapter-35-performance-and-memory"
+id="toc-chapter-35-performance-and-memory">Chapter 35 — Performance and
+memory</a>
+<ul>
+<li><a
+href="35-chapter-35-performance-and-memory.html#the-stopwatch-made-permanent"
+id="toc-the-stopwatch-made-permanent">The stopwatch, made
+permanent</a></li>
+<li><a
+href="35-chapter-35-performance-and-memory.html#why-python-costs-what-it-costs"
+id="toc-why-python-costs-what-it-costs">Why Python costs what it
+costs</a></li>
+<li><a href="35-chapter-35-performance-and-memory.html#the-real-ladder"
+id="toc-the-real-ladder">The real ladder</a></li>
+<li><a
+href="35-chapter-35-performance-and-memory.html#where-the-frame-lives-fast-ram-versus-psram"
+id="toc-where-the-frame-lives-fast-ram-versus-psram">Where the frame
+lives: fast RAM versus PSRAM</a></li>
+<li><a
+href="35-chapter-35-performance-and-memory.html#memory-the-other-resource"
+id="toc-memory-the-other-resource">Memory: the other resource</a></li>
+<li><a
+href="35-chapter-35-performance-and-memory.html#the-worked-session-a-swarm-tuned"
+id="toc-the-worked-session-a-swarm-tuned">The worked session: a swarm,
+tuned</a></li>
+<li><a href="35-chapter-35-performance-and-memory.html#experiments-34"
+id="toc-experiments-34">Experiments</a></li>
+<li><a href="35-chapter-35-performance-and-memory.html#challenges-34"
+id="toc-challenges-34">Challenges</a></li>
+</ul></li>
+<li><a
+href="36-chapter-36-the-system-itself.html#chapter-36-the-system-itself"
+id="toc-chapter-36-the-system-itself">Chapter 36 — The system itself</a>
+<ul>
+<li><a
+href="36-chapter-36-the-system-itself.html#the-five-seconds-after-the-switch"
+id="toc-the-five-seconds-after-the-switch">The five seconds after the
+switch</a></li>
+<li><a href="36-chapter-36-the-system-itself.html#the-geography"
+id="toc-the-geography">The geography</a></li>
+<li><a href="36-chapter-36-the-system-itself.html#the-backup-habit"
+id="toc-the-backup-habit">The backup habit</a></li>
+<li><a
+href="36-chapter-36-the-system-itself.html#trust-verified-the-test-suite"
+id="toc-trust-verified-the-test-suite">Trust, verified: the test
+suite</a></li>
+<li><a
+href="36-chapter-36-the-system-itself.html#reading-the-machines-own-source"
+id="toc-reading-the-machines-own-source">Reading the machine’s own
+source</a></li>
+<li><a href="36-chapter-36-the-system-itself.html#where-the-road-goes"
+id="toc-where-the-road-goes">Where the road goes</a></li>
+<li><a href="36-chapter-36-the-system-itself.html#the-end-of-the-course"
+id="toc-the-end-of-the-course">The end of the course</a></li>
+<li><a href="36-chapter-36-the-system-itself.html#experiments-35"
+id="toc-experiments-35">Experiments</a></li>
+<li><a href="36-chapter-36-the-system-itself.html#challenges-35"
+id="toc-challenges-35">Challenges</a></li>
+</ul></li>
+<li><a
+href="37-appendix-a-the-cheat-sheet.html#appendix-a-the-cheat-sheet"
+id="toc-appendix-a-the-cheat-sheet">Appendix A — The cheat sheet</a>
+<ul>
+<li><a href="37-appendix-a-the-cheat-sheet.html#the-shell-chapter-4"
+id="toc-the-shell-chapter-4">The shell (chapter 4)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#fm-keys-chapter-4"
+id="toc-fm-keys-chapter-4"><code>fm</code> keys (chapter 4)</a></li>
+<li><a
+href="37-appendix-a-the-cheat-sheet.html#the-editor-pye-chapter-5"
+id="toc-the-editor-pye-chapter-5">The editor, <code>pye</code> (chapter
+5)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#the-prompt-chapters-3-8"
+id="toc-the-prompt-chapters-3-8">The prompt (chapters 3, 8)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#screen-chapters-1517"
+id="toc-screen-chapters-1517">Screen (chapters 15–17)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#input-chapters-18-21"
+id="toc-input-chapters-18-21">Input (chapters 18, 21)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#sound-chapter-20"
+id="toc-sound-chapter-20">Sound (chapter 20)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#games-chapters-18-19-22"
+id="toc-games-chapters-18-19-22">Games (chapters 18, 19, 22)</a></li>
+<li><a
+href="37-appendix-a-the-cheat-sheet.html#time-system-chapters-29-36"
+id="toc-time-system-chapters-29-36">Time &amp; system (chapters 29,
+36)</a></li>
+<li><a href="37-appendix-a-the-cheat-sheet.html#gpio-chapter-32"
+id="toc-gpio-chapter-32">GPIO (chapter 32)</a></li>
+<li><a
+href="37-appendix-a-the-cheat-sheet.html#the-collars-never-forgotten"
+id="toc-the-collars-never-forgotten">The collars (never
+forgotten)</a></li>
+</ul></li>
+<li><a
+href="38-appendix-b-coming-from-mmbasic.html#appendix-b-coming-from-mmbasic"
+id="toc-appendix-b-coming-from-mmbasic">Appendix B — Coming from
+MMBasic</a>
+<ul>
+<li><a href="38-appendix-b-coming-from-mmbasic.html#language"
+id="toc-language">Language</a></li>
+<li><a href="38-appendix-b-coming-from-mmbasic.html#strings"
+id="toc-strings">Strings</a></li>
+<li><a href="38-appendix-b-coming-from-mmbasic.html#files-and-the-shell"
+id="toc-files-and-the-shell">Files and the shell</a></li>
+<li><a href="38-appendix-b-coming-from-mmbasic.html#screen-and-graphics"
+id="toc-screen-and-graphics">Screen and graphics</a></li>
+<li><a
+href="38-appendix-b-coming-from-mmbasic.html#input-sound-time-events"
+id="toc-input-sound-time-events">Input, sound, time, events</a></li>
+</ul></li>
+<li><a
+href="39-appendix-c-the-modules-one-paragraph-each.html#appendix-c-the-modules-one-paragraph-each"
+id="toc-appendix-c-the-modules-one-paragraph-each">Appendix C — The
+modules, one paragraph each</a>
+<ul>
+<li><a
+href="39-appendix-c-the-modules-one-paragraph-each.html#the-boards-own"
+id="toc-the-boards-own">The board’s own</a></li>
+<li><a
+href="39-appendix-c-the-modules-one-paragraph-each.html#the-standard-library-the-ones-this-book-used"
+id="toc-the-standard-library-the-ones-this-book-used">The standard
+library (the ones this book used)</a></li>
+<li><a
+href="39-appendix-c-the-modules-one-paragraph-each.html#your-own-shelf-built-through-the-book"
+id="toc-your-own-shelf-built-through-the-book">Your own shelf (built
+through the book)</a></li>
+</ul></li>
+<li><a
+href="40-appendix-d-hardware-reference.html#appendix-d-hardware-reference"
+id="toc-appendix-d-hardware-reference">Appendix D — Hardware
+reference</a>
+<ul>
+<li><a href="40-appendix-d-hardware-reference.html#the-machine"
+id="toc-the-machine">The machine</a></li>
+<li><a
+href="40-appendix-d-hardware-reference.html#sockets-switches-and-buttons"
+id="toc-sockets-switches-and-buttons">Sockets, switches and
+buttons</a></li>
+<li><a href="40-appendix-d-hardware-reference.html#flashing-chapter-2"
+id="toc-flashing-chapter-2">Flashing (chapter 2)</a></li>
+<li><a href="40-appendix-d-hardware-reference.html#the-io-header"
+id="toc-the-io-header">The I/O header</a></li>
+<li><a
+href="40-appendix-d-hardware-reference.html#reserved-pins-unavailable-to-machine.pin"
+id="toc-reserved-pins-unavailable-to-machine.pin">Reserved pins
+(unavailable to <code>machine.Pin</code>)</a></li>
+<li><a
+href="40-appendix-d-hardware-reference.html#screen-modes-chapter-15-manual-5"
+id="toc-screen-modes-chapter-15-manual-5">Screen modes (chapter 15;
+manual §5)</a></li>
+<li><a href="40-appendix-d-hardware-reference.html#notes"
+id="toc-notes">Notes</a></li>
+</ul></li>
+<li><a
+href="41-appendix-e-python-the-taught-subset.html#appendix-e-python-the-taught-subset"
+id="toc-appendix-e-python-the-taught-subset">Appendix E — Python, the
+taught subset</a>
+<ul>
+<li><a
+href="41-appendix-e-python-the-taught-subset.html#values-and-operators-3-6-7"
+id="toc-values-and-operators-3-6-7">Values and operators (3, 6,
+7)</a></li>
+<li><a href="41-appendix-e-python-the-taught-subset.html#strings-3-6-12"
+id="toc-strings-3-6-12">Strings (3, 6, 12)</a></li>
+<li><a href="41-appendix-e-python-the-taught-subset.html#collections-10"
+id="toc-collections-10">Collections (10)</a></li>
+<li><a
+href="41-appendix-e-python-the-taught-subset.html#control-flow-7-8"
+id="toc-control-flow-7-8">Control flow (7, 8)</a></li>
+<li><a href="41-appendix-e-python-the-taught-subset.html#functions-11"
+id="toc-functions-11">Functions (11)</a></li>
+<li><a
+href="41-appendix-e-python-the-taught-subset.html#classes-14-appendix-i-for-more"
+id="toc-classes-14-appendix-i-for-more">Classes (14; appendix I for
+more)</a></li>
+<li><a href="41-appendix-e-python-the-taught-subset.html#errors-13"
+id="toc-errors-13">Errors (13)</a></li>
+<li><a href="41-appendix-e-python-the-taught-subset.html#files-12"
+id="toc-files-12">Files (12)</a></li>
+<li><a href="41-appendix-e-python-the-taught-subset.html#modules-11"
+id="toc-modules-11">Modules (11)</a></li>
+<li><a
+href="41-appendix-e-python-the-taught-subset.html#built-ins-the-book-used"
+id="toc-built-ins-the-book-used">Built-ins the book used</a></li>
+<li><a
+href="41-appendix-e-python-the-taught-subset.html#micropython-differences-met-in-this-book"
+id="toc-micropython-differences-met-in-this-book">MicroPython
+differences met in this book</a></li>
+</ul></li>
+<li><a
+href="42-appendix-f-challenge-hints.html#appendix-f-challenge-hints"
+id="toc-appendix-f-challenge-hints">Appendix F — Challenge
+hints</a></li>
+<li><a href="43-appendix-g-glossary.html#appendix-g-glossary"
+id="toc-appendix-g-glossary">Appendix G — Glossary</a></li>
+<li><a
+href="44-appendix-h-troubleshooting.html#appendix-h-troubleshooting"
+id="toc-appendix-h-troubleshooting">Appendix H — Troubleshooting</a>
+<ul>
+<li><a href="44-appendix-h-troubleshooting.html#power-and-boot"
+id="toc-power-and-boot">Power and boot</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#display"
+id="toc-display">Display</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#keyboard-mouse-touch"
+id="toc-keyboard-mouse-touch">Keyboard, mouse, touch</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#files-and-sd"
+id="toc-files-and-sd">Files and SD</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#sound"
+id="toc-sound">Sound</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#network"
+id="toc-network">Network</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#programs"
+id="toc-programs">Programs</a></li>
+<li><a href="44-appendix-h-troubleshooting.html#when-all-else-fails"
+id="toc-when-all-else-fails">When all else fails</a></li>
+</ul></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#appendix-i-classes-beyond-the-cottage"
+id="toc-appendix-i-classes-beyond-the-cottage">Appendix I — Classes
+beyond the cottage</a>
+<ul>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#inheritance-blueprints-from-blueprints"
+id="toc-inheritance-blueprints-from-blueprints">Inheritance: blueprints
+from blueprints</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#custom-exceptions-inheritance-youll-actually-use"
+id="toc-custom-exceptions-inheritance-youll-actually-use">Custom
+exceptions: inheritance you’ll actually use</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#repr__-the-other-voice"
+id="toc-repr__-the-other-voice"><code>__repr__</code>: the other
+voice</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#operator-hooks-teaching-and-your-types"
+id="toc-operator-hooks-teaching-and-your-types">Operator hooks: teaching
+<code>+</code> and <code>&lt;</code> your types</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#len__-and-__getitem__-passing-for-a-list"
+id="toc-len__-and-__getitem__-passing-for-a-list"><code>__len__</code>
+and <code>__getitem__</code>: passing for a list</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#class-attributes-one-value-all-instances"
+id="toc-class-attributes-one-value-all-instances">Class attributes: one
+value, all instances</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#property-computed-attributes"
+id="toc-property-computed-attributes"><code>@property</code>: computed
+attributes</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#classmethod-and-staticmethod"
+id="toc-classmethod-and-staticmethod"><code>@classmethod</code> and
+<code>@staticmethod</code></a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#privacy-the-underscore-treaty"
+id="toc-privacy-the-underscore-treaty">Privacy: the underscore
+treaty</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#duck-typing-the-interface-is-the-behaviour"
+id="toc-duck-typing-the-interface-is-the-behaviour">Duck typing: the
+interface is the behaviour</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#when-not-to-use-any-of-this"
+id="toc-when-not-to-use-any-of-this">When <em>not</em> to use any of
+this</a></li>
+<li><a
+href="45-appendix-i-classes-beyond-the-cottage.html#where-to-read-further"
+id="toc-where-to-read-further">Where to read further</a></li>
+</ul></li>
+<li><a
+href="46-appendix-j-the-northwind-database.html#appendix-j-the-northwind-database"
+id="toc-appendix-j-the-northwind-database">Appendix J — The Northwind
+database</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#appendix-k-running-this-book-on-a-colour-maximite-2"
+id="toc-appendix-k-running-this-book-on-a-colour-maximite-2">Appendix K
+— Running this book on a Colour Maximite 2</a>
+<ul>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#getting-it-and-starting-it"
+id="toc-getting-it-and-starting-it">Getting it and starting it</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#files"
+id="toc-files">Files</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#screen-keyboard-mouse-and-sound"
+id="toc-screen-keyboard-mouse-and-sound">Screen, keyboard, mouse and
+sound</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#pins-the-io-chapter"
+id="toc-pins-the-io-chapter">Pins: the I/O chapter</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#wi-fi-chapter-30"
+id="toc-wi-fi-chapter-30">Wi-Fi: chapter 30</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#clock-and-alarm-chapter-29"
+id="toc-clock-and-alarm-chapter-29">Clock and alarm: chapter 29</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#memory-and-speed-chapter-35"
+id="toc-memory-and-speed-chapter-35">Memory and speed: chapter
+35</a></li>
+<li><a
+href="47-appendix-k-running-this-book-on-a-colour-maximite-2.html#a-colour-maximite-2-extra-mmbasic-from-python"
+id="toc-a-colour-maximite-2-extra-mmbasic-from-python">A Colour Maximite
+2 extra: MMBasic from Python</a></li>
+</ul></li>
+</ul>
+</nav>
+
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="next" href="1-chapter-1-what-is-the-pico-computer-3.html" rel="next">Chapter 1 — What is the Pico Computer 3?&nbsp;→</a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 13 — When things go wrong: errors and
+debugging – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="12-chapter-12-strings-and-files.html" rel="prev" accesskey="p">←&nbsp;Chapter 12 — Strings and files</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="14-chapter-14-objects-a-gentle-introduction-to-classes.html" rel="next" accesskey="n">Chapter 14 — Objects: a gentle introduction to classes&nbsp;→</a>
+</nav>
+<h1 data-number="13"
+id="chapter-13-when-things-go-wrong-errors-and-debugging">Chapter 13 —
+When things go wrong: errors and debugging</h1>
+<p>You have been reading error reports since chapter 3 and borrowing
+<code>try</code>/<code>except</code> since chapter 12, always with an
+IOU attached. This chapter pays every debt — and it teaches the half of
+programming that nobody’s brochure mentions: real programming is mostly
+<em>dealing with wrongness</em>, and the people you would call brilliant
+programmers are, almost without exception, merely calm and systematic
+about it.</p>
+<p>Start by splitting “wrong” in two, because the halves need different
+tools:</p>
+<ul>
+<li><strong>Exceptional situations.</strong> The program is fine; the
+<em>world</em> misbehaved — the file isn’t there, the SD card was
+pulled, the human typed <code>twelve</code>. These you
+<strong>handle</strong>, with <code>try</code>/<code>except</code>.</li>
+<li><strong>Bugs.</strong> The world is fine; the <em>program</em> is
+wrong — it runs, and the answer is nonsense. These you
+<strong>hunt</strong>, with craft.</li>
+</ul>
+<h2 data-number="13.1" id="what-an-exception-actually-is">What an
+exception actually is</h2>
+<p>When something impossible is asked of it —
+<code>int("twelve")</code>, <code>1/0</code>, opening a file that isn’t
+there — Python does not limp on with a wrong answer. It stops on the
+spot and <strong>raises an exception</strong>: an alarm that travels up
+out of function after function until <em>something catches it</em> — and
+if nothing does, it reaches the surface as the traceback you have been
+reading all book. That is all a traceback is: the obituary of an
+uncaught exception.</p>
+<p>You already know how to read one (deepest line naming your file; last
+line names the type). What is new today: the alarm can be
+<em>caught</em>.</p>
+<figure>
+<img src="figs/13-traceback.png"
+alt="A traceback, labelled. Read it bottom-up: the last line names the exception type and its message (what went wrong); the frame just above names the file and line where it broke. The frames above that are the chain of calls that led there." />
+<figcaption aria-hidden="true">A traceback, labelled. Read it bottom-up:
+the last line names the exception <strong>type</strong> and its
+<strong>message</strong> (what went wrong); the frame just above names
+the <strong>file and line</strong> where it broke. The frames above that
+are the chain of calls that led there.</figcaption>
+</figure>
+<h2 data-number="13.2" id="try-the-safety-net"><code>try</code>: the
+safety net</h2>
+<p>The classic wound, open since chapter 6 — any program with
+<code>int(input(...))</code> dies instantly if a human types like a
+human:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> age <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="st">&quot;How old are you? &quot;</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>How old are you? twelve</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Traceback (most recent call last):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  File <span class="st">&quot;&lt;stdin&gt;&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">ValueError</span>: invalid syntax <span class="cf">for</span> integer <span class="cf">with</span> base <span class="dv">10</span>: <span class="st">&#39;twelve&#39;</span></span></code></pre></div>
+<p>Here is the net:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    reply <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;How old are you? &quot;</span>).strip()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        age <span class="op">=</span> <span class="bu">int</span>(reply)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;&#39;</span><span class="sc">{</span>reply<span class="sc">}</span><span class="ss">&#39; isn&#39;t a number I know. Digits, please!&quot;</span>)</span></code></pre></div>
+<p>Read the flow carefully, because it <em>is</em> the feature. Python
+runs the <code>try</code> block line by line. If nothing goes wrong, the
+<code>except</code> block is skipped entirely (the <code>break</code>
+escapes the loop). But the moment anything in the <code>try</code>
+raises a <code>ValueError</code>, execution <em>jumps</em> to the
+<code>except</code> block — no traceback, no death — and the program
+carries on after it; here, the <code>while True</code> offers the human
+another go. Type <code>twelve</code>, get a polite retort, type
+<code>12</code>, play on.</p>
+<p>This is so useful it should live in your toolbox forever.
+<code>edit</code> a new library, <code>handy.py</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># handy.py -- input that survives humans.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ask_int(prompt):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Ask until the reply is a whole number; return it.&quot;&quot;&quot;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        reply <span class="op">=</span> <span class="bu">input</span>(prompt).strip()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">int</span>(reply)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f&quot;&#39;</span><span class="sc">{</span>reply<span class="sc">}</span><span class="ss">&#39; isn&#39;t a whole number -- try again.&quot;</span>)</span></code></pre></div>
+<p>Every <code>int(input(...))</code> in every program you have written
+— the dojo, the guessing game, the converter — can now be
+<code>handy.ask_int(...)</code>, and that whole class of crash is
+extinct on your machine.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong>
+<code>try</code>/<code>except</code> is
+<code>ON ERROR SKIP</code>/<code>ON ERROR IGNORE</code> grown up —
+instead of muffling whatever the next line does, you declare exactly
+<em>which</em> trouble you expect, over exactly <em>which</em> lines,
+and what to do instead. <code>MM.ERRNO</code>-style detail is the
+<code>as e</code> form, two sections down.</p>
+</blockquote>
+<h2 data-number="13.3" id="catch-precisely">Catch precisely</h2>
+<p>An <code>except</code> names the exception it is prepared to handle,
+and this is a point of professional honour: <strong>catch what you
+expect, let the rest crash.</strong> You could write a bare
+<code>except:</code> that catches <em>anything</em> — and you will
+regret it, twice. Once because it swallows your own bugs (a typo inside
+the <code>try</code> now silently “handles” its own
+<code>NameError</code>, and you stare at a program that does nothing
+wrong and nothing at all). And once because it even swallows
+<strong>Ctrl-C</strong> — a bare <code>except:</code> around a loop
+makes a program you <em>cannot interrupt</em>. The stuck-program lesson
+of chapter 5 suddenly has a monster in it; do not build the monster.</p>
+<p>Name one, name several, or stack them:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    points, name <span class="op">=</span> line.strip().split(<span class="st">&quot;,&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    scores.append((<span class="bu">int</span>(points), name))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;skipping a malformed line&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;file trouble -- is the SD card in?&quot;</span>)</span></code></pre></div>
+<p>And now chapter 12’s borrowed incantation can be read in full.
+<code>scorelib.load</code> wrapped its file-reading in <code>try:</code>
+… <code>except OSError: pass</code> — meaning: <em>the one failure I
+consider normal here is the file not existing (first ever run), and my
+handling is: start with an empty list.</em> <code>pass</code> is Python
+for “do nothing, on purpose”. One line of philosophy: an exception
+handler is a <strong>decision about what failure means</strong>, made in
+advance, by you.</p>
+<h2 data-number="13.4" id="hearing-what-happened-as-e">Hearing what
+happened: <code>as e</code></h2>
+<p>The exception carries its message; <code>as</code> catches the object
+so you can use it:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(path) <span class="im">as</span> f:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> f.read()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">OSError</span> <span class="im">as</span> e:</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Couldn&#39;t read </span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>Your report is now specific (“Couldn’t read /sd/data.txt: [Errno 2]
+ENOENT”) without being fatal. Kinder than a traceback, more honest than
+silence.</p>
+<h2 data-number="13.5"
+id="raise-sounding-the-alarm-yourself"><code>raise</code>: sounding the
+alarm yourself</h2>
+<p>Exceptions are not the interpreter’s private privilege. When
+<em>your</em> function is handed nonsense, the right move is usually not
+to soldier on but to raise:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polygon(t, sides, size<span class="op">=</span><span class="dv">60</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> sides <span class="op">&lt;</span> <span class="dv">3</span>:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f&quot;a polygon needs 3+ sides, got </span><span class="sc">{</span>sides<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(sides):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> sides)</span></code></pre></div>
+<p>Consider what happens <em>without</em> the guard.
+<code>polygon(t, 0)</code>? The loop runs zero times — the function
+silently draws <strong>nothing</strong>, no alarm at all, and twenty
+minutes later you are debugging an empty screen.
+<code>polygon(t, 2)</code>? The turtle walks out and straight back — an
+invisible smear. Nonsense in, silence out: the worst kind of wrong,
+because nothing points at it. The guard converts silent nonsense into an
+immediate, plain-language report at the exact call that caused it. Every
+mysterious misbehaviour a library ever showed you was somebody choosing
+<em>not</em> to write this guard; every clear error, somebody who did.
+(This is also the moment <code>raise ValueError</code> stops being magic
+words: exceptions are made things, raised by code, catchable by
+name.)</p>
+<h2 data-number="13.6" id="the-rogues-gallery">The rogues’ gallery</h2>
+<p>Every error type you have met, and the usual culprit — the chapter’s
+reference table, worth a corner of your desk:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Alarm</th>
+<th>Usual cause</th>
+<th>First move</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SyntaxError</code></td>
+<td>missing <code>:</code> or bracket; <code>=</code> where
+<code>==</code> belongs</td>
+<td>look <em>at and before</em> the pointed line</td>
+</tr>
+<tr>
+<td><code>IndentationError</code></td>
+<td>wrong indent; tabs/spaces mixed</td>
+<td>re-indent with Tab/Shift-Tab</td>
+</tr>
+<tr>
+<td><code>NameError</code></td>
+<td>typo, wrong Capitals, or used before created</td>
+<td>read the name in the message <em>letter by letter</em></td>
+</tr>
+<tr>
+<td><code>TypeError</code></td>
+<td>mixing kinds — usually a forgotten <code>int(input(...))</code></td>
+<td>trace where the value was born</td>
+</tr>
+<tr>
+<td><code>ValueError</code></td>
+<td>right kind, impossible value — <code>int("twelve")</code></td>
+<td>validate, or catch and retry</td>
+</tr>
+<tr>
+<td><code>IndexError</code></td>
+<td>position ≥ <code>len</code> — off-by-one, or empty list</td>
+<td>print the list and the index first</td>
+</tr>
+<tr>
+<td><code>KeyError</code></td>
+<td>dictionary key absent — often a typo’d key</td>
+<td>print the dict’s keys; check with <code>in</code></td>
+</tr>
+<tr>
+<td><code>OSError</code></td>
+<td>file/SD trouble — wrong path, missing file, card out</td>
+<td><code>ls()</code> the folder; check the mode</td>
+</tr>
+<tr>
+<td><code>AttributeError</code></td>
+<td>right dot, wrong thing — <code>"text".append(...)</code></td>
+<td>check what the variable <em>actually</em> holds</td>
+</tr>
+<tr>
+<td><code>KeyboardInterrupt</code></td>
+<td>you pressed Ctrl-C</td>
+<td>that one’s yours</td>
+</tr>
+</tbody>
+</table>
+<p>The pattern across the whole table: the message <em>names the
+culprit</em> — a name, a key, a type, a path. The cure starts with
+believing it.</p>
+<h2 data-number="13.7" id="hunting-bugs-the-other-half">Hunting bugs:
+the other half</h2>
+<p>No alarm, wrong answer — the program is lying to you politely. Here
+is a real hunt, start to finish. The suspect:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> average(numbers):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(numbers)):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> numbers[i]</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total <span class="op">/</span> <span class="bu">len</span>(numbers)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(average([<span class="dv">80</span>, <span class="dv">90</span>, <span class="dv">100</span>]))</span></code></pre></div>
+<p>It prints <code>63.333...</code> — no crash, but you know three
+students who average 90. The method, step by step:</p>
+<p><strong>1. Reproduce it small.</strong> Three numbers already does
+it. (A bug you can summon on demand is half-caught; a bug in a 300-line
+game gets <em>extracted</em> into a five-line summons like this
+one.)</p>
+<p><strong>2. Interrogate the state.</strong> <code>print</code> is the
+debugger you always have. Put one <em>inside</em> the loop:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(numbers)):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;visiting position&quot;</span>, i, <span class="st">&quot;value&quot;</span>, numbers[i])</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> numbers[i]</span></code></pre></div>
+<p>Run: <code>visiting position 1 value 90</code>,
+<code>visiting position 2 value 100</code> — and there it is,
+confessing: <em>position 0 was never visited.</em> The 80 never joined
+the total: 190 ÷ 3.</p>
+<p><strong>3. Fix the cause, not the symptom.</strong> The lazy patch
+(add 80!?) dies with the next list. The cause:
+<code>range(1, ...)</code> — someone thought positions start at 1.
+Chapter 10 knew better; make it <code>range(len(numbers))</code>. Better
+still, remove the habitat: positions were never needed —</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> numbers:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> n</span></code></pre></div>
+<p>The idiomatic loop has no room for the off-by-one to live in. That is
+a general truth worth framing: <strong>the simpler form isn’t just
+prettier; it has fewer places for bugs to hide.</strong></p>
+<p><strong>4. Retest — including what already worked.</strong> Then take
+the prints out. (<code>Ctrl-P</code> comments them in a keystroke if
+you’d rather keep them handy.)</p>
+<p>Two more habits complete the kit. <strong>Change one thing at a
+time</strong> — alter two and the retest tells you nothing. And when
+truly stuck, <strong>explain the code aloud, line by line, to anything
+with a face</strong> — the bug is usually heard on the way out of your
+own mouth. Programmers call it rubber-ducking; it is embarrassing
+exactly once.</p>
+<h2 data-number="13.8" id="project-the-bulletproofing-pass">Project: the
+bulletproofing pass</h2>
+<p>Take three programs you own and make them survivor-grade — the errors
+of the <em>world</em> handled, the habits of chapter 13 applied:</p>
+<ol type="1">
+<li><strong>The diary</strong> (chapter 12): reading before any entry
+exists currently dies of <code>OSError</code>. Catch it in
+<code>read_diary</code> and print
+<code>"(the diary is empty -- write something!)"</code> instead.</li>
+<li><strong><code>scorelib</code></strong>: experiment 4 scarred it —
+one malformed line kills <code>load</code>. Move a
+<code>try</code>/<code>except ValueError</code> <em>inside</em> the loop
+so a bad line is <em>skipped</em>, counted, and reported
+(<code>"warning: skipped 1 bad line"</code>) while the good lines
+survive. Decide — deliberately, in a comment — why skipping beats
+crashing here (or argue the reverse: a corrupted score file might
+deserve a loud death; the point is that <em>you</em> now make that
+call).</li>
+<li><strong>Any game with a number prompt</strong>: swap its raw
+<code>int(input(...))</code> for <code>handy.ask_int(...)</code>, and
+try to type it to death.</li>
+</ol>
+<p>Test each the honest way: <em>be</em> the hostile world. Missing
+files, empty files, <code>twelve</code>, a pulled SD card, Enter mashed
+on its own. When you cannot crash your own program, promote it.</p>
+<h2 data-number="13.9" id="what-you-now-hold-3">What you now hold</h2>
+<ul>
+<li><strong>Two wrongnesses, two tools</strong>: the world’s failures
+are <em>handled</em> (<code>try</code>/<code>except</code>), the
+program’s failures are <em>hunted</em> (the method).</li>
+<li><strong>The flow</strong>: <code>try</code> runs until trouble; the
+named <code>except</code> catches it; life continues after the block.
+Retry loops come from wrapping the pair in <code>while True</code>.</li>
+<li><strong>Catch precisely</strong> — name the exception; bare
+<code>except:</code> swallows bugs and Ctrl-C alike. <code>as e</code>
+keeps the details for your report.</li>
+<li><strong><code>raise ValueError("...")</code></strong> guards your
+own functions — clear errors are a courtesy the author of a library pays
+the caller.</li>
+<li><strong>The hunt</strong>: reproduce small → print the state → fix
+the cause → retest everything → one change at a time — and prefer the
+code shape with nowhere for bugs to live.</li>
+</ul>
+<h2 data-number="13.10" id="experiments-12">Experiments</h2>
+<ol type="1">
+<li>Error bingo: using the rogues’ gallery, deliberately cause all nine
+catchable alarms in one throwaway file (one line each, run, comment out
+with Ctrl-P, next). Nine tracebacks read on <em>your</em> terms — cheap
+immunisation.</li>
+<li>Make <code>ask_int</code> fussier: an optional <code>low</code> and
+<code>high</code> (chapter 11 defaults), re-asking outside the range.
+The dojo and the guessing game both want this immediately.</li>
+<li>Feel the bare-except monster <em>safely</em>:
+<code>while True:</code> / <code>try: input("&gt; ")</code> /
+<code>except: pass</code> — run it, try Ctrl-C, fail, and press RESET
+(chapter 2’s escape hatch, files unharmed). Now rewrite it with
+<code>except ValueError:</code> and watch Ctrl-C work again. Ten
+minutes, lifelong conviction.</li>
+<li>Add the <code>sides &lt; 3</code> guard to your real
+<code>shapes.py</code>. First, though, run the <em>unguarded</em>
+<code>polygon(t, 0)</code> and <code>polygon(t, 2)</code> and watch
+exactly nothing tell you anything is wrong. Then add the guard and run
+them again. Which version would you rather be using at line 400 of a
+game?</li>
+<li>Re-run chapter 12’s corrupted-CSV experiment against bulletproofed
+<code>scorelib</code>. Savour it.</li>
+</ol>
+<h2 data-number="13.11" id="challenges-12">Challenges</h2>
+<ol type="1">
+<li><strong>The unbreakable calculator.</strong> Two numbers and an
+operator (<code>+ - * /</code>), any input survivable:
+<code>twelve</code>, an unknown operator, dividing by zero — each with
+its own message, all in a re-asking loop. Bonus: <code>q</code> quits
+(which input? both? all three? design it).</li>
+<li><strong>The validator.</strong> A checker for <code>cards.txt</code>
+(chapter 12’s flashcards): reads every line, reports each problem
+<em>with its line number</em> (<code>"line 7: no comma"</code>), and
+ends <code>"3 problems"</code> or <code>"all 40 cards ok"</code>. This
+is a real tool — data files rot, and validators are how grown-up
+software notices.</li>
+<li><strong>Crash diary.</strong> For one week, when a program of yours
+dies, append the date, the error type and the one-line cause to
+<code>/bugs.txt</code> (chapter 12 knows how) before fixing it. Read it
+on day seven: <em>your</em> personal rogues’ gallery, which is the one
+that matters.</li>
+<li><strong>The tutor.</strong> A program that <em>demands</em> a wrong
+answer: it asks for a number, and for each different way the reply can
+be wrong (not a number, too big, negative…) prints which alarm
+<em>would</em> have been raised and why — a quiz where the subject is
+this chapter.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="12-chapter-12-strings-and-files.html" rel="prev">←&nbsp;Chapter 12 — Strings and files</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="14-chapter-14-objects-a-gentle-introduction-to-classes.html" rel="next">Chapter 14 — Objects: a gentle introduction to classes&nbsp;→</a>
+</nav>
+</body>
+</html>

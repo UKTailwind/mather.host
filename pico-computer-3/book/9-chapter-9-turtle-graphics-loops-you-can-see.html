@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 9 — Turtle graphics: loops you can
+see – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="8-chapter-8-repeating-yourself-loops.html" rel="prev" accesskey="p">←&nbsp;Chapter 8 — Repeating yourself: loops</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="10-chapter-10-collections-lists-tuples-and-dictionaries.html" rel="next" accesskey="n">Chapter 10 — Collections: lists, tuples and dictionaries&nbsp;→</a>
+</nav>
+<h1 data-number="9"
+id="chapter-9-turtle-graphics-loops-you-can-see">Chapter 9 — Turtle
+graphics: loops you can see</h1>
+<p>In 1967, computer scientists gave children a robot “turtle” that
+crawled across paper with a pen in its belly, steered by typed commands.
+The children didn’t learn drawing — they learned <em>thinking</em>: to
+draw a square you must <em>be</em> the turtle, walking and turning in
+your imagination. Sixty years later every serious teaching machine keeps
+a turtle, and yours is no exception. This chapter is where loops — last
+chapter’s machinery — stop being about numbers and become <strong>shape,
+pattern and beauty</strong>. It is also, quietly, the most important
+chapter in Part II: if loops have not fully clicked yet, the turtle will
+click them.</p>
+<h2 data-number="9.1" id="first-steps">First steps</h2>
+<p>At the prompt:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t <span class="op">=</span> Turtle()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t.reset()</span></code></pre></div>
+<p>The first line deserves a proper introduction, because it is a shape
+of Python you have been using on trust since chapter 2.
+<code>Turtle()</code> is a <strong>maker</strong>: calling it
+manufactures a fresh turtle and hands it back, and the <code>=</code>
+catches it in a variable, exactly as chapter 6 taught — except this time
+the value is not a number or a string but a <em>thing that can do
+things</em>. From then on, <code>t.reset()</code> reads as “<em>t</em>,
+reset yourself”: the dot means <strong>belonging to</strong>, and
+commands attached to a thing this way are called its
+<strong>methods</strong>. You have met the pattern before without the
+formalities — <code>led = Pin("LED", Pin.OUT)</code> then
+<code>led.on()</code> in chapter 2, <code>f.write(...)</code> in chapter
+4, <code>values.append(...)</code> in chapter 8. Things you make, then
+instruct through the dot: that is most of Python, and in chapter 14 you
+will learn to design such things yourself. For today, one turtle, made
+and named <code>t</code>.</p>
+<p>The screen clears and the turtle sits at the centre, invisible,
+facing up, pen down. Now walk it:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t.forward(<span class="dv">100</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t.right(<span class="dv">90</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t.forward(<span class="dv">100</span>)</span></code></pre></div>
+<p>A line north, a quarter-turn clockwise, a line east — an L on the
+screen, drawn by something you steered. Those three commands (plus
+<code>left</code> and <code>back</code>) are practically the whole
+language:</p>
+<ul>
+<li><code>t.forward(d)</code> / <code>t.back(d)</code> — move
+<code>d</code> pixels, drawing as it goes</li>
+<li><code>t.right(a)</code> / <code>t.left(a)</code> — turn
+<code>a</code> degrees (clockwise / counter-)</li>
+<li><code>t.penup()</code> / <code>t.pendown()</code> — travel without /
+with drawing</li>
+<li><code>t.pencolor(RED)</code>, <code>t.pensize(3)</code> — dress the
+pen (palette names or <code>0xRRGGBB</code>)</li>
+</ul>
+<p>One practical note: your typing shares the screen with the turtle,
+and enough of it will scroll the picture. A few strokes at the prompt is
+fine — anything you care about, put in a file and <code>run</code>
+it.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this is the <code>TURTLE</code>
+command set with the same conventions — home is the screen centre,
+heading 0 is up, and <code>right()</code> turns clockwise.</p>
+</blockquote>
+<h2 data-number="9.2" id="the-square-and-the-moment-of-the-chapter">The
+square, and the moment of the chapter</h2>
+<p>Walk a square, longhand:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t.forward(<span class="dv">100</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>t.right(<span class="dv">90</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>t.forward(<span class="dv">100</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>t.right(<span class="dv">90</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>t.forward(<span class="dv">100</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>t.right(<span class="dv">90</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>t.forward(<span class="dv">100</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>t.right(<span class="dv">90</span>)</span></code></pre></div>
+<p>Eight lines of pure repetition — which last chapter taught you to
+compress. <code>edit("square.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    t.forward(<span class="dv">100</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    t.right(<span class="dv">90</span>)</span></code></pre></div>
+<p>(One small novelty: <code>_</code> as the loop variable is the Python
+convention for “I don’t use this value — I only want the repetition”.
+You will see it everywhere.)</p>
+<p>Run it, and appreciate what just happened: <strong>the loop is not a
+shortcut for the shape — the loop <em>is</em> the shape.</strong> “Four
+times: walk, quarter turn” is a <em>definition</em> of squareness, more
+honest than any picture of one. Every pattern in this chapter is a
+definition of this kind, and learning to read shapes as loops is the
+skill being smuggled in.</p>
+<h2 data-number="9.3" id="every-polygon-at-once">Every polygon at
+once</h2>
+<p>Why 90? Because after four corners the turtle must have turned all
+the way round: 4 × 90 = 360. That one observation hands you
+<em>every</em> regular shape — for <code>n</code> sides, turn
+<code>360 / n</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="st">&quot;Sides? &quot;</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    t.forward(<span class="dv">60</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    t.right(<span class="dv">360</span> <span class="op">/</span> n)</span></code></pre></div>
+<p>Three gives a triangle, six a hexagon, twelve a dodecagon… and by 60
+sides you cannot tell it from a circle — a genuinely deep fact about
+circles, discovered by your turtle. (The turtle also has a true
+<code>t.circle(r)</code>, plus arcs, dots and more — the full table is
+in the User Manual, section 5.)</p>
+<h2 data-number="9.4" id="stars-when-the-turtle-overshoots">Stars: when
+the turtle overshoots</h2>
+<p>Turn <em>more</em> than the polygon needs and the turtle crosses its
+own path. The five-pointed star is the famous one — five sides, but
+turning 144°:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>t.pencolor(YELLOW)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    t.forward(<span class="dv">150</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    t.right(<span class="dv">144</span>)</span></code></pre></div>
+<p>Why 144 works: five turns of 144° is 720° — <em>two</em> full
+revolutions, so the turtle winds around twice before closing, crossing
+itself into a star.</p>
+<figure>
+<img src="figs/09-turtle-angles.png"
+alt="The turtle turns the same angle at every corner, and those turns must sum to a whole number of full circles for the path to close. 360/5 = 72° gives a pentagon (once around); overshooting to 144° winds twice around (720°) and draws a star." />
+<figcaption aria-hidden="true">The turtle turns the same angle at every
+corner, and those turns must sum to a whole number of full circles for
+the path to close. <code>360/5 = 72°</code> gives a pentagon (once
+around); overshooting to <code>144°</code> winds twice around
+(<code>720°</code>) and draws a star.</figcaption>
+</figure>
+<p>And once the angle is a variable, the door swings wide open:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>angle <span class="op">=</span> <span class="bu">float</span>(<span class="bu">input</span>(<span class="st">&quot;Angle? (try 100, 135, 144, 160, 170) &quot;</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">36</span>):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    t.forward(<span class="dv">120</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    t.right(angle)</span></code></pre></div>
+<p>Every angle is a different creature — sharp bursts, woven rosettes,
+near-misses that spiral off. You are one input away from an art machine,
+and nobody, including the author, can predict them all.</p>
+<h2 data-number="9.5" id="spirals-let-the-steps-grow">Spirals: let the
+steps grow</h2>
+<p>Change the <em>distance</em> each lap instead, with chapter 6’s
+<code>+=</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>t.pencolor(CYAN)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>step <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">80</span>):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    t.forward(step)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    t.right(<span class="dv">90</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    step <span class="op">+=</span> <span class="dv">3</span></span></code></pre></div>
+<p>A square spiral, blooming outward from the centre. Right angles give
+a boxy nautilus; <code>t.right(91)</code> gives one with a slow, dreamy
+twist — that stray degree accumulating lap after lap. Try 89, 60,
+121.</p>
+<h2 data-number="9.6" id="nested-loops-the-flower">Nested loops: the
+flower</h2>
+<p>Now the chapter’s real lesson in loop-craft. A loop <em>inside</em> a
+loop: the inner one draws a petal, the outer one repeats petals around
+the centre:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>t.pencolor(MAGENTA)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> petal <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">12</span>):        <span class="co"># twelve petals...</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):         <span class="co"># ...each petal is a small square</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        t.forward(<span class="dv">70</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">90</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># rotate a twelfth of a turn, next petal</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    t.right(<span class="dv">30</span>)</span></code></pre></div>
+<p>Read it from the inside out: the inner <code>for</code> is
+<code>square.py</code>, unchanged. The outer <code>for</code> says
+<em>do that twelve times, turning 30° between</em>. Twelve squares in a
+ring — a flower. The indentation tells you which loop owns which line:
+<code>t.right(30)</code> belongs to the outer loop (one dedent), so it
+runs once per petal, not once per side. Change 12 and 30 together (their
+product staying 360) for denser or sparser blooms; change the inner loop
+to a triangle or a star for a different species entirely.</p>
+<p>If nested loops felt abstract in prose, look at the screen:
+<strong>the outer loop is the arrangement, the inner loop is the
+element.</strong> That sentence describes half the graphics in this book
+— rows of space invaders, grids of tiles, rings of petals.</p>
+<h2 data-number="9.7" id="project-the-spirograph">Project: the
+spirograph</h2>
+<p>The chapter’s ideas in one keepsake program.
+<code>edit("spiro.py")</code>:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>angle <span class="op">=</span> <span class="bu">float</span>(<span class="bu">input</span>(<span class="st">&quot;Angle (89, 121, 144 and 160 are lovely): &quot;</span>))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>steps <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="st">&quot;Steps (try 150): &quot;</span>))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>t.pencolor(CYAN)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(steps):</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> steps <span class="op">//</span> <span class="dv">3</span>:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        t.pencolor(MAGENTA)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> i <span class="op">==</span> <span class="dv">2</span> <span class="op">*</span> steps <span class="op">//</span> <span class="dv">3</span>:</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        t.pencolor(YELLOW)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    t.forward(d)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    t.right(angle)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    d <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>t.penup()</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>t.goto(<span class="dv">10</span>, <span class="dv">10</span>)</span></code></pre></div>
+<p>A growing spiral (the <code>d += 1</code>), steered by whatever angle
+its owner chooses, changing colour at the one-third and two-thirds marks
+(chapter 7, earning a living in art school). The last two lines are good
+manners: pen up and step to the top-left corner, so the turtle’s final
+position doesn’t matter and the prompt reappears out of the way.
+(<code>goto(x, y)</code> jumps to an absolute pixel — (0, 0) is the
+screen’s top-left corner, and home is the centre.)</p>
+<p>Run it for people. Watching a pattern <em>emerge</em> line by line is
+the whole magic of this machine, and you built the machine that does
+it.</p>
+<h2 data-number="9.8" id="experiments-8">Experiments</h2>
+<ol type="1">
+<li>A dashed line: alternate <code>pendown()</code>/<code>penup()</code>
+using <code>if i % 2 == 0</code> inside a <code>for</code> — chapter 8’s
+remainder trick, visible at last.</li>
+<li>Confetti: 100 times — <code>penup</code>, <code>goto</code> a random
+pixel (<code>random.randint(0, 639)</code> across,
+<code>random.randint(0, 479)</code> down), pick a colour with an
+<code>if</code>/<code>elif</code> on <code>random.randint(1, 3)</code>,
+and <code>t.dot(6)</code>. Instant party.</li>
+<li>In the star program, try even numbers of points:
+<code>range(6)</code> with <code>right(120)</code> collapses into a
+triangle. Six-pointed stars refuse to be drawn in one stroke (ask any
+geometer) — draw two triangles instead, with a <code>penup()</code>
+shuffle between them.</li>
+<li>Give the flower a stem and a leaf.
+<code>push()</code>/<code>pop()</code> in the manual’s table (save and
+restore the turtle’s position and heading) will get the turtle back to
+the flower’s centre afterwards.</li>
+<li>Rebuild the spiral with <code>t.arc(radius, angle)</code> (move
+along a curve) in place of <code>forward</code> — box becomes
+whirlpool.</li>
+</ol>
+<h2 data-number="9.9" id="challenges-8">Challenges</h2>
+<ol type="1">
+<li><strong>The filled star.</strong> The manual’s table has
+<code>fillcolor</code>, <code>begin_fill</code> and
+<code>end_fill</code>. Use them to draw the five-pointed star filled
+gold on a midnight background (<code>hdmi.fill()</code> or a huge filled
+rectangle first). Two tools you weren’t taught, learned from a reference
+table — a skill worth more than the star.</li>
+<li><strong>Night sky.</strong> Fifty stars (dots of random size 2–5) at
+random positions, one crescent moon (two overlapping
+<code>fcircle</code>s, the top one in background colour — think about
+<em>order</em>), and, on the horizon, the city skyline: a nested loop of
+rectangles.</li>
+<li><strong>Your monogram.</strong> Your initials, drawn large, in your
+choice of colours — <code>goto</code>, headings and arcs, planned on
+paper first. Frame grade only: this one goes on the wall (chapter 15’s
+<code>save_image()</code> will even make it a file… borrowed early.
+<code>save_image("art.bmp")</code> — you heard it here first).</li>
+<li><strong>The hypnotist.</strong> Fifty squares, each rotated 7° from
+the last and 2 pixels bigger. Then swap the square for your spirograph.
+Then dim the lights.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="8-chapter-8-repeating-yourself-loops.html" rel="prev">←&nbsp;Chapter 8 — Repeating yourself: loops</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="10-chapter-10-collections-lists-tuples-and-dictionaries.html" rel="next">Chapter 10 — Collections: lists, tuples and dictionaries&nbsp;→</a>
+</nav>
+</body>
+</html>

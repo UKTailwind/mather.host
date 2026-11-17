@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 27 — Building apps: the GUI
+toolkit – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="26-chapter-26-polish-the-last-ten-percent.html" rel="prev" accesskey="p">←&nbsp;Chapter 26 — Polish: the last ten percent</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="28-chapter-28-databases-keeping-and-querying-real-data.html" rel="next" accesskey="n">Chapter 28 — Databases: keeping and querying real data&nbsp;→</a>
+</nav>
+<h1 data-number="27"
+id="chapter-27-building-apps-the-gui-toolkit">Chapter 27 — Building
+apps: the GUI toolkit</h1>
+<p>Welcome to Part V. The games are shipped; now the machine becomes an
+<strong>appliance-maker</strong> — clocks, control panels, jukeboxes,
+lab instruments. Applications differ from games in temperament: a game
+redraws a hurtling world sixty times a second; an app mostly
+<em>waits</em>, springing to life when a human touches something. That
+is chapter 21’s third philosophy — events — given a whole toolkit:
+<strong><code>pcgui</code></strong>, MMBasic’s GUI controls reborn as
+Python objects. Buttons, sliders, gauges, text boxes with pop-up
+keyboards — you describe a screen once, then ask it to listen.</p>
+<h2 data-number="27.1" id="the-model-describe-then-poll">The model:
+describe, then poll</h2>
+<p>Every <code>pcgui</code> program has the same four movements — mode,
+manager, controls, loop. Here is the smallest real one;
+<code>edit("hello_gui.py")</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgui</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)                 <span class="co"># chunky pixels suit fingers</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># REPL prints stay off the GUI screen</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;serial&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>hdmi.fb().fill(<span class="dv">0</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># the manager: owns, draws, dispatches</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> pcgui.GUI()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># borrow the keyboard (for text boxes)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>g.start()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>done <span class="op">=</span> [<span class="va">False</span>]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>g.caption(<span class="dv">100</span>, <span class="dv">10</span>, <span class="st">&quot;FIRST CONTACT&quot;</span>, fg<span class="op">=</span>YELLOW, font<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>lamp <span class="op">=</span> g.led(<span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">10</span>, <span class="st">&quot;status&quot;</span>, GREEN)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flip(sw):</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    lamp.value <span class="op">=</span> sw.value</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quit_app(b):</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    done[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>g.switch(<span class="dv">120</span>, <span class="dv">66</span>, <span class="dv">90</span>, <span class="dv">28</span>, <span class="st">&quot;ON|OFF&quot;</span>, callback<span class="op">=</span>flip)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">110</span>, <span class="dv">180</span>, <span class="dv">100</span>, <span class="dv">30</span>, <span class="st">&quot;QUIT&quot;</span>, fg<span class="op">=</span>WHITE, bg<span class="op">=</span>RED,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span>quit_app)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> done[<span class="dv">0</span>]:</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        g.poll()                    <span class="co"># everything happens in here</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">10</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    g.stop()                        <span class="co"># give the keyboard back</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Click the switch (mouse or touch — both just work) and the lamp
+follows. Now the anatomy, because these thirty lines carry the whole
+paradigm:</p>
+<ul>
+<li><strong>Controls are objects you keep</strong> (<code>lamp</code>),
+made by factory methods on the manager. Read or set any of them through
+<code>.value</code> — assigning redraws, so
+<code>lamp.value = sw.value</code> <em>is</em> the whole wiring.</li>
+<li><strong>Callbacks are functions handed over</strong> — chapter 12’s
+functions-are-values, now structural. When the user changes a control,
+<code>poll()</code> calls your function <em>with that control as the
+argument</em>: <code>flip(sw)</code> reads the switch it was given. No
+mystery threads: nothing happens except inside <code>g.poll()</code>,
+which is why the loop must keep calling it.</li>
+<li><strong>The <code>done = [False]</code> trick</strong> deserves its
+footnote: a callback needs to <em>change</em> a variable it doesn’t own,
+and chapter 11’s sealed room forbids assigning outer names. A
+one-element list sneaks past — <code>done[0] = True</code> doesn’t
+reassign the name, it edits the list’s <em>contents</em>. It’s the
+standard idiom for small GUI programs (the honest alternative is a class
+holding the app’s state — experiment 4 goes there).</li>
+<li>And the manners: <code>console("serial")</code> keeps stray prints
+off the interface (they’d land <em>on</em> your buttons — and serial
+means you can still watch debug output from the USB-C terminal, chapter
+19’s rig), while the <code>finally</code> returns keyboard and console.
+The GUI collar.</li>
+</ul>
+<figure>
+<img src="figs/27-gui.png"
+alt="The pcgui model. You describe the screen — a manager plus controls, each with a callback — then poll it in a loop: g.poll() notices a click or touch, calls your callback with that control, and the control redraws. Nothing happens outside poll()." />
+<figcaption aria-hidden="true">The <code>pcgui</code> model. You
+<strong>describe</strong> the screen — a manager plus controls, each
+with a callback — then <strong>poll</strong> it in a loop:
+<code>g.poll()</code> notices a click or touch, calls your callback with
+that control, and the control redraws. Nothing happens outside
+<code>poll()</code>.</figcaption>
+</figure>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> these are the Micromite Plus
+GUI controls, control for control — but <code>CTRLVAL(ref)</code> is now
+<code>control.value</code>, <code>GUI INTERRUPT</code> is
+<code>g.on_touch(...)</code>, and <code>GUI CURSOR</code> is the
+<code>pccursor</code> module (with the same two built-in pointers). The
+set and behaviour match; the drawing is this machine’s own.</p>
+</blockquote>
+<h2 data-number="27.2" id="the-pointer-pccursor">The pointer:
+<code>pccursor</code></h2>
+<p>One courtesy in the demo happened by itself: plug in a
+<strong>mouse</strong> and <code>g.start()</code> summons an arrow that
+glides over the controls. It matters more than it looks —
+<code>mouse("X")</code> tells your <em>program</em> where the cursor is,
+but only a visible pointer tells the <em>user</em>; without one, clicks
+land at coordinates nobody can see. Touch users never meet it (no mouse,
+no arrow), <code>g.start(cursor=False)</code> opts out, and
+<code>g.poll()</code> keeps it refreshed — inside a GUI there is nothing
+to do.</p>
+<p>Outside <code>pcgui</code>, the pointer is a module of its own —
+MMBasic’s <code>GUI CURSOR</code> — and any mouse-driven program can
+borrow it. It is a <strong>save-under sprite</strong>: the pixels
+beneath the pointer are saved before it draws and restored as it moves,
+so it floats over any screen without damage — chapter 21’s hand-built
+sprite cursor, as a service. The working set:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Call</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pccursor.on(shape, colour)</code></td>
+<td>show it — <code>pccursor.ARROW</code> (hot point at the tip) or
+<code>pccursor.CROSS</code> (centre)</td>
+</tr>
+<tr>
+<td><code>pccursor.refresh()</code></td>
+<td>follow the mouse — once per loop pass</td>
+</tr>
+<tr>
+<td><code>pccursor.erase()</code></td>
+<td>lift it before you draw underneath (next <code>refresh()</code>
+repaints)</td>
+</tr>
+<tr>
+<td><code>pccursor.move(x, y)</code> / <code>pos()</code></td>
+<td>steer it by code / read the hot point</td>
+</tr>
+<tr>
+<td><code>pccursor.off()</code></td>
+<td>remove it and restore the screen</td>
+</tr>
+</tbody>
+</table>
+<p>And the one trap, demonstrated so you never meet it in the wild: the
+save-under holds whatever was beneath the pointer <em>when it was
+drawn</em>. Draw new pixels under a shown pointer and the next move
+faithfully restores the <em>old</em> pixels over your work — a ghost.
+The cure is <code>erase()</code> before drawing near it. A complete
+sticker-stamper; <code>edit("stamper.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pccursor</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>d.fill(d.colour(<span class="bn">0x103028</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>hdmi.text(<span class="st">&quot;click to stamp -- ESC quits&quot;</span>, <span class="dv">8</span>, <span class="dv">8</span>, d.colour(GRAY))</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>pccursor.on(pccursor.CROSS, colour<span class="op">=</span>CYAN)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>click_was <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        pccursor.refresh()</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        click_now <span class="op">=</span> mouse(<span class="st">&quot;L&quot;</span>) <span class="op">==</span> <span class="dv">1</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># just-pressed (ch 25)</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> click_now <span class="kw">and</span> <span class="kw">not</span> click_was:</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># lift it -- no ghosts</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>            pccursor.erase()</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>            d.ellipse(mouse(<span class="st">&quot;X&quot;</span>), mouse(<span class="st">&quot;Y&quot;</span>), <span class="dv">6</span>, <span class="dv">6</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>                      d.colour(GOLD), <span class="va">True</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        click_was <span class="op">=</span> click_now</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">10</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    pccursor.off()</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Comment out the <code>pccursor.erase()</code> line and stamp a few
+times to see the ghost with your own eyes — cheap immunisation, chapter
+13 style. (Chapter 21’s paint program built this pointer by hand with
+the sprite engine; now you know both roads, and which one is
+shorter.)</p>
+<h2 data-number="27.3" id="the-catalogue-briskly">The catalogue,
+briskly</h2>
+<p>You met switch, LED, caption, button. The rest, grouped by job (full
+signatures: User Manual, section 5):</p>
+<ul>
+<li><strong>Showing</strong>: <code>gauge</code> (a dial),
+<code>bargauge</code>, <code>displaybox</code> (read-only text — set
+<code>.value</code>), <code>frame</code> (a titled grouping box).</li>
+<li><strong>Adjusting</strong>: <code>slider</code>,
+<code>spinner</code> (number with up/down arrows),
+<code>checkbox</code>, <code>radio</code> (share a <code>group=</code>
+and they become exclusive).</li>
+<li><strong>Typing</strong>: <code>textbox</code> and
+<code>numberbox</code> — and here is the toolkit’s quiet masterpiece:
+<em>tapping one pops up an on-screen keyboard or keypad</em>, so a bare
+touch panel is a complete input device. A USB keyboard types into them
+too. <code>.number</code> reads a numberbox as a float; callbacks fire
+on commit (OK/Enter).</li>
+<li><strong>Choosing</strong>: <code>listbox</code> — scrolling,
+draggable, <code>.value</code> the index and <code>.text</code> the
+string.</li>
+<li><strong>Freestyling</strong>: <code>area</code>, an invisible touch
+surface (its callback gets touch positions — a doodle pad in one
+control), and <code>g.on_touch(down=..., move=..., up=...)</code> for
+global gestures.</li>
+</ul>
+<p>Layout advice that outlives any toolkit: sketch on squared paper
+first; align to a grid (multiples of 8 read as <em>designed</em>); group
+with <code>frame</code>s; and pick the mode for the finger or the mouse
+— <code>RGB320</code> makes fat, touchable targets, <code>RGB640</code>
+suits dense mouse-driven panels.</p>
+<h2 data-number="27.4" id="project-the-calculator">Project: the
+calculator</h2>
+<p>The classic first app, and secretly a chapter 22 state machine in a
+suit. Watch two techniques especially: the <strong>button grid built
+from data</strong> (chapter 10’s machinery/data split applied to layout)
+and the <strong>loop-capture trap</strong> it forces you to meet.
+<code>edit("calc.py")</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgui</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;serial&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>hdmi.fb().fill(<span class="dv">0</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> pcgui.GUI()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>g.start()</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>done <span class="op">=</span> [<span class="va">False</span>]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>disp <span class="op">=</span> g.displaybox(<span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">280</span>, <span class="dv">36</span>, <span class="st">&quot;0&quot;</span>, font<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>entry <span class="op">=</span> [<span class="st">&quot;0&quot;</span>]                       <span class="co"># what&#39;s being typed</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>acc <span class="op">=</span> [<span class="va">None</span>]                        <span class="co"># the running total</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>op <span class="op">=</span> [<span class="va">None</span>]                         <span class="co"># the pending operator</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># next digit starts a new number</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>fresh <span class="op">=</span> [<span class="va">True</span>]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show(text):</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    disp.value <span class="op">=</span> text[:<span class="dv">14</span>]</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calc(a, o, b):</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> o <span class="op">==</span> <span class="st">&quot;+&quot;</span>:</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> a <span class="op">+</span> b</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> o <span class="op">==</span> <span class="st">&quot;-&quot;</span>:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> a <span class="op">-</span> b</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> o <span class="op">==</span> <span class="st">&quot;x&quot;</span>:</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> a <span class="op">*</span> b</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> a <span class="op">/</span> b</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> r</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt(x):</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;Err&quot;</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">==</span> <span class="bu">int</span>(x):</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">str</span>(<span class="bu">int</span>(x))</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span>x<span class="sc">:.6f}</span><span class="ss">&quot;</span>.rstrip(<span class="st">&quot;0&quot;</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> press(c):</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> c <span class="op">==</span> <span class="st">&quot;C&quot;</span>:</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        entry[<span class="dv">0</span>], acc[<span class="dv">0</span>], op[<span class="dv">0</span>], fresh[<span class="dv">0</span>] <span class="op">=</span> <span class="st">&quot;0&quot;</span>, <span class="va">None</span>, <span class="va">None</span>, <span class="va">True</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> c <span class="kw">in</span> <span class="st">&quot;0123456789.&quot;</span>:</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> fresh[<span class="dv">0</span>]:</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>            entry[<span class="dv">0</span>], fresh[<span class="dv">0</span>] <span class="op">=</span> <span class="st">&quot;&quot;</span>, <span class="va">False</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> c <span class="op">!=</span> <span class="st">&quot;.&quot;</span> <span class="kw">or</span> <span class="st">&quot;.&quot;</span> <span class="kw">not</span> <span class="kw">in</span> entry[<span class="dv">0</span>]:</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>            entry[<span class="dv">0</span>] <span class="op">+=</span> c</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        entry[<span class="dv">0</span>] <span class="op">=</span> entry[<span class="dv">0</span>] <span class="kw">or</span> <span class="st">&quot;0&quot;</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> c <span class="kw">in</span> <span class="st">&quot;+-x/&quot;</span>:</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> op[<span class="dv">0</span>] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> <span class="kw">not</span> fresh[<span class="dv">0</span>]:</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>            acc[<span class="dv">0</span>] <span class="op">=</span> calc(acc[<span class="dv">0</span>], op[<span class="dv">0</span>], <span class="bu">float</span>(entry[<span class="dv">0</span>]))</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>            entry[<span class="dv">0</span>] <span class="op">=</span> fmt(acc[<span class="dv">0</span>])</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> acc[<span class="dv">0</span>] <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>            acc[<span class="dv">0</span>] <span class="op">=</span> <span class="bu">float</span>(entry[<span class="dv">0</span>])</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>        op[<span class="dv">0</span>] <span class="op">=</span> c</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        fresh[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a division just blew up</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> acc[<span class="dv">0</span>] <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>            entry[<span class="dv">0</span>], op[<span class="dv">0</span>] <span class="op">=</span> <span class="st">&quot;Err&quot;</span>, <span class="va">None</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> c <span class="op">==</span> <span class="st">&quot;=&quot;</span> <span class="kw">and</span> op[<span class="dv">0</span>] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> <span class="kw">not</span> fresh[<span class="dv">0</span>]:</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>        acc[<span class="dv">0</span>] <span class="op">=</span> calc(acc[<span class="dv">0</span>], op[<span class="dv">0</span>], <span class="bu">float</span>(entry[<span class="dv">0</span>]))</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        entry[<span class="dv">0</span>] <span class="op">=</span> fmt(acc[<span class="dv">0</span>])</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>        acc[<span class="dv">0</span>], op[<span class="dv">0</span>], fresh[<span class="dv">0</span>] <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span>, <span class="va">True</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    show(entry[<span class="dv">0</span>])</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">660</span>, <span class="dv">8</span>)</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> power_off(b):</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    done[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>ROWS <span class="op">=</span> [<span class="st">&quot;789/&quot;</span>, <span class="st">&quot;456x&quot;</span>, <span class="st">&quot;123-&quot;</span>, <span class="st">&quot;C0.+&quot;</span>]</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> r, row <span class="kw">in</span> <span class="bu">enumerate</span>(ROWS):</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cidx, ch <span class="kw">in</span> <span class="bu">enumerate</span>(row):</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>        g.button(<span class="dv">20</span> <span class="op">+</span> cidx <span class="op">*</span> <span class="dv">72</span>, <span class="dv">64</span> <span class="op">+</span> r <span class="op">*</span> <span class="dv">40</span>, <span class="dv">62</span>, <span class="dv">32</span>, ch, font<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>                 callback<span class="op">=</span><span class="kw">lambda</span> b, c<span class="op">=</span>ch: press(c))</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">236</span>, <span class="dv">184</span>, <span class="dv">62</span>, <span class="dv">32</span>, <span class="st">&quot;=&quot;</span>, font<span class="op">=</span><span class="dv">2</span>, bg<span class="op">=</span>COBALT,</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span><span class="kw">lambda</span> b: press(<span class="st">&quot;=&quot;</span>))</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">236</span>, <span class="dv">64</span>, <span class="dv">62</span>, <span class="dv">32</span>, <span class="st">&quot;OFF&quot;</span>, fg<span class="op">=</span>WHITE, bg<span class="op">=</span>RED,</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span>power_off)</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> done[<span class="dv">0</span>]:</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>        g.poll()</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">10</span>)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>    g.stop()</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>A working calculator — chain sums (<code>7 + 3 x 2 =</code> works the
+way cheap calculators do, left to right), a decimal point that refuses
+seconds, and division by zero politely showing <code>Err</code> (chapter
+13, still on duty). The dissection:</p>
+<ul>
+<li><strong>The grid is data.</strong> <code>ROWS</code> <em>is</em> the
+keypad; the double loop manufactures sixteen buttons. Rearranging the
+calculator is editing a list of strings — by now this reflex should feel
+like home.</li>
+<li><strong><code>callback=lambda b, c=ch: press(c)</code></strong> —
+stop at that <code>c=ch</code>, because omitting it is one of Python’s
+most famous traps. A lambda looks its variables up <em>when called</em>,
+not when made: sixteen plain <code>lambda b: press(ch)</code> would all
+find <code>ch</code>’s final value — every button a <code>+</code>. The
+default argument <code>c=ch</code> is evaluated <em>at creation</em>,
+freezing each button’s own character in. One comma, the difference
+between a keypad and modern art; meet it here, on purpose, before it
+meets you.</li>
+<li><strong>The state lives in one-element lists</strong>
+(<code>entry</code>, <code>acc</code>, <code>op</code>,
+<code>fresh</code>) for the same sealed-room reason as <code>done</code>
+— callbacks must mutate them. (Chapter 14 would make this a class with
+attributes and methods, and honestly at four state variables it’s earned
+— that refactor is experiment 4.)</li>
+<li>And note what the calculator <em>is</em>: states and transitions.
+<code>fresh</code> is a state flag; each button class is an event. You
+built this machine three chapters ago wearing a spaceship.</li>
+</ul>
+<h2 data-number="27.5" id="project-the-settings-screen">Project: the
+settings screen</h2>
+<p>Chapter 26 promised your games a settings screen; here it is as a
+reusable pattern — controls bound to a dict, loaded and saved with
+chapter 12 — and it’s the shape of every configuration panel you’ll ever
+build. <code>edit("prefs.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgui</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>PREFS <span class="op">=</span> <span class="st">&quot;/prefs.txt&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>DEFAULTS <span class="op">=</span> {<span class="st">&quot;sound&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;flash&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;volume&quot;</span>: <span class="dv">70</span>, <span class="st">&quot;level&quot;</span>: <span class="dv">2</span>}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_prefs():</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    prefs <span class="op">=</span> <span class="bu">dict</span>(DEFAULTS)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(PREFS) <span class="im">as</span> f:</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                key, _, val <span class="op">=</span> line.strip().partition(<span class="st">&quot;=&quot;</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> key <span class="kw">in</span> prefs:</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                    prefs[key] <span class="op">=</span> <span class="bu">int</span>(val)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> (<span class="pp">OSError</span>, <span class="pp">ValueError</span>):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># missing or mangled: defaults stand</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> prefs</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_prefs(prefs):</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(PREFS, <span class="st">&quot;w&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> key, val <span class="kw">in</span> prefs.items():</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>            f.write(<span class="ss">f&quot;</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">=</span><span class="sc">{</span>val<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>prefs <span class="op">=</span> load_prefs()</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;serial&quot;</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>hdmi.fb().fill(<span class="dv">0</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> pcgui.GUI()</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>g.start()</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>done <span class="op">=</span> [<span class="va">False</span>]</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> setter(key):</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Make a callback that files a control&#39;s value under</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">    `key`.&quot;&quot;&quot;</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="bu">apply</span>(c):</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        prefs[key] <span class="op">=</span> c.value</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">apply</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chooser(key, val):</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Make a callback that files the fixed `val` (for radio</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co">    buttons).&quot;&quot;&quot;</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="bu">apply</span>(c):</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        prefs[key] <span class="op">=</span> val</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">apply</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quit_app(b):</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    done[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>g.caption(<span class="dv">90</span>, <span class="dv">8</span>, <span class="st">&quot;GAME SETTINGS&quot;</span>, fg<span class="op">=</span>GOLD, font<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>g.frame(<span class="dv">12</span>, <span class="dv">34</span>, <span class="dv">296</span>, <span class="dv">74</span>, <span class="st">&quot;Effects&quot;</span>)</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>g.switch(<span class="dv">24</span>, <span class="dv">52</span>, <span class="dv">80</span>, <span class="dv">24</span>, <span class="st">&quot;ON|OFF&quot;</span>, value<span class="op">=</span>prefs[<span class="st">&quot;sound&quot;</span>],</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span>setter(<span class="st">&quot;sound&quot;</span>))</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>g.caption(<span class="dv">110</span>, <span class="dv">58</span>, <span class="st">&quot;sound&quot;</span>)</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>g.switch(<span class="dv">24</span>, <span class="dv">80</span>, <span class="dv">80</span>, <span class="dv">24</span>, <span class="st">&quot;ON|OFF&quot;</span>, value<span class="op">=</span>prefs[<span class="st">&quot;flash&quot;</span>],</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span>setter(<span class="st">&quot;flash&quot;</span>))</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>g.caption(<span class="dv">110</span>, <span class="dv">86</span>, <span class="st">&quot;screen flash&quot;</span>)</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>g.frame(<span class="dv">12</span>, <span class="dv">114</span>, <span class="dv">296</span>, <span class="dv">52</span>, <span class="st">&quot;Volume&quot;</span>)</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>vol <span class="op">=</span> g.slider(<span class="dv">24</span>, <span class="dv">134</span>, <span class="dv">200</span>, <span class="dv">20</span>, value<span class="op">=</span>prefs[<span class="st">&quot;volume&quot;</span>], lo<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>               hi<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>               callback<span class="op">=</span>setter(<span class="st">&quot;volume&quot;</span>))</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>g.bargauge(<span class="dv">240</span>, <span class="dv">134</span>, <span class="dv">56</span>, <span class="dv">20</span>, value<span class="op">=</span>prefs[<span class="st">&quot;volume&quot;</span>], lo<span class="op">=</span><span class="dv">0</span>, hi<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>           fg<span class="op">=</span>GREEN)</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>g.frame(<span class="dv">12</span>, <span class="dv">172</span>, <span class="dv">200</span>, <span class="dv">60</span>, <span class="st">&quot;Difficulty&quot;</span>)</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, name <span class="kw">in</span> <span class="bu">enumerate</span>((<span class="st">&quot;easy&quot;</span>, <span class="st">&quot;normal&quot;</span>, <span class="st">&quot;fierce&quot;</span>)):</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    g.radio(<span class="dv">28</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">62</span>, <span class="dv">200</span>, <span class="dv">8</span>, name, group<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>            value<span class="op">=</span><span class="dv">1</span> <span class="cf">if</span> prefs[<span class="st">&quot;level&quot;</span>] <span class="op">==</span> i <span class="op">+</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">0</span>,</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>            callback<span class="op">=</span>chooser(<span class="st">&quot;level&quot;</span>, i <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>saved <span class="op">=</span> g.caption(<span class="dv">226</span>, <span class="dv">180</span>, <span class="st">&quot;&quot;</span>, fg<span class="op">=</span>GREEN)</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> do_save(b):</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>    save_prefs(prefs)</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>    saved.value <span class="op">=</span> <span class="st">&quot;saved!&quot;</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">880</span>, <span class="dv">40</span>)</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">224</span>, <span class="dv">196</span>, <span class="dv">84</span>, <span class="dv">30</span>, <span class="st">&quot;SAVE&quot;</span>, fg<span class="op">=</span>WHITE, bg<span class="op">=</span>COBALT,</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span>do_save)</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">12</span>, <span class="dv">4</span>, <span class="dv">56</span>, <span class="dv">24</span>, <span class="st">&quot;EXIT&quot;</span>, callback<span class="op">=</span>quit_app)</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> done[<span class="dv">0</span>]:</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>        g.poll()</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">10</span>)</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>    g.stop()</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    console()</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;prefs:&quot;</span>, prefs)</span></code></pre></div>
+<p>Flip things, save, EXIT, run again — the switches wake up
+remembering. Two patterns to take away. First,
+<strong><code>setter()</code> and <code>chooser()</code> are callback
+factories</strong> — a function whose whole job is to <em>build</em> a
+callback and hand it back. One three-line factory replaces eight
+hand-written handlers, and each callback carries its key sealed inside
+(no loop-capture trap, because the factory’s parameter froze it — the
+same trick as the calculator’s <code>c=ch</code> earlier in this
+chapter). Second, the <strong>round trip</strong>:
+<code>load_prefs()</code> seeds the controls’ initial
+<code>value=</code>s; every callback edits the <em>dict</em>, not
+scattered variables; SAVE serialises the dict. Controls are a
+<em>view</em> of the data, never the home of it — the GUI cousin of
+chapter 25’s derive-don’t-store. (Note <code>partition("=")</code>
+quietly improving on <code>split</code> — it never raises on a mangled
+line — and the <code>except (OSError, ValueError)</code> making both
+<em>no file</em> and <em>broken file</em> into non-events.) Your games
+now read <code>prefs.txt</code> at boot with ten of these lines, and
+chapter 26’s accessibility flag has a home.</p>
+<h2 data-number="27.6" id="experiments-26">Experiments</h2>
+<ol type="1">
+<li>Give the calculator a memory: <code>M+</code>, <code>MR</code>,
+<code>MC</code> buttons and a little LED that lights while memory holds
+something. (Where does the number live? You know the idiom now.)</li>
+<li>Wire a spinner (1–9) to the volume slider’s <em>step</em>: adjusting
+one control changing another’s behaviour — the moment GUIs become
+<em>systems</em>.</li>
+<li>The doodle pad: an <code>area</code> covering half the screen, its
+callback drawing dots at <code>.value</code>‘s coordinates with
+<code>hdmi.fb()</code> — plus a colour <code>listbox</code> and a CLEAR
+button. Chapter 21’s paint, rebuilt in twenty GUI lines; compare the two
+programs’ <em>shapes</em>.</li>
+<li>The class refactor: rebuild the calculator’s state as a
+<code>Calc</code> class (<code>entry</code>, <code>acc</code>,
+<code>op</code>, <code>fresh</code> as attributes; <code>press</code> a
+method) and watch every <code>[0]</code> disappear. Chapter 14’s pitch,
+proven on real clutter.</li>
+<li>Feed a gauge from <em>work</em>: in the poll loop, once a second
+(<code>ticks_diff</code>), set a <code>gauge</code> to
+<code>len(os.listdir("/"))</code> or the seconds from
+<code>gettime()</code> — the GUI-plus-background-work pattern every
+instrument in Part V uses.</li>
+</ol>
+<h2 data-number="27.7" id="challenges-26">Challenges</h2>
+<ol type="1">
+<li><strong>The jukebox.</strong> A <code>listbox</code> of
+<code>/sd</code>’s music files (chapter 16’s <code>endswith</code>
+filter), PLAY/STOP buttons, the volume slider, and a caption showing
+<code>play()</code>’s returned title. Background audio means the GUI
+stays live while music plays — this machine was <em>built</em> for this
+app.</li>
+<li><strong>The file manager, junior.</strong> Listbox of the current
+directory, tap to enter directories (watch for <code>..</code>),
+captions for size, buttons for delete-with-confirmation. You are
+re-deriving chapter 4’s <code>fm</code> — and will never see it the same
+way again.</li>
+<li><strong>The front panel.</strong> Pick your best game and give it a
+GUI <em>launcher</em>: settings (this chapter), hall of fame (chapter
+12), and a PLAY button that runs the game and returns to the panel
+after. One <code>run()</code> inside a callback — and suddenly you’ve
+built a games console’s dashboard.</li>
+<li><strong>The soft keyboard, inspected.</strong> Put a
+<code>textbox</code> on screen, unplug the USB keyboard entirely, and
+complete a sentence with touch alone. Then add a <code>fmtbox</code>
+showing <code>%.2f</code> and a numberbox, and file the discovery away:
+kiosks, instruments and bedside gadgets need no keyboard at all.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="26-chapter-26-polish-the-last-ten-percent.html" rel="prev">←&nbsp;Chapter 26 — Polish: the last ten percent</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="28-chapter-28-databases-keeping-and-querying-real-data.html" rel="next">Chapter 28 — Databases: keeping and querying real data&nbsp;→</a>
+</nav>
+</body>
+</html>

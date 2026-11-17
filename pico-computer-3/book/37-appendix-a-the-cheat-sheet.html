@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Appendix A — The cheat
+sheet – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="36-chapter-36-the-system-itself.html" rel="prev" accesskey="p">←&nbsp;Chapter 36 — The system itself</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="38-appendix-b-coming-from-mmbasic.html" rel="next" accesskey="n">Appendix B — Coming from MMBasic&nbsp;→</a>
+</nav>
+<h1 data-number="37" id="appendix-a-the-cheat-sheet">Appendix A — The
+cheat sheet</h1>
+<p>The daily 95%, one appendix. Keep it beside the keyboard until it’s
+in your fingers.</p>
+<h2 data-number="37.1" id="the-shell-chapter-4">The shell (chapter
+4)</h2>
+<pre><code>ls()  ls(&quot;/sd/*.py&quot;)        list (wildcards)
+cls()                       clear screen
+cd(&quot;/sd&quot;)  pwd()            change / show directory
+cat(&quot;f.py&quot;)                 view, paged (q stops)
+cp(&quot;a.py&quot;, &quot;b.py&quot;)          copy    (wildcards -&gt; dir)
+mv(&quot;old&quot;, &quot;new&quot;)            move / rename
+rm(&quot;f.tmp&quot;)                 delete -- NO undo
+mkdir(&quot;d&quot;)  rmdir(&quot;d&quot;)      make / remove directory
+run(&quot;prog.py&quot;)              run a program
+edit(&quot;prog.py&quot;)             full-screen editor
+autosave(&quot;prog.py&quot;)         paste code in, Ctrl-Z ends
+fm()                        file manager (below)
+xrecv(&quot;f&quot;) / xsend(&quot;f&quot;)     XMODEM over USB-C serial</code></pre>
+<h2 data-number="37.2" id="fm-keys-chapter-4"><code>fm</code> keys
+(chapter 4)</h2>
+<p>Tab/←/→ panes · ↑/↓ move · Enter opens <em>by type</em> (py runs,
+music plays, images show, text views) · Backspace up · <strong>Space
+select several</strong> · C copy / M move to other pane · R rename · D
+delete · N new dir · E edit · S stop audio · Q quit.</p>
+<h2 data-number="37.3" id="the-editor-pye-chapter-5">The editor,
+<code>pye</code> (chapter 5)</h2>
+<pre><code>Ctrl-S save        Ctrl-Q quit (y/N/f)     Ctrl-Z/Y undo/redo
+Ctrl-F find        Ctrl-N find next        Ctrl-G  go to line
+# comment
+Tab / Shift-Tab    indent / unindent       Ctrl-P  toggle
+Ctrl-L mark, then  Ctrl-C/X/V copy/cut/paste</code></pre>
+<h2 data-number="37.4" id="the-prompt-chapters-3-8">The prompt (chapters
+3, 8)</h2>
+<ul>
+<li>↑/↓ history · Tab completes names · <code>help(math)</code> lists a
+module.</li>
+<li><strong>Blocks</strong>: after a <code>:</code> line the prompt
+shows <code>...</code> and auto-indents. To finish: <strong>Backspace
+(eats one indent level), then Enter.</strong></li>
+<li><strong>One entry, one statement</strong> — run the block first,
+then type the next command at the fresh <code>&gt;&gt;&gt;</code>.</li>
+<li>Ctrl-C interrupts · Ctrl-D soft-restarts (re-reads edited
+libraries).</li>
+</ul>
+<h2 data-number="37.5" id="screen-chapters-1517">Screen (chapters
+15–17)</h2>
+<pre><code>screen(hdmi.RGB640)             set + save mode (RGB320/512/1024)
+d = hdmi.fb()                   Display -- AFTER hdmi.write()!
+d.colour(0xRRGGBB)              convert colour FIRST, always
+d.fill(c)  d.pixel(x,y,c)  d.line(x1,y1,x2,y2,c,w)
+d.rect / fill_rect(x,y,w,h,c)   d.ellipse(x,y,rx,ry,c)   outline
+d.ellipse(x,y,rx,ry,c,True)     solid: True is a flag, not a fill colour
+d.rbox(x,y,w,h,r,c[,fill]) d.arc(x,y,r1,r2,a1,a2,c) d.flood(x,y,c)
+hdmi.text(s,x,y,fg,bg,scale,font)  fonts 1..9; 6=digits; bg=-1
+draw_jpg/png/bmp(path)          save_image(path)
+sheet = load_image(path, transparent=c)
+sheet.cell(col,row,cw,ch,x,y,skip=c)
+# flip pattern:
+hdmi.close(&quot;F&quot;); hdmi.create(); hdmi.write(&quot;F&quot;)
+# then finally write(&quot;N&quot;)
+...draw frame... ; hdmi.vsync(); hdmi.copy(&quot;F&quot;,&quot;N&quot;)
+console(&quot;none&quot;)                 hide it; console() shows again</code></pre>
+<h2 data-number="37.6" id="input-chapters-18-21">Input (chapters 18,
+21)</h2>
+<pre><code>keydown(0/1..6/7/8)     count / keys held / modifiers / locks
+keyboard.UP DOWN LEFT RIGHT ESC ENTER F1..F12
+keyboard.on_key(fn)     event per press; on_key() removes
+mouse(&quot;X&quot;/&quot;Y&quot;/&quot;L&quot;/&quot;R&quot;/&quot;W&quot;/&quot;D&quot;)      pccursor.on()/refresh()/off()
+touch(&quot;X&quot;)  -1 = nothing    touch(&quot;DOWN&quot;/&quot;TAP&quot;/&quot;SWL&quot;...)  latched</code></pre>
+<h2 data-number="37.7" id="sound-chapter-20">Sound (chapter 20)</h2>
+<pre><code>volume(60)   beep(880, 150)   play(&quot;/sd/f.mp3&quot; [, loop=True])
+pause() resume() stop() is_playing()
+tone(freqL[, freqR, ms, wait=True])          retunes live
+sound(voice1-4, &quot;L/R/B&quot;, &quot;S/Q/T/W/P/N/O&quot;, freq, vol0-25)
+mod_sample(n[, rate=])                        SFX over .mod music</code></pre>
+<h2 data-number="37.8" id="games-chapters-18-19-22">Games (chapters 18,
+19, 22)</h2>
+<pre><code># speeds * dt!
+clock = pcgame.Clock(vsync=True); dt = clock.tick()
+import pcsprite as sp
+s = sp.grab(x,y,w,h,transparent=c); s.show(x,y,layer=n); s.x += 1
+# collisions; sp.reset() when done
+for a, b in sp.update(vsync=True): ...
+tm = TileMap(sheet, 16, 16, cols, rows)
+tm.set(c,r,t); tm.view(x,y); tm.draw()
+tm.set_attr(tile, 1); tm.collide(x, y, w, h, mask=1)</code></pre>
+<h2 data-number="37.9" id="time-system-chapters-29-36">Time &amp; system
+(chapters 29, 36)</h2>
+<pre><code>gettime() -&gt; tuple   settime(y,mo,d,h,mi,s)   ntpsync() tz(1)
+time.ticks_ms() ticks_us() ticks_diff(now,t0) sleep_ms(n)
+ds3231.set_alarm(h, m)  alarm_fired()  clear_alarm()  alarm_pin()
+machine.Timer(period=500, callback=f)  pin.irq(f, Pin.IRQ_FALLING)
+console(&quot;both&quot;/&quot;serial&quot;/&quot;screen&quot;/&quot;none&quot;)  keymap(&quot;UK&quot;)
+rm(&quot;/settings.json&quot;) = factory reset;  /boot.py then /main.py</code></pre>
+<h2 data-number="37.10" id="gpio-chapter-32">GPIO (chapter 32)</h2>
+<pre><code>p = Pin(0, Pin.OUT); p.on()/off()/toggle()
+b = Pin(1, Pin.IN, Pin.PULL_UP)      pressed reads 0
+machine.ADC(Pin(40)).read_u16()      analogue: GP40-46
+pwm = machine.PWM(Pin(2), freq=50); pwm.duty_u16(n)
+machine.I2C(0, sda=Pin(20), scl=Pin(21)).scan()      QWIIC bus</code></pre>
+<h2 data-number="37.11" id="the-collars-never-forgotten">The collars
+(never forgotten)</h2>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ...                      <span class="co"># anything using write(&quot;F&quot;/&quot;L&quot;),</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># sprites, GUI (g.stop()), irq handlers,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)          <span class="co"># mode changes, music (stop())</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="36-chapter-36-the-system-itself.html" rel="prev">←&nbsp;Chapter 36 — The system itself</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="38-appendix-b-coming-from-mmbasic.html" rel="next">Appendix B — Coming from MMBasic&nbsp;→</a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 29 — Time and schedules: the real-time
+clock – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="28-chapter-28-databases-keeping-and-querying-real-data.html" rel="prev" accesskey="p">←&nbsp;Chapter 28 — Databases: keeping and querying real data</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="30-chapter-30-going-online-wi-fi-and-the-internet.html" rel="next" accesskey="n">Chapter 30 — Going online: Wi-Fi and the internet&nbsp;→</a>
+</nav>
+<h1 data-number="29"
+id="chapter-29-time-and-schedules-the-real-time-clock">Chapter 29 — Time
+and schedules: the real-time clock</h1>
+<p>A machine that knows the time stops being a computer and starts being
+an <em>appliance</em> — a bedside clock, a kitchen timer, a scheduler, a
+lab notebook that dates its own entries. Yours has been quietly ready
+since chapter 1: the DS3231 chip keeps the date and time on its CR2032
+coin cell whether the machine is powered or not, accurate to a couple of
+seconds a month, and the system reads it automatically at every boot.
+This chapter puts it to work — and finishes the bedside gadget that
+chapters 15 and 20 have been building toward.</p>
+<h2 data-number="29.1" id="the-three-clocks">The three clocks</h2>
+<p>You have met all three; here they are side by side, because choosing
+the right one is most of time programming:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Clock</th>
+<th>Read with</th>
+<th>Survives power-off?</th>
+<th>For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DS3231</strong> (battery)</td>
+<td><code>gettime()</code></td>
+<td><strong>yes</strong></td>
+<td>wall-clock time: dates, alarms, schedules</td>
+</tr>
+<tr>
+<td>System clock</td>
+<td><code>time.localtime()</code></td>
+<td>no (reset from DS3231 at boot)</td>
+<td>same, cheaper to read</td>
+</tr>
+<tr>
+<td>Millisecond ticker</td>
+<td><code>time.ticks_ms()</code></td>
+<td>no, and wraps</td>
+<td>stopwatch work: durations, timeouts, frame budgets</td>
+</tr>
+</tbody>
+</table>
+<p>The rules of thumb: <em>“what time is it?”</em> →
+<code>gettime()</code>; <em>“how long did that take?”</em> →
+<code>ticks_ms()</code> + <code>ticks_diff()</code> (chapter 21 — never
+subtract wall-clock times for durations; a minute rollover mid-measure
+makes nonsense). Setting the clock is one call, which also programs the
+DS3231 so the setting <em>keeps</em>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># year, month, day, hour, minute, second</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>settime(<span class="dv">2026</span>, <span class="dv">7</span>, <span class="dv">16</span>, <span class="dv">9</span>, <span class="dv">30</span>, <span class="dv">0</span>)</span></code></pre></div>
+<p>(<code>synctime()</code> re-reads the DS3231 into the system clock —
+rarely needed by hand; and chapter 30 sets the whole thing from the
+internet in one line.)</p>
+<blockquote>
+<p><strong>Pico Computer 3 specific.</strong> <code>gettime()</code>,
+<code>settime()</code> and <code>synctime()</code> are this machine’s
+helpers for its battery-backed DS3231 clock — a chip plain MicroPython
+knows nothing about. The <em>system</em> clock underneath them is
+standard: <code>time.localtime()</code> reads it and
+<code>time.time()</code> gives the epoch seconds, on any MicroPython
+board. <code>gettime()</code> just returns the first six numbers of that
+tuple (year to second), sourced from the DS3231 so they survive
+power-off. On a Colour Maximite 2 the same helpers work on its own
+battery-backed clock (Appendix K).</p>
+</blockquote>
+<h2 data-number="29.2" id="anatomy-of-a-time">Anatomy of a time</h2>
+<p><code>gettime()</code> hands back a <strong>time tuple</strong> — the
+standard eight-number shape that <code>time.localtime()</code> produces
+across MicroPython (here it is read from the DS3231), and chapter 10
+taught you everything needed to take it apart:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t <span class="op">=</span> gettime()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>(<span class="dv">2026</span>, <span class="dv">7</span>, <span class="dv">16</span>, <span class="dv">9</span>, <span class="dv">30</span>, <span class="dv">12</span>, <span class="dv">3</span>, <span class="dv">197</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> year, month, day, hh, mm, ss <span class="op">=</span> t[:<span class="dv">6</span>]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="ss">f&quot;</span><span class="sc">{</span>hh<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>mm<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>ss<span class="sc">:02}</span><span class="ss">&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;09:30:12&#39;</span></span></code></pre></div>
+<p>Positions 0–5 are what you’d guess; position <strong>6</strong> is
+the weekday (0 = Monday) and <strong>7</strong> the day-of-year.</p>
+<figure>
+<img src="figs/29-clocks.png"
+alt="The machine’s three clocks — the battery DS3231, the system clock it seeds at boot, and the millisecond ticker — and the eight-number tuple gettime() returns: positions 0–5 the date and time, 6 the weekday (0 = Mon), 7 the day of the year." />
+<figcaption aria-hidden="true">The machine’s three clocks — the battery
+DS3231, the system clock it seeds at boot, and the millisecond ticker —
+and the eight-number tuple <code>gettime()</code> returns: positions 0–5
+the date and time, 6 the weekday (0 = Mon), 7 the day of the
+year.</figcaption>
+</figure>
+<p>Two idioms cover nearly all display work: the <code>:02</code> pad
+(chapter 6’s format specs — clocks are why they exist) and a name table
+for weekdays:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> DAYS <span class="op">=</span> (<span class="st">&quot;Mon&quot;</span>, <span class="st">&quot;Tue&quot;</span>, <span class="st">&quot;Wed&quot;</span>, <span class="st">&quot;Thu&quot;</span>, <span class="st">&quot;Fri&quot;</span>, <span class="st">&quot;Sat&quot;</span>, <span class="st">&quot;Sun&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> DAYS[gettime()[<span class="dv">6</span>]]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;Thu&#39;</span></span></code></pre></div>
+<h2 data-number="29.3" id="date-arithmetic-mktime">Date arithmetic:
+<code>mktime</code></h2>
+<p>Questions like <em>“what date is 90 days from now?”</em> or <em>“how
+long until the party?”</em> defeat tuple fiddling instantly (month
+lengths, leap years…). The professional route converts to
+<strong>seconds</strong>, does plain arithmetic, and converts back:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tuple -&gt; one big seconds count (mktime wants 8 values: the</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 6 from gettime, then weekday and day of year, which it ignores)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> time.mktime(gettime() <span class="op">+</span> (<span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>t <span class="op">+=</span> <span class="dv">90</span> <span class="op">*</span> <span class="dv">24</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">60</span>                  <span class="co"># add 90 days of seconds</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>future <span class="op">=</span> time.localtime(t)              <span class="co"># seconds -&gt; tuple again</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>future[<span class="dv">2</span>]<span class="sc">:02}</span><span class="ss">/</span><span class="sc">{</span>future[<span class="dv">1</span>]<span class="sc">:02}</span><span class="ss">/</span><span class="sc">{</span>future[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p><code>mktime</code> and <code>localtime</code> are inverses, and
+between them every calendar question becomes subtraction. One footnote
+for the curious: the “seconds” are counted from the year 2000 on this
+machine (PCs count from 1970) — invisible while arithmetic stays
+on-board, worth knowing the day you exchange timestamps with the outside
+world.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>TIME$</code> and
+<code>DATE$</code> are the tuple plus an f-string — build exactly the
+format you want rather than parsing a fixed one. <code>SETTIME</code>
+maps to <code>settime()</code>, battery behaviour and all.</p>
+</blockquote>
+<h2 data-number="29.4" id="project-the-kitchen-timer">Project: the
+kitchen timer</h2>
+<p>An appliance in sixty lines: chapter 27’s GUI for the controls,
+chapter 21’s ticks for the countdown, chapter 20 for the ding. The
+design point to study is the <strong>poll-loop clock</strong>: nothing
+sleeps for a minute — the loop keeps spinning at 20 Hz, the GUI stays
+alive, and the countdown is <em>recomputed from <code>ticks_diff</code>
+each pass</em> rather than counted down (so it cannot drift, chapter
+22’s lesson in kitchen form). <code>edit("timer.py")</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgui</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;serial&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>hdmi.fb().fill(<span class="dv">0</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> pcgui.GUI()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>g.start()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>done <span class="op">=</span> [<span class="va">False</span>]</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># None, or (start_ms, total_ms)</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>running <span class="op">=</span> [<span class="va">None</span>]</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>g.caption(<span class="dv">96</span>, <span class="dv">8</span>, <span class="st">&quot;KITCHEN TIMER&quot;</span>, fg<span class="op">=</span>GOLD, font<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>g.caption(<span class="dv">24</span>, <span class="dv">58</span>, <span class="st">&quot;minutes&quot;</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>mins <span class="op">=</span> g.spinner(<span class="dv">24</span>, <span class="dv">72</span>, <span class="dv">90</span>, <span class="dv">28</span>, value<span class="op">=</span><span class="dv">5</span>, lo<span class="op">=</span><span class="dv">1</span>, hi<span class="op">=</span><span class="dv">120</span>, step<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>disp <span class="op">=</span> g.displaybox(<span class="dv">150</span>, <span class="dv">56</span>, <span class="dv">146</span>, <span class="dv">44</span>, <span class="st">&quot;05:00&quot;</span>, font<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>bar <span class="op">=</span> g.bargauge(<span class="dv">20</span>, <span class="dv">116</span>, <span class="dv">280</span>, <span class="dv">16</span>, value<span class="op">=</span><span class="dv">0</span>, lo<span class="op">=</span><span class="dv">0</span>, hi<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                 fg<span class="op">=</span>GREEN)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_ms(ms):</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, ms) <span class="op">//</span> <span class="dv">1000</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span>s <span class="op">//</span> <span class="dv">60</span><span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>s <span class="op">%</span> <span class="dv">60</span><span class="sc">:02}</span><span class="ss">&quot;</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> start(b):</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="bu">int</span>(mins.number) <span class="op">*</span> <span class="dv">60000</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    running[<span class="dv">0</span>] <span class="op">=</span> (time.ticks_ms(), total)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    disp.value <span class="op">=</span> fmt_ms(total)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cancel(b):</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    running[<span class="dv">0</span>] <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    bar.value <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    disp.value <span class="op">=</span> fmt_ms(<span class="bu">int</span>(mins.number) <span class="op">*</span> <span class="dv">60000</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quit_app(b):</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    done[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">30</span>, <span class="dv">150</span>, <span class="dv">120</span>, <span class="dv">34</span>, <span class="st">&quot;START&quot;</span>, fg<span class="op">=</span>WHITE, bg<span class="op">=</span>COBALT,</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>         callback<span class="op">=</span>start)</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">170</span>, <span class="dv">150</span>, <span class="dv">120</span>, <span class="dv">34</span>, <span class="st">&quot;CANCEL&quot;</span>, callback<span class="op">=</span>cancel)</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>g.button(<span class="dv">12</span>, <span class="dv">202</span>, <span class="dv">70</span>, <span class="dv">26</span>, <span class="st">&quot;EXIT&quot;</span>, callback<span class="op">=</span>quit_app)</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> done[<span class="dv">0</span>]:</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        g.poll()</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> running[<span class="dv">0</span>]:</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>            t0, total <span class="op">=</span> running[<span class="dv">0</span>]</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>            left <span class="op">=</span> total <span class="op">-</span> time.ticks_diff(time.ticks_ms(), t0)</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>            disp.value <span class="op">=</span> fmt_ms(left)</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>            bar.value <span class="op">=</span> <span class="bu">min</span>(<span class="dv">100</span>, <span class="dv">100</span> <span class="op">*</span> (total <span class="op">-</span> <span class="bu">max</span>(<span class="dv">0</span>,</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>                            left)) <span class="op">//</span> total)</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> left <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>                running[<span class="dv">0</span>] <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>                disp.value <span class="op">=</span> <span class="st">&quot;DING!&quot;</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>                    tone(<span class="dv">880</span>, <span class="dv">880</span>, <span class="dv">160</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>                    tone(<span class="dv">1318</span>, <span class="dv">1318</span>, <span class="dv">240</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">50</span>)</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    g.stop()</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Boil an egg with it. Then notice the small honesty in
+<code>start</code>: the spinner’s <code>.number</code> is read <em>when
+START is pressed</em> — adjust the spinner mid-countdown and nothing
+lurches, because the running timer owns its own copy of
+<code>total</code>. Controls are a view, not the home of the data —
+chapter 27’s principle, ticking.</p>
+<h2 data-number="29.5" id="project-the-bedside-alarm-clock">Project: the
+bedside alarm clock</h2>
+<p>Chapter 15’s living clock, grown up: the big dial and seconds ring
+return, joined by an alarm you set with the arrow keys, arm with
+<strong>A</strong>, and silence with any key — and the setting
+<strong>survives power-off</strong> (chapter 12, four lines).
+Full-screen and key-driven — a bedside gadget wants no pop-up keyboards.
+<code>edit("alarm.py")</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x101828</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>RING <span class="op">=</span> d.colour(GOLD)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>DIGITS <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>DIM <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>ALERT <span class="op">=</span> d.colour(RED)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>ALARM_FILE <span class="op">=</span> <span class="st">&quot;/alarm.txt&quot;</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_alarm():</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(ALARM_FILE) <span class="im">as</span> f:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            hh, mm, armed <span class="op">=</span> f.read().strip().split(<span class="st">&quot;,&quot;</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">int</span>(hh), <span class="bu">int</span>(mm), <span class="bu">int</span>(armed)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> (<span class="pp">OSError</span>, <span class="pp">ValueError</span>):</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">7</span>, <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_alarm():</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(ALARM_FILE, <span class="st">&quot;w&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        f.write(<span class="ss">f&quot;</span><span class="sc">{</span>ahh<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>amm<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>armed<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>ahh, amm, armed <span class="op">=</span> load_alarm()</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>ringing <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="co"># (hh, mm) already rung this minute</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>fired_at <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>up_was <span class="op">=</span> dn_was <span class="op">=</span> a_was <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>d.fill(BG)</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>cx, cy <span class="op">=</span> W <span class="op">//</span> <span class="dv">2</span>, H <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>tw <span class="op">=</span> <span class="dv">8</span> <span class="op">*</span> <span class="dv">32</span>                          <span class="co"># font 6: &quot;HH:MM:SS&quot;</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>x0, y0 <span class="op">=</span> cx <span class="op">-</span> tw <span class="op">//</span> <span class="dv">2</span>, cy <span class="op">-</span> <span class="dv">25</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        up_now, dn_now <span class="op">=</span> held(keyboard.UP), held(keyboard.DOWN)</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>        a_now <span class="op">=</span> held(<span class="bu">ord</span>(<span class="st">&quot;a&quot;</span>))</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> up_now <span class="kw">and</span> <span class="kw">not</span> up_was:</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>            amm <span class="op">+=</span> <span class="dv">5</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>            ahh, amm <span class="op">=</span> (ahh <span class="op">+</span> amm <span class="op">//</span> <span class="dv">60</span>) <span class="op">%</span> <span class="dv">24</span>, amm <span class="op">%</span> <span class="dv">60</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>            fired_at <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>            save_alarm()</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> dn_now <span class="kw">and</span> <span class="kw">not</span> dn_was:</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>            amm <span class="op">-=</span> <span class="dv">5</span></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> amm <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>                amm <span class="op">+=</span> <span class="dv">60</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>                ahh <span class="op">=</span> (ahh <span class="op">-</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">24</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>            fired_at <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>            save_alarm()</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> a_now <span class="kw">and</span> <span class="kw">not</span> a_was:</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>            armed <span class="op">=</span> <span class="dv">0</span> <span class="cf">if</span> armed <span class="cf">else</span> <span class="dv">1</span></span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>            fired_at <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>            save_alarm()</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>        up_was, dn_was, a_was <span class="op">=</span> up_now, dn_now, a_now</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>        h, m, s <span class="op">=</span> gettime()[<span class="dv">3</span>:<span class="dv">6</span>]</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> armed <span class="kw">and</span> (h, m) <span class="op">==</span> (ahh, amm) <span class="kw">and</span> fired_at <span class="op">!=</span> (h, m):</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>            ringing <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>            fired_at <span class="op">=</span> (h, m)</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ringing:</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> keydown(<span class="dv">0</span>):           <span class="co"># any key silences</span></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>                ringing <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>                d.fill(BG)</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>                d.fill(ALERT <span class="cf">if</span> s <span class="op">%</span> <span class="dv">2</span> <span class="cf">else</span> BG)</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>                tone(<span class="dv">880</span>, <span class="dv">880</span>, <span class="dv">120</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>                tone(<span class="dv">1318</span>, <span class="dv">1318</span>, <span class="dv">120</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(x0, y0, tw, <span class="dv">50</span>, BG)</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;</span><span class="sc">{</span>h<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>m<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>s<span class="sc">:02}</span><span class="ss">&quot;</span>, x0, y0, DIGITS, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>,</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>                  <span class="dv">6</span>)</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>        d.arc(cx, cy, <span class="dv">150</span>, <span class="dv">158</span>, <span class="dv">0</span>, <span class="dv">0</span>, BG)</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> s:</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>            d.arc(cx, cy, <span class="dv">150</span>, <span class="dv">158</span>, <span class="dv">0</span>, s <span class="op">*</span> <span class="dv">6</span>, RING)</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>        status <span class="op">=</span> (<span class="ss">f&quot;alarm </span><span class="sc">{</span>ahh<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>amm<span class="sc">:02}</span><span class="ss">  &quot;</span></span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>                  <span class="op">+</span> (<span class="st">&quot;ARMED&quot;</span> <span class="cf">if</span> armed <span class="cf">else</span> <span class="st">&quot;off&quot;</span>))</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>        hdmi.text(status, cx <span class="op">-</span> <span class="bu">len</span>(status) <span class="op">*</span> <span class="dv">8</span>, H <span class="op">-</span> <span class="dv">60</span>,</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>                  RING <span class="cf">if</span> armed <span class="cf">else</span> DIM, BG, <span class="dv">2</span>)</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="st">&quot;UP/DOWN set   A arm   ESC quit&quot;</span>, cx <span class="op">-</span> <span class="dv">116</span>,</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>                  H <span class="op">-</span> <span class="dv">24</span>, DIM, BG)</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">50</span>)</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Set it five minutes ahead, arm it, and go make tea. The engineering
+worth reading twice:</p>
+<ul>
+<li><strong><code>fired_at</code> is the re-trigger guard.</strong> The
+alarm condition — <code>(h, m) == (ahh, amm)</code> — stays true for a
+<em>whole minute</em>; silencing the bell mustn’t invite it back thirty
+seconds later. Remembering which minute already fired (and clearing that
+memory whenever the alarm is changed or re-armed) is the same
+edge-versus-level distinction as chapter 25’s keys, at a minute’s
+timescale.</li>
+<li><strong>Every change saves.</strong> Chapter 25’s autosave
+experiment, adopted: there is no save button because there is nothing to
+lose. Power cut at 3 a.m.? The alarm comes back armed — the whole point
+of a battery-backed clock deserves settings to match.</li>
+<li>The bell itself is polite engineering: the flash rides
+<code>s % 2</code> (state → appearance, the clock’s own data animating
+the alert), the tones are short so the any-key check runs between them,
+and silencing repaints calm.</li>
+<li>And the display is chapter 15’s — eraser trick, state-to-angle ring,
+solid-<code>bg</code> text — deliberately: this program is that
+chapter’s clock <em>completed</em>, and <code>/main.py</code>-worthy at
+last (chapter 5: <code>cp("alarm.py", "/main.py")</code> and the machine
+<em>is</em> an alarm clock).</li>
+</ul>
+<h2 data-number="29.6" id="experiments-28">Experiments</h2>
+<ol type="1">
+<li>Add the date and weekday under the big digits — <code>DAYS</code>
+table plus f-string, font 3. Bedside clocks say “Thu 16 Jul”; yours
+should.</li>
+<li>Days-alive, exactly: your birth date through <code>mktime</code>,
+subtracted from now, divided down. Chapter 3’s challenge answered with
+four digits of precision — and it updates <em>live</em> on the alarm
+clock’s screen if you let it.</li>
+<li>A snooze: any key while ringing sets the alarm nine minutes ahead
+(<code>mktime</code> arithmetic or minute maths — your call) and
+re-arms, instead of silencing. One <code>if</code>; entire mornings
+ruined differently.</li>
+<li>Timer + clock: give the kitchen timer a small live
+<code>gettime()</code> clock in a corner caption, updated once per
+second (<code>ticks_diff</code> gate). Two time systems, one poll loop —
+the shape of every instrument panel.</li>
+<li>Measure the DS3231’s honesty: note the seconds against your phone
+today and again in a week. The chip is rated to about ±2 ppm — work out
+what that <em>should</em> be in seconds per month, then check.</li>
+</ol>
+<h2 data-number="29.7" id="challenges-28">Challenges</h2>
+<ol type="1">
+<li><p><strong>Cron, junior.</strong> A <code>schedule.txt</code> of
+<code>HH,MM,program.py</code> lines and a runner that
+<code>run()</code>s each at its appointed minute (the
+<code>fired_at</code> guard, per line — a dict keyed by line number,
+chapter 10). The machine now <em>does things while you’re
+out</em>.</p></li>
+<li><p><strong>The sunrise clock.</strong> From thirty minutes before
+the alarm, fade the screen background from black through dawn colours to
+full warmth (a list of RGB stops, interpolated with minute arithmetic).
+Gentler than the bell — which still fires, for realists.</p></li>
+<li><p><strong>World clock.</strong> A dict of
+<code>city: offset_hours</code>, rendered as a panel of times via
+<code>mktime</code> arithmetic — plus the honest wrinkle: whose offsets
+are wrong half the year, and why is daylight-saving <em>not</em>
+something this chapter can compute? (A genuine limit — worth knowing
+where the machine’s knowledge ends.)</p></li>
+<li><p><strong>The hardware alarm.</strong> Your software alarm dies
+with its program; the DS3231 carries a <em>daily alarm of its own</em>,
+in the battery-backed chip, wired to this board’s
+<strong>GP32</strong>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ds3231</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 07:00, every day, survives resets</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ds3231.set_alarm(<span class="dv">7</span>, <span class="dv">0</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> ds3231.alarm_fired():      <span class="co"># poll this...</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    ds3231.clear_alarm()      <span class="co"># ...and acknowledge</span></span></code></pre></div>
+<p>Rework the bedside clock to arm the chip instead of comparing times:
+the <code>fired_at</code> guard disappears (the chip latches the flag
+until you clear it — the hardware does your edge detection), and the
+alarm now fires even if the clock program crashed and was restarted
+overnight. The deeper prize — <code>ds3231.alarm_pin().irq()</code>
+waking code with no polling loop at all — is chapter 34’s technique, and
+this challenge is its perfect rehearsal.</p></li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="28-chapter-28-databases-keeping-and-querying-real-data.html" rel="prev">←&nbsp;Chapter 28 — Databases: keeping and querying real data</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="30-chapter-30-going-online-wi-fi-and-the-internet.html" rel="next">Chapter 30 — Going online: Wi-Fi and the internet&nbsp;→</a>
+</nav>
+</body>
+</html>

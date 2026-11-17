@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 5 — Writing real programs: the
+editor – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="4-chapter-4-finding-your-way-around-files-and-the-shell.html" rel="prev" accesskey="p">←&nbsp;Chapter 4 — Finding your way around: files and the shell</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="6-chapter-6-variables-numbers-and-text.html" rel="next" accesskey="n">Chapter 6 — Variables, numbers and text&nbsp;→</a>
+</nav>
+<h1 data-number="5"
+id="chapter-5-writing-real-programs-the-editor">Chapter 5 — Writing real
+programs: the editor</h1>
+<p>Everything you have typed so far vanished the moment it ran. That was
+fine for conversation, but a <em>program</em> — the list of instructions
+from chapter 1 — needs to be written down, kept, changed, and run again
+tomorrow. In this chapter you will write your first program files with
+the machine’s built-in editor, run them, bring programs in from a PC,
+and finally make one run itself every time the machine is switched on.
+It completes your driving lessons: after this, the book is about
+programming.</p>
+<h2 data-number="5.1" id="your-first-program-file">Your first program
+file</h2>
+<p>Type:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> edit(<span class="st">&quot;hello.py&quot;</span>)</span></code></pre></div>
+<p>The screen changes: this is <strong>pye</strong>, the machine’s
+full-screen text editor. The file <code>hello.py</code> doesn’t exist
+yet, so you are looking at an empty page with a status bar. Type this
+program — Enter at the end of each line, Backspace to fix slips, arrow
+keys to move around, exactly as you would hope:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Hello from my first program!&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;I can calculate:&quot;</span>, <span class="dv">6</span> <span class="op">*</span> <span class="dv">7</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>beep()</span></code></pre></div>
+<p>Now the two keystrokes that matter most: <strong>Ctrl-S
+saves</strong> (it will confirm the name — press Enter) and
+<strong>Ctrl-Q quits</strong>, back to the familiar prompt. Run your
+program:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> run(<span class="st">&quot;hello.py&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Hello <span class="im">from</span> my first program<span class="op">!</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>I can calculate: <span class="dv">42</span></span></code></pre></div>
+<p>— and it beeps. Three things deserve a look before we move on:</p>
+<ul>
+<li>The file is real: <code>ls()</code> shows <code>hello.py</code>, it
+survives power-off, and <code>cat("hello.py")</code> prints your
+instructions back.</li>
+<li>Chapter 3’s prediction came true: <code>6 * 7</code> alone on a line
+would have done nothing visible. <strong>Programs never echo</strong> —
+anything a program wants seen, it must <code>print</code>.</li>
+<li>Everything you can do at the prompt works in a program:
+<code>beep()</code>, <code>cls()</code>, the maths, all of it. A program
+<em>is</em> the conversation, saved.</li>
+</ul>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>edit</code> is
+<code>EDIT</code>, and the workflow (edit, save, run, edit again) is the
+same. There is no <code>SAVE</code> command — the editor’s Ctrl-S does
+that — and no line numbers to type, ever.</p>
+</blockquote>
+<blockquote>
+<p><strong>Pico Computer 3 specific.</strong> <code>edit()</code>,
+<code>run()</code>, <code>autosave()</code> and the
+<code>/main.py</code> auto-run are this machine’s own — plain
+MicroPython has no built-in editor or <code>run</code> command. On other
+boards you write <code>.py</code> files in an editor on your PC and copy
+them across with a tool like <code>mpremote</code>, then
+<code>import</code> or <code>exec()</code> them. Here the machine is
+self-contained, editor and all — and so is a Colour Maximite 2 running
+its MicroPython app (Appendix K).</p>
+</blockquote>
+<h2 data-number="5.2" id="getting-comfortable-in-the-editor">Getting
+comfortable in the editor</h2>
+<p>You already know the survival keys: type, arrows, Backspace,
+<strong>Ctrl-S</strong>, <strong>Ctrl-Q</strong>. (Quitting with unsaved
+changes asks <code>y/N/f</code> — <code>y</code> saves first,
+<code>f</code> abandons the changes.) The rest earn their keep as
+programs grow. The ones worth learning this week:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctrl-Z</code> / <code>Ctrl-Y</code></td>
+<td>Undo / redo — fearlessness on tap</td>
+</tr>
+<tr>
+<td><code>Ctrl-F</code> / <code>Ctrl-N</code></td>
+<td>Find / find next</td>
+</tr>
+<tr>
+<td><code>Ctrl-G</code></td>
+<td>Go to a line number</td>
+</tr>
+<tr>
+<td><code>Tab</code> / <code>Shift-Tab</code></td>
+<td>Indent / unindent the line (or selection)</td>
+</tr>
+<tr>
+<td><code>Ctrl-P</code></td>
+<td>Toggle <code>#</code> comment on the line (or selection)</td>
+</tr>
+<tr>
+<td><code>Ctrl-L</code>, then move</td>
+<td>Start a selection (then <code>Ctrl-C</code> copy,
+<code>Ctrl-X</code> cut, <code>Ctrl-V</code> paste)</td>
+</tr>
+<tr>
+<td><code>Ctrl-K</code></td>
+<td>Jump to the matching bracket</td>
+</tr>
+<tr>
+<td><code>Ctrl-T</code> / <code>Ctrl-B</code></td>
+<td>Top / bottom of the file</td>
+</tr>
+</tbody>
+</table>
+<p>Two of these need a word now. <strong><code>Tab</code>
+indents</strong> — chapter 7 will reveal why indentation is sacred in
+Python, and this key manages it. And <strong><code>Ctrl-P</code>
+comments</strong>: a line starting with <code>#</code> is a
+<strong>comment</strong> — the machine ignores it completely; it exists
+for humans. You will use comments to leave notes to your future self,
+and <code>Ctrl-P</code> to temporarily switch a line off while
+testing.</p>
+<p>You will also notice the editor colours your code — keywords cyan,
+text strings magenta, comments yellow, numbers green. This is nothing
+you need manage; it just makes structure visible, and after a week you
+will notice a misspelled keyword <em>because</em> it fails to change
+colour.</p>
+<p>(The full key list is in the User Manual, section 4. And a shortcut
+worth knowing: in <code>fm</code>, <strong>E</strong> opens the
+highlighted file in the editor.)</p>
+<h2 data-number="5.3"
+id="when-programs-go-wrong-your-first-debugging-workflow">When programs
+go wrong: your first debugging workflow</h2>
+<p>Errors in a file are more interesting than errors at the prompt,
+because now the <em>location</em> matters. Deliberately break your
+program: <code>edit("hello.py")</code>, change the second
+<code>print</code> to <code>pint</code>, save, quit, run:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> run(<span class="st">&quot;hello.py&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Hello <span class="im">from</span> my first program<span class="op">!</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>Traceback (most recent call last):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  File <span class="st">&quot;&lt;stdin&gt;&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  File <span class="st">&quot;pcshell.py&quot;</span>, line <span class="dv">101</span>, <span class="kw">in</span> run</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  File <span class="st">&quot;hello.py&quot;</span>, line <span class="dv">2</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="pp">NameError</span>: name <span class="st">&#39;pint&#39;</span> isn<span class="st">&#39;t defined</span></span></code></pre></div>
+<p>Read it bottom-up, as chapter 3 taught: a <code>NameError</code>,
+name <code>pint</code> — and one line up, the address:
+<strong><code>File "hello.py", line 2</code></strong>. (The lines above
+that trace the journey: your keystroke at the prompt, then the machine’s
+own program-launcher, <code>pcshell</code> — you can always ignore
+everything except the <em>deepest</em> line that names one of
+<em>your</em> files.) Notice also the first line printed before the
+crash: a program runs <em>until</em> the problem line. So the workflow,
+which will serve you for the rest of this book:</p>
+<ol type="1">
+<li>Run. Read the traceback’s last line for <em>what</em>, the line
+above for <em>where</em>.</li>
+<li><code>edit("hello.py")</code>, <strong>Ctrl-G</strong>, type the
+line number.</li>
+<li>Fix, save, run again.</li>
+</ol>
+<p>Fix the <code>pint</code> before moving on — no program left behind
+broken.</p>
+<h2 data-number="5.4" id="a-program-with-rhythm">A program with
+rhythm</h2>
+<p>Programs run their lines in order, at full speed — millions of
+instructions per second. To make something unfold in <em>human</em>
+time, you pause it. Create <code>fanfare.py</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Ready...&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">1</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>beep(<span class="dv">440</span>, <span class="dv">200</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="fl">0.3</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>beep(<span class="dv">550</span>, <span class="dv">200</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="fl">0.3</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>beep(<span class="dv">660</span>, <span class="dv">400</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Ta-da!&quot;</span>)</span></code></pre></div>
+<p><code>time.sleep(1)</code> stops the program dead for one second
+(<code>0.3</code> for three-tenths). The <code>import time</code> line
+fetches the toolbox, exactly as <code>import math</code> did in chapter
+3 — note that in a <em>file</em>, imports conventionally go at the top.
+Run it: a one-second dramatic pause, three rising notes, ta-da. It is
+five seconds of theatre, and it is <em>yours</em> — change the notes,
+the timing, the words.</p>
+<p>One more fact about <code>run()</code> worth filing away: each run
+starts <em>fresh-ish</em>. Your program’s own variables evaporate when
+it finishes — nothing it did leaks back to your prompt, and nothing
+stale leaks into the next run. But “fresh” stops at your program’s front
+door: an imported library stays cached (chapter 11 has the gotcha that
+follows from this), hardware you switched on stays on, and settings you
+saved persist — a few things even survive a reset. A program’s output is
+what it prints, plays, and saves to files; the machine around it keeps
+its own memory.</p>
+<h2 data-number="5.5" id="passing-arguments-to-a-program">Passing
+arguments to a program</h2>
+<p>A good program is worth running twice — with different instructions
+each time. Anything you add to <code>run()</code> after the filename is
+handed to the program as its <strong>arguments</strong>. Create
+<code>countdown.py</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>seconds <span class="op">=</span> <span class="bu">int</span>(sys.argv[<span class="dv">1</span>]) <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&gt;</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">5</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(seconds, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(n, <span class="st">&quot;...&quot;</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">440</span>, <span class="dv">100</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">1</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;LIFT OFF!&quot;</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>beep(<span class="dv">880</span>, <span class="dv">600</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> run(<span class="st">&quot;countdown.py&quot;</span>)        <span class="co"># the classic five</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> run(<span class="st">&quot;countdown.py&quot;</span>, <span class="dv">10</span>)    <span class="co"># mission control wants ten</span></span></code></pre></div>
+<p>The program finds its arguments in <code>sys.argv</code>, a list:
+entry <code>0</code> is the program’s own name, and the rest are what
+you passed — <strong>always as strings</strong>, which is why the
+program says <code>int(sys.argv[1])</code> before counting with it. The
+<code>if len(sys.argv) &gt; 1 else 5</code> supplies a default so the
+bare <code>run()</code> still works: accepting an argument shouldn’t
+mean <em>demanding</em> one.</p>
+<p>This is not a local custom. Desktop Python programs receive their
+command line in exactly this way, so every <code>sys.argv</code> recipe
+on the web works here unchanged — and the habit transfers straight to
+any Python you write on a PC.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this is
+<code>RUN "prog", cmdline</code> and <code>MM.CMDLINE$</code> — except
+the arguments arrive already split into a list, no <code>FIELD$</code>
+chopping required.</p>
+</blockquote>
+<h2 data-number="5.6" id="getting-programs-in-from-a-pc">Getting
+programs in from a PC</h2>
+<p>You will not type everything on the machine. Programs come from PCs —
+your own, or code from books and the web. Four routes, in order of
+ceremony:</p>
+<p><strong>The SD card</strong> — chapter 4’s sneakernet. Save the
+<code>.py</code> on the card from the PC, walk it over,
+<code>run("/sd/prog.py")</code> (or copy it to flash with
+<code>fm</code>). Best for lots of files.</p>
+<p><strong><code>autosave()</code> — paste over the console.</strong> If
+the USB-C port is connected to a PC and a terminal program is open
+(chapter 2’s lifeline), this is the zero-fuss route for one program:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> autosave(<span class="st">&quot;game.py&quot;</span>)</span></code></pre></div>
+<p>Everything you now <em>paste</em> (or type) into the terminal is
+written straight into <code>game.py</code>. Paste your program, press
+<strong>Ctrl-Z</strong>, and it reports what it saved; Ctrl-C cancels
+instead. Copy a program from anywhere — an editor, a web page — and it
+is on the machine in two seconds. (If pasted text appears doubled on
+screen, turn off “local echo” in the terminal — the board already echoes
+what it hears.)</p>
+<p><strong>XMODEM — proper file transfer, both directions.</strong> For
+files that must arrive byte-perfect, or for getting files <em>off</em>
+the machine without an SD card, the serial console speaks the classic
+XMODEM protocol:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># then File &gt; Transfer &gt; XMODEM &gt; Send in the terminal</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> xrecv(<span class="st">&quot;game.py&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> xsend(<span class="st">&quot;game.py&quot;</span>)     <span class="co"># then File &gt; Transfer &gt; XMODEM &gt; Receive</span></span></code></pre></div>
+<p>Any old-school terminal (TeraTerm, for instance) has these menu
+items. Details in the User Manual, section 13.</p>
+<p><strong><code>mpremote</code> — the standard MicroPython
+tool.</strong> For real project work — copying many files, keeping a
+backup, editing on the PC and pushing the changes over — the MicroPython
+project’s own <code>mpremote</code> is the grown-up choice. It runs on
+your PC (<code>pip install mpremote</code>), connects over the same
+USB-C serial link, and gives you file copying, whole-folder transfer,
+and even <em>mounting</em> the board as a drive so your PC editor saves
+straight onto it:</p>
+<pre class="text"><code>mpremote cp game.py :          # copy one file onto the board
+mpremote cp -r mygame/ :       # copy a whole folder, recursively
+# show the current PC folder AS the board&#39;s drive
+mpremote mount .
+mpremote                       # just the REPL, like a terminal</code></pre>
+<p>It is what to graduate to once a project outgrows paste-and-go; the
+MicroPython docs have the full command set. Unlike the first three
+routes, <code>mpremote</code> is not a Pico Computer 3 command — it is a
+standard part of the MicroPython world, and the same skills serve any
+board.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>autosave()</code> is
+<code>AUTOSAVE</code> (Ctrl-Z ends it there too), and
+<code>xrecv</code>/<code>xsend</code> are
+<code>XMODEM RECEIVE</code>/<code>SEND</code>. Old habits transfer
+directly.</p>
+</blockquote>
+<blockquote>
+<p><strong>A note on PC editors.</strong> Two popular tools —
+<strong>Thonny</strong> and the MicroPython <strong>VSCode</strong>
+extensions — talk to boards directly, and many people like them. Be
+warned, though: they take over the serial console to manage files, and
+that can quietly interfere with a program that is itself using the
+console (the screen REPL, <code>input()</code>, paste mode). If a
+program misbehaves <em>only</em> while such an editor is connected,
+disconnect it and try again from a plain terminal — that alone explains
+a surprising share of mysteries.</p>
+</blockquote>
+<h2 data-number="5.7" id="making-a-program-run-at-switch-on">Making a
+program run at switch-on</h2>
+<p>The final piece turns your Pico Computer from a machine that
+<em>has</em> programs into a machine that <em>is</em> one. At every
+power-up, after the system starts, the machine looks for a file called
+<strong><code>/main.py</code></strong> on the flash — and if it exists,
+runs it. No key presses, no <code>run()</code>: switch on, program
+runs.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cp(<span class="st">&quot;fanfare.py&quot;</span>, <span class="st">&quot;/main.py&quot;</span>)</span></code></pre></div>
+<p>Switch off, switch on: the machine now boots with a fanfare, then
+drops to the prompt as usual. Any program can be installed this way —
+when you have written the Breakout of chapter 23, <code>cp</code> it to
+<code>/main.py</code> and you have built a games console.</p>
+<p>Two safety notes. If <code>main.py</code> misbehaves (or never ends —
+many programs are deliberate forever-loops, as you will see in chapter
+8), <strong>Ctrl-C</strong> stops it and returns you to the prompt; the
+machine underneath is always intact. And to uninstall, simply
+<code>rm("/main.py")</code>. Keep your program under its own name and
+treat <code>/main.py</code> as a copy — then changing your mind is
+always one <code>cp</code> or <code>rm</code> away.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>/main.py</code> is
+<code>OPTION AUTORUN</code>, in file form.</p>
+</blockquote>
+<h2 data-number="5.8" id="where-you-now-stand">Where you now stand</h2>
+<p>Part I is complete. You can flash firmware, drive the screen,
+keyboard and files, write and edit programs, move them on and off the
+machine, and install one at boot. The machine is fully yours. What
+remains is the actual art: Part II teaches you to <em>think in
+Python</em> — and it starts with teaching the machine to remember
+things, in chapter 6.</p>
+<h2 data-number="5.9" id="experiments-4">Experiments</h2>
+<ol type="1">
+<li>Add a fourth, deeper note to the fanfare, and a final line that
+prints your name in a frame of <code>=</code> signs (chapter 3’s
+string-repeat trick — <code>"=" * 40</code> — earns its keep at
+last).</li>
+<li>Break <code>fanfare.py</code> on purpose: delete the
+<code>import time</code> line and run it. Read the traceback — what is
+the error, and <em>which line</em> does it point to? Notice it is not
+line 1. Why not? Then put the import back.</li>
+<li>Practise the paste route: with a terminal connected,
+<code>autosave</code> a program you copy from anywhere, and run it. This
+will be your main supply line for the rest of the book.</li>
+<li>Install the fanfare as <code>/main.py</code>, power-cycle to enjoy
+your new boot sound, then decide: keep it, replace it, or
+<code>rm</code> it. (Owners of machines that greet them with a fanfare
+report a 100% smile rate. Data: invented, but test it.)</li>
+</ol>
+<h2 data-number="5.10" id="challenges-4">Challenges</h2>
+<ol type="1">
+<li>Write <code>card.py</code>: a birthday card for someone real — their
+name framed in a border, a message, a tune. Sequential statements,
+sleeps and beeps are all it takes to make something genuinely
+givable.</li>
+<li>Write <code>menu.py</code> that prints a numbered list of your
+programs, then runs one of them with <code>run()</code>. (Yes — programs
+can run programs. What happens when the inner one finishes?) In chapter
+7 you will let the user pick the number; for now, hard-wire your
+favourite.</li>
+<li>Investigate: what happens to <code>fanfare.py</code>’s dramatic
+pause if you move <code>import time</code> to the <em>bottom</em> of the
+file? Predict, then test, then explain the rule “imports at the top” to
+an imaginary friend.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="4-chapter-4-finding-your-way-around-files-and-the-shell.html" rel="prev">←&nbsp;Chapter 4 — Finding your way around: files and the shell</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="6-chapter-6-variables-numbers-and-text.html" rel="next">Chapter 6 — Variables, numbers and text&nbsp;→</a>
+</nav>
+</body>
+</html>

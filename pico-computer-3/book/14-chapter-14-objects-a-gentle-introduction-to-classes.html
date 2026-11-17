@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 14 — Objects: a gentle introduction to
+classes – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html" rel="prev" accesskey="p">←&nbsp;Chapter 13 — When things go wrong: errors and debugging</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="15-chapter-15-the-screen-up-close.html" rel="next" accesskey="n">Chapter 15 — The screen up close&nbsp;→</a>
+</nav>
+<h1 data-number="14"
+id="chapter-14-objects-a-gentle-introduction-to-classes">Chapter 14 —
+Objects: a gentle introduction to classes</h1>
+<p>Chapter 9 let you in on the pattern: things you <em>make</em>, then
+instruct through the dot — <code>t = Turtle()</code>,
+<code>t.forward(100)</code>. Since then you have made files, lists and
+dictionaries dance the same way. One power is missing, and it is the
+last one Part II has to give: making your own <em>kinds</em> of thing.
+That is the <strong>class</strong>, and with it the toolbox closes:
+everything in Parts III to VI is built from what you will know by
+tonight.</p>
+<p>A promise before the roadmap, because this topic has a reputation:
+object-oriented programming as taught in big books is a cathedral of
+jargon. You need the <em>cottage</em> version — enough to build game
+characters, bank accounts and gadgets, and to use the machine’s own
+modules fluently — and the cottage version is genuinely small:</p>
+<ul>
+<li>A <strong>class</strong> is a blueprint for a kind of thing.</li>
+<li><strong><code>__init__</code></strong> says how a new one is set up;
+<strong><code>self</code></strong> is “the one being worked on”.</li>
+<li><strong>Attributes</strong> are variables living <em>on</em> the
+thing; <strong>methods</strong> are functions living on it.</li>
+<li>Objects go in lists and dictionaries like anything else — that is
+where they start to sing.</li>
+</ul>
+<h2 data-number="14.1" id="the-problem-classes-solve">The problem
+classes solve</h2>
+<p>Suppose your game (Part IV is coming) needs a hero: a name, some
+health, some gold. Chapter 6 says three variables — but the
+<em>villain</em> needs three too, and every goblin after that. Chapter
+10 says a dictionary per character — better, and honestly workable:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>hero <span class="op">=</span> {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;Ada&quot;</span>, <span class="st">&quot;health&quot;</span>: <span class="dv">20</span>, <span class="st">&quot;gold&quot;</span>: <span class="dv">0</span>}</span></code></pre></div>
+<p>But now the <em>behaviour</em> — taking damage, drinking potions —
+lives in loose functions scattered somewhere else, each hoping it gets
+handed the right shape of dictionary, none able to promise a character
+is ever set up correctly. The data is in one place, the rules about the
+data in another, and nothing binds them.</p>
+<p>A class is exactly that binding: <strong>the data and its behaviour,
+one parcel, stamped from one blueprint.</strong></p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> if you know recent MMBasics, a
+class is a <strong>structure plus its SUBs, in one parcel</strong> — the
+fields and the code that works on them, packaged so they cannot drift
+apart. If you know C: a struct whose functions moved in.</p>
+</blockquote>
+<h2 data-number="14.2" id="the-blueprint">The blueprint</h2>
+<p><code>edit("hero.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hero:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, health<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">=</span> health</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.gold <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> Hero(<span class="st">&quot;Ada&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> Hero(<span class="st">&quot;Grumble the Goblin&quot;</span>, health<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(h.name, h.health, h.gold)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(g.name, g.health, g.gold)</span></code></pre></div>
+<p>Run it: <code>Ada 20 0</code>, then
+<code>Grumble the Goblin 8 0</code>. Now the tour, line by line, because
+every piece of new syntax in this chapter is in these six lines:</p>
+<p><strong><code>class Hero:</code></strong> starts a blueprint
+(capitalised names for classes is the convention — it is why
+<code>Turtle</code> and <code>Pin</code> look the way they do).
+Everything indented under it belongs to the blueprint.</p>
+<p><strong><code>def __init__(self, name, health=20):</code></strong> is
+a method — a function living in the class — with a reserved name. When
+you write <code>Hero("Ada")</code>, Python manufactures a blank object
+and immediately calls <code>__init__</code> on it to set it up. The name
+is short for <em>initialise</em>; the double underscores mark it as one
+of Python’s appointed hooks (more of them later). Note it is an ordinary
+function underneath: parameters, defaults — chapter 11 applies in
+full.</p>
+<p><strong><code>self</code></strong> is the newly made object itself,
+handed to the method automatically as its first parameter.
+<code>self.name = name</code> therefore means: <em>on this particular
+object, make an attribute <code>name</code>, holding the parameter
+<code>name</code></em>. <strong>Attributes</strong> are variables that
+live on an object — reachable from outside as <code>h.name</code>, from
+inside methods as <code>self.name</code>, and each object carries its
+own set.</p>
+<p>That last point is the one to feel: <code>h</code> and <code>g</code>
+came from one blueprint but are <strong>independent</strong> — two
+character sheets, separately filled in. <code>h.gold += 5</code>
+enriches Ada alone. (You met this with turtles without remarking on it:
+two <code>Turtle()</code>s wander separately.)</p>
+<p><em>In one line: <code>class</code> is the blueprint,
+<code>ClassName(...)</code> stamps out an object, <code>__init__</code>
+fills in its attributes, and every object has its own.</em></p>
+<figure>
+<img src="figs/14-blueprint.png"
+alt="A class is a blueprint. Hero(...) stamps out an object and __init__ fills in its attributes — so h and g come from one class yet carry their own name, health and gold, while sharing its methods." />
+<figcaption aria-hidden="true">A class is a blueprint.
+<code>Hero(...)</code> stamps out an object and <code>__init__</code>
+fills in its attributes — so <code>h</code> and <code>g</code> come from
+one class yet carry their own <code>name</code>, <code>health</code> and
+<code>gold</code>, while sharing its methods.</figcaption>
+</figure>
+<h2 data-number="14.3" id="methods-the-rules-move-in">Methods: the rules
+move in</h2>
+<p>Attributes made the parcel; methods make it <em>smart</em>. Grow the
+class:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hero:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, health<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">=</span> health</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.gold <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> take_damage(<span class="va">self</span>, amount):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">-=</span> amount</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.health <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.health <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">}</span><span class="ss"> has been defeated!&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> drink_potion(<span class="va">self</span>):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">+=</span> <span class="dv">10</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">}</span><span class="ss"> feels much better.&quot;</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_alive(<span class="va">self</span>):</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.health <span class="op">&gt;</span> <span class="dv">0</span></span></code></pre></div>
+<p>Call them through the dot, exactly as you always have:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> Hero(<span class="st">&quot;Ada&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>h.take_damage(<span class="dv">7</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>h.drink_potion()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(h.is_alive(), h.health)</span></code></pre></div>
+<p>Notice nobody passes <code>self</code> at the call —
+<code>h.take_damage(7)</code> fills <code>self</code> with
+<code>h</code> automatically, <em>the thing before the dot</em>. That is
+the whole mechanism behind every method you have ever called:
+<code>t.forward (100)</code> was <code>self</code>-is-<code>t</code> all
+along; <code>"milk".upper()</code> was <code>self</code>-is-
+<code>"milk"</code>. The dot is not new; today it just stopped being
+someone else’s trick.</p>
+<p>Look too at what moved <em>inside</em>: the “no negative health” rule
+lives in <code>take_damage</code>, so no code anywhere can half-apply
+it. When a rule about the data lives with the data, it is enforced
+everywhere at once — chapter 13’s guard philosophy, given a permanent
+home. (And yes — methods can <code>raise ValueError</code> on nonsense
+arguments; the bank will, shortly.)</p>
+<p><em>In one line: methods are the parcel’s own functions;
+<code>self</code> arrives automatically as the thing before the
+dot.</em></p>
+<h2 data-number="14.4"
+id="printh-teaching-your-object-to-speak"><code>print(h)</code> —
+teaching your object to speak</h2>
+<p>Print an object and you get something like
+<code>&lt;Hero object at 20003a10&gt;</code> — true but unhelpful.
+Another appointed hook fixes it: give the class a <code>__str__</code>
+method returning a string, and <code>print</code> (and f-strings) will
+use it:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>health<span class="sc">}</span><span class="ss"> HP, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>gold<span class="sc">}</span><span class="ss"> gold&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(h)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Ada: <span class="dv">23</span> HP, <span class="dv">0</span> gold</span></code></pre></div>
+<p>One heads-up before you discover it yourself: the <em>prompt’s
+echo</em> is not <code>print</code>. Type <code>h</code> bare at the
+<code>&gt;&gt;&gt;</code> and you still get the
+<code>&lt;Hero object at ...&gt;</code> form — as you will when printing
+a whole <em>list</em> of heroes at once. The echo speaks to programmers
+through a second, stricter hook called <code>__repr__</code>; when the
+raw form starts to annoy you, appendix I shows the one-method cure. For
+now, <code>print(h)</code> — and printing list items in a loop — is all
+the eloquence the chapter needs.</p>
+<p>Two hooks in one chapter (<code>__init__</code>,
+<code>__str__</code>) is the pattern worth seeing: the double-underscore
+names are how your class plugs into Python’s own machinery — how making,
+printing, even <code>+</code> and <code>==</code> can be taught to your
+kinds of thing (appendix I shows how, when you want it).</p>
+<h2 data-number="14.5" id="objects-in-collections">Objects in
+collections</h2>
+<p>Chapter 10 meets chapter 14, and this is where classes stop being
+ceremony and start being power:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>party <span class="op">=</span> [Hero(<span class="st">&quot;Ada&quot;</span>), Hero(<span class="st">&quot;Grace&quot;</span>, <span class="dv">25</span>), Hero(<span class="st">&quot;Alan&quot;</span>, <span class="dv">15</span>)]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> member <span class="kw">in</span> party:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    member.take_damage(<span class="dv">6</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> member <span class="kw">in</span> party:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(member)</span></code></pre></div>
+<p>A list of objects, marching under one loop. Every game in Part IV is
+this shape — a list of sprites, each asked to update itself; the GUI in
+chapter 27 is a list of controls, each asked to draw itself. You now
+read those sentences fluently.</p>
+<h2 data-number="14.6"
+id="project-the-character-sheet-playable">Project: the character sheet,
+playable</h2>
+<p>The Hero class plus everything since chapter 6, as a tiny battle.
+<code>edit("duel.py")</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hero:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, health<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">=</span> health</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> take_damage(<span class="va">self</span>, amount):</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.health <span class="op">-=</span> amount</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.health <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.health <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_alive(<span class="va">self</span>):</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.health <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">:20}</span><span class="ss"> </span><span class="sc">{</span><span class="st">&#39;#&#39;</span> <span class="op">*</span> <span class="va">self</span><span class="sc">.</span>health<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>ada <span class="op">=</span> Hero(<span class="st">&quot;Ada the Adequate&quot;</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>grumble <span class="op">=</span> Hero(<span class="st">&quot;Grumble the Goblin&quot;</span>, <span class="dv">16</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;A DUEL COMMENCES</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>fighters <span class="op">=</span> [ada, grumble]</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> ada.is_alive() <span class="kw">and</span> grumble.is_alive():</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    attacker, defender <span class="op">=</span> fighters</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    blow <span class="op">=</span> random.randint(<span class="dv">1</span>, <span class="dv">6</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    defender.take_damage(blow)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>attacker<span class="sc">.</span>name<span class="sc">}</span><span class="ss"> strikes for </span><span class="sc">{</span>blow<span class="sc">}</span><span class="ss">!&quot;</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(defender)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    fighters <span class="op">=</span> [defender, attacker]      <span class="co"># your turn now</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>winner <span class="op">=</span> ada <span class="cf">if</span> ada.is_alive() <span class="cf">else</span> grumble</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="sc">{</span>winner<span class="sc">.</span>name<span class="sc">}</span><span class="ss"> is victorious!&quot;</span>)</span></code></pre></div>
+<p>A health bar drawn with chapter 3’s string-repeat, turns swapped with
+a two-element list, and the whole state of the battle living in two
+objects. (That last line’s <code>x if c else y</code> is an
+<code>if</code> folded into an expression — appendix E has it; read it
+aloud and it explains itself.) Add potions, gold, a third fighter — the
+class absorbs features without the program tangling, which is the entire
+sales pitch.</p>
+<h2 data-number="14.7" id="project-the-bank-account">Project: the bank
+account</h2>
+<p>The same machinery in serious clothing — and chapter 13’s
+<code>raise</code> finding its natural home.
+<code>edit("bank.py")</code>:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Account:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, owner, balance<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.owner <span class="op">=</span> owner</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.balance <span class="op">=</span> balance</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> deposit(<span class="va">self</span>, amount):</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> amount <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;deposits must be positive&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.balance <span class="op">+=</span> amount</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> withdraw(<span class="va">self</span>, amount):</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> amount <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;withdrawals must be positive&quot;</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> amount <span class="op">&gt;</span> <span class="va">self</span>.balance:</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f&quot;only </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>balance<span class="sc">}</span><span class="ss"> available&quot;</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.balance <span class="op">-=</span> amount</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>owner<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>balance<span class="sc">}</span><span class="ss"> credits&quot;</span></span></code></pre></div>
+<p>Because <em>every</em> route to the balance passes through guarded
+methods, an <code>Account</code> cannot go overdrawn or record a
+negative deposit — not by bug, not by typo, not ever. Try to break it at
+the prompt (<code>import bank</code>, make one, attack it). This is what
+“the rules live with the data” buys, and it is why the modules you will
+use in Part III can hand you objects and trust you with them.</p>
+<h2 data-number="14.8" id="youve-been-here-all-along">You’ve been here
+all along</h2>
+<p>Pull back. <code>Turtle</code> — a class in the firmware,
+<code>reset</code> and <code>forward</code> its methods, <code>x</code>,
+<code>y</code> and heading its attributes.
+<code>Pin("LED", Pin.OUT)</code> — a class. Strings, lists,
+dictionaries, files — classes, whose methods filled chapter 12’s
+workbench. Even the exceptions of chapter 13 are classes (which is what
+<code>except ValueError</code> is naming). You have been <em>fluent in
+using</em> objects for five chapters; what this chapter added is the
+maker’s side of the counter. When Part III hands you sprites, clocks and
+GUI buttons, you will know exactly what you are holding: parcels of data
+and behaviour, stamped from blueprints, yours to command through the dot
+— and, where useful, yours to build.</p>
+<p>(That is deliberately where the <em>course</em> stops with class
+machinery — nothing on this machine requires more of you, and the
+cottage version you now own is the version working programmers use
+daily. When curiosity or somebody else’s code demands the rest —
+inheritance, operator hooks, properties and their kin — <strong>appendix
+I</strong> is the guided tour, every example tested on this
+firmware.)</p>
+<h2 data-number="14.9" id="what-you-now-hold-4">What you now hold</h2>
+<ul>
+<li><strong><code>class Name:</code></strong> — a blueprint; calling
+<code>Name(...)</code> stamps out independent objects.</li>
+<li><strong><code>__init__(self, ...)</code></strong> sets a new object
+up; <strong><code>self</code></strong> is always the object being worked
+on — filled automatically at every call with <em>the thing before the
+dot</em>.</li>
+<li><strong>Attributes</strong> (<code>self.name</code>,
+<code>h.name</code>) are per-object variables; <strong>methods</strong>
+are the parcel’s functions, and rules that live in methods are enforced
+everywhere at once.</li>
+<li><strong><code>__str__</code></strong> teaches <code>print</code>
+your object’s language — one of the double-underscore hooks into
+Python’s machinery.</li>
+<li><strong>Objects in lists</strong> = one loop commanding many things:
+the shape of every game and GUI to come.</li>
+<li>And in the other direction: everything you have been using —
+turtles, strings, files, exceptions — was this all along.</li>
+</ul>
+<h2 data-number="14.10" id="experiments-13">Experiments</h2>
+<ol type="1">
+<li>Give <code>Hero</code> a <code>gold</code> attribute back, plus
+<code>loot(amount)</code> — and make <code>take_damage</code> return
+<code>True</code> if the blow was fatal, so the duel can award the
+winner the loser’s gold in one tidy line.</li>
+<li>Two <code>Turtle()</code>s at once: make <code>a</code> and
+<code>b</code>, walk them apart with different pens, and check
+<code>a.position()</code> and <code>b.position()</code> really are
+separate. Independence, seen.</li>
+<li>Guard the blueprint: make <code>Hero.__init__</code> raise
+<code>ValueError</code> for <code>health &lt;= 0</code>, then try to
+create a dead hero. Where does the traceback point — the class, or the
+caller? Why is that the right place?</li>
+<li>Write <code>transfer(source, destination, amount)</code> — a plain
+function moving credits between two <code>Account</code>s using only
+their methods. What happens to the destination if the source hasn’t
+enough? Check — then make sure the answer is “nothing at all” (order
+matters).</li>
+<li>Add <code>__str__</code> to your <code>handy.py</code>’s… no — trick
+question: <code>handy</code> holds functions, not a class.
+<em>Should</em> it be one? (Genuinely arguable either way — deciding is
+the skill. A rule of thumb: no data worth bundling, no class
+needed.)</li>
+</ol>
+<h2 data-number="14.11" id="challenges-13">Challenges</h2>
+<ol type="1">
+<li><strong>The pet.</strong> A <code>Pet</code> class:
+<code>hunger</code> and <code>boredom</code> creep up each time a
+<code>tick()</code> method is called; <code>feed()</code> and
+<code>play()</code> push them down; <code>__str__</code> prints a mood
+based on the numbers. Wrap it in a <code>while</code> loop with a
+command prompt and you have built a Tamagotchi. Beeps mandatory.</li>
+<li><strong>The dice bag.</strong> A <code>Die</code> class
+(<code>sides</code>, <code>roll()</code>), then a bag of mixed dice in a
+list — <code>[Die(6), Die(6), Die(20)]</code> — rolled with one loop.
+Now the dojo, the duel and every board game you ever automate share one
+component.</li>
+<li><strong><code>scorelib</code>, the class.</strong> Rebuild chapter
+12’s library as a <code>ScoreTable</code> class taking its
+<em>filename</em> in <code>__init__</code> — so
+<code>ScoreTable("/breakout.csv")</code> and
+<code>ScoreTable("/quiz.csv")</code> are separate tables with the same
+behaviour. This is the real answer to “why not just functions?”:
+functions shared one file; objects each bring their own.</li>
+<li><strong>The vault.</strong> Extend <code>Account</code> with a
+transaction <em>history</em> (a list attribute of
+<code>(kind, amount)</code> tuples — chapter 10), a
+<code>statement()</code> method that prints it, and an end-of-chapter
+boss fight: make <code>withdraw</code> append to history <em>only when
+it succeeds</em>. Chapter 13’s test standard applies: if you can’t break
+it, ship it.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="13-chapter-13-when-things-go-wrong-errors-and-debugging.html" rel="prev">←&nbsp;Chapter 13 — When things go wrong: errors and debugging</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="15-chapter-15-the-screen-up-close.html" rel="next">Chapter 15 — The screen up close&nbsp;→</a>
+</nav>
+</body>
+</html>

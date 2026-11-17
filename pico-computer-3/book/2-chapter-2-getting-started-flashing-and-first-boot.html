@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 2 — Getting started: flashing and first
+boot – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="1-chapter-1-what-is-the-pico-computer-3.html" rel="prev" accesskey="p">←&nbsp;Chapter 1 — What is the Pico Computer 3?</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="3-chapter-3-your-first-conversation-with-python.html" rel="next" accesskey="n">Chapter 3 — Your first conversation with Python&nbsp;→</a>
+</nav>
+<h1 data-number="2"
+id="chapter-2-getting-started-flashing-and-first-boot">Chapter 2 —
+Getting started: flashing and first boot</h1>
+<p>In this chapter you will put the firmware onto the board, wire
+everything up, and prove the machine is alive by making it speak, beep
+and blink. By the end you will be sitting at a working Python
+computer.</p>
+<blockquote>
+<p><strong>On a Colour Maximite 2</strong> there is nothing to flash:
+MicroPython is an app on its SD card, started from the MMBasic prompt
+with <code>RUN "micropython.app"</code>. Appendix K says how; then pick
+up again at step 4.</p>
+</blockquote>
+<h2 data-number="2.1" id="what-you-will-need">What you will need</h2>
+<ul>
+<li>The Pico Computer 3 board.</li>
+<li>An HDMI monitor or TV, and an HDMI cable.</li>
+<li>A USB keyboard. (A basic wired one is the safe choice; the board’s
+built-in USB hub takes up to four devices, so a mouse can join it
+later.)</li>
+<li>A <strong>USB-C power supply rated at 2 A</strong> — a decent phone
+charger. Why 2 A: the board’s USB hub will pass up to 2 A on to whatever
+you plug into it. The same USB-C socket also carries the <em>serial
+console</em>, so a PC can power the board instead of a charger — useful
+later for sending files across and as a recovery lifeline — provided its
+USB port can supply 2 A.</li>
+<li>Optional: headphones or powered speakers for the 3.5 mm audio jack —
+without them, <code>beep()</code> in step 4 will be a silent
+experience.</li>
+<li><strong>For the one-time firmware install:</strong> a PC or laptop
+and a <strong>micro-USB data cable</strong> for the board’s
+<em>Prog</em> port.</li>
+<li>Optional: a micro-SD card (FAT-formatted, as most come) and a
+<strong>CR2032</strong> coin cell so the clock keeps time while the
+power is off.</li>
+</ul>
+<p>While the box is open, find three things on the board you will need
+in a moment (they are all visible in chapter 1’s photograph): the
+<strong>micro-USB socket labelled “Prog”</strong>, the small slide
+switch labelled <strong>“USB HUB”</strong> (positions <em>ENABLE</em> /
+<em>DISABLE</em>), and the two push-buttons labelled
+<strong>BOOT</strong> and <strong>RESET</strong>.</p>
+<h2 data-number="2.2" id="step-1-get-the-firmware">Step 1 — Get the
+firmware</h2>
+<p>The firmware is a single file called <code>firmware.uf2</code>.
+Download the latest release to your PC from:</p>
+<blockquote>
+<p><strong>https://github.com/UKTailwind/micropython/releases/latest</strong></p>
+</blockquote>
+<p>If your board came with the firmware pre-installed, skip straight to
+<em>Step 3 — Wire up and switch on</em>; you can always come back here
+when an update is released.</p>
+<h2 data-number="2.3" id="step-2-flash-the-firmware">Step 2 — Flash the
+firmware</h2>
+<p>The RP2350 chip has a built-in “accept new firmware” mode in which it
+pretends to be a USB memory stick. Getting into it involves the
+<em>Prog</em> port, the <em>USB HUB</em> switch and the two
+push-buttons:</p>
+<ol type="1">
+<li>Slide the <strong>USB HUB</strong> switch to
+<strong>DISABLE</strong>. (This hands the chip’s USB connection to the
+Prog port; in <em>ENABLE</em> it belongs to the keyboard sockets
+instead, and the PC would see nothing.)</li>
+<li>Connect the <strong>Prog</strong> micro-USB socket to your PC with
+the data cable. Power still arrives through the USB-C socket as usual,
+so connect that too and switch the board on.</li>
+<li><strong>Hold down BOOT</strong>, click <strong>RESET</strong>, then
+release <strong>BOOT</strong>.</li>
+<li>A new drive appears on the PC (named <code>RP2350</code> or
+<code>RPI-RP2</code>), just as if you had plugged in a memory
+stick.</li>
+<li>Drag <code>firmware.uf2</code> onto that drive.</li>
+<li>Wait a few seconds. The drive vanishes by itself — that is the board
+saying “got it” and rebooting into the new firmware.</li>
+<li>Unplug the Prog cable and slide the <strong>USB HUB</strong> switch
+back to <strong>ENABLE</strong> — the keyboard sockets don’t work
+without this, so make it a reflex: <em>flash done, switch
+back</em>.</li>
+</ol>
+<p>That’s it. Nothing to install on the PC, and you cannot get it wrong
+in any damaging way — if anything goes amiss, start again at step 1. The
+same procedure installs every future firmware update, and updating the
+firmware does <strong>not</strong> erase the programs you have saved on
+the board.</p>
+<figure>
+<img src="figs/02-flashing.png"
+alt="The flashing drill. The USB HUB switch must be at DISABLE to flash and back at ENABLE afterwards; holding BOOT while you click RESET puts the chip into its firmware-drive mode. Your saved files survive a reflash." />
+<figcaption aria-hidden="true">The flashing drill. The USB HUB switch
+must be at DISABLE to flash and back at ENABLE afterwards; holding BOOT
+while you click RESET puts the chip into its firmware-drive mode. Your
+saved files survive a reflash.</figcaption>
+</figure>
+<p>One thing that surprises PC users: in normal operation the Pico
+Computer 3 will <em>not</em> show up as a drive on a PC. With the switch
+at <em>ENABLE</em>, the chip’s USB connection belongs to your keyboard
+and mouse — the board is the computer now, not an accessory. The Prog
+port exists purely for firmware.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> the same BOOT-and-RESET,
+drag-a-UF2 drill as flashing a PicoMite — plus this board’s <em>USB
+HUB</em> switch, which must be at <em>DISABLE</em> to flash and back at
+<em>ENABLE</em> afterwards.</p>
+</blockquote>
+<h2 data-number="2.4" id="step-3-wire-up-and-switch-on">Step 3 — Wire up
+and switch on</h2>
+<ol type="1">
+<li>Check the <strong>USB HUB</strong> switch is at
+<strong>ENABLE</strong>.</li>
+<li>Connect the HDMI cable to the monitor, and switch the monitor
+on.</li>
+<li>Plug the keyboard into one of the board’s USB sockets.</li>
+<li>Plug headphones or speakers into the 3.5 mm jack, if you have
+them.</li>
+<li>Slide in the SD card, if you have one.</li>
+<li>Connect the power supply to the <strong>USB-C</strong> socket and
+press the <strong>power switch</strong> (push on / push off).</li>
+</ol>
+<p>Within a couple of seconds the monitor lights up and shows the
+banner:</p>
+<pre><code>MicroPython on PICO COMPUTER 3 with RP2350B
+&gt;&gt;&gt;</code></pre>
+<p>You will also see a line like <code>USB keyboard -&gt; slot 1</code>
+confirming the keyboard was found. The <code>&gt;&gt;&gt;</code> is the
+<strong>prompt</strong> — the machine’s way of saying “your turn”.</p>
+<h2 data-number="2.5" id="step-4-prove-its-alive">Step 4 — Prove it’s
+alive</h2>
+<p>Type each line below at the prompt and press <strong>Enter</strong>
+after it. (Typing, remember, not pasting — get your fingers used to the
+machine.)</p>
+<p>Ask it to speak:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="st">&quot;I am alive!&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>I am alive<span class="op">!</span></span></code></pre></div>
+<p>Ask it a question — the prompt is a calculator whenever you need
+one:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dv">6</span> <span class="op">*</span> <span class="dv">7</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dv">42</span></span></code></pre></div>
+<p>Make a noise:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> beep()</span></code></pre></div>
+<p>And blink the status LED on and off:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> led <span class="op">=</span> Pin(<span class="st">&quot;LED&quot;</span>, Pin.OUT)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> led.on()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> led.off()</span></code></pre></div>
+<p>Four lines in, you have used the four things every program is made
+of: output, calculation, sound and control of hardware. Everything from
+here to the Asteroids game in chapter 24 is these ingredients, arranged
+with more care.</p>
+<p>Don’t worry about <em>why</em> these lines look the way they do —
+that is what the next chapters are for. Do notice what happens if you
+mistype one:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> beeep()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Traceback (most recent call last):</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  File <span class="st">&quot;&lt;stdin&gt;&quot;</span>, line <span class="dv">1</span>, <span class="kw">in</span> <span class="op">&lt;</span>module<span class="op">&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">NameError</span>: name <span class="st">&#39;beeep&#39;</span> isn<span class="st">&#39;t defined</span></span></code></pre></div>
+<p>Nothing bad. The machine tells you it didn’t understand, names the
+word it choked on, and gives you a fresh prompt. Error messages are the
+machine helping, not scolding — chapter 3 teaches you to read them.</p>
+<h2 data-number="2.6" id="step-5-tell-it-about-your-keyboard">Step 5 —
+Tell it about your keyboard</h2>
+<p>The machine assumes a <strong>US</strong> keyboard layout. If
+<code>"</code> and <code>@</code> come out swapped, or <code>#</code> is
+missing, set your layout:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> keymap(<span class="st">&quot;UK&quot;</span>)</span></code></pre></div>
+<p>Available layouts are US, UK, DE, FR, ES and BE
+(<code>keymaps()</code> lists them). The setting is remembered across
+power-offs, so this is a one-time job.</p>
+<p>This is your first meeting with a pleasant habit of the machine:
+settings worth keeping (keyboard layout, screen mode) are saved
+automatically and restored at every boot.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>keymap("UK")</code> is
+<code>OPTION KEYBOARD UK</code>. The saved-settings idea matches
+MMBasic’s <code>OPTION</code> system generally.</p>
+</blockquote>
+<h2 data-number="2.7" id="if-something-doesnt-work">If something doesn’t
+work</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause and fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monitor shows nothing at power-on</td>
+<td>Is the power switch actually on? (It’s push-on/push-off, so a second
+press turns the board <em>off</em>.) Then check the HDMI cable is seated
+and the monitor input source is right. Monitors take a couple of seconds
+to lock onto a new signal — be patient before re-plugging.</td>
+</tr>
+<tr>
+<td>Monitor says “no signal” or “mode not supported”</td>
+<td>A previously saved screen mode may not suit this monitor. Connect
+via the USB-C console (see below) and type
+<code>screen(hdmi.RGB640)</code>.</td>
+</tr>
+<tr>
+<td>Keyboard does nothing</td>
+<td>First check the <strong>USB HUB</strong> switch is at
+<strong>ENABLE</strong> — at <em>DISABLE</em> the keyboard sockets are
+dead. Then look for the <code>USB keyboard -&gt; slot 1</code> message
+at boot. Wireless keyboards with their own dongle usually work;
+Bluetooth-only ones do not.</td>
+</tr>
+<tr>
+<td>Wrong characters when typing (<code>"</code> vs <code>@</code>)</td>
+<td>Set your layout: <code>keymap("UK")</code> — step 5.</td>
+</tr>
+<tr>
+<td>The board never appears as a drive when flashing</td>
+<td>The <strong>USB HUB</strong> switch must be at
+<strong>DISABLE</strong>; hold <strong>BOOT</strong> <em>while</em>
+clicking <strong>RESET</strong>; and use a micro-USB <em>data</em> cable
+— some charging cables have no data wires.</td>
+</tr>
+<tr>
+<td>A program is stuck and the prompt won’t come back</td>
+<td>Press <strong>Ctrl-C</strong>. This interrupts whatever is running
+and returns you to <code>&gt;&gt;&gt;</code>. Failing that, click
+<strong>RESET</strong> — the machine boots fresh in seconds and your
+saved files are untouched.</td>
+</tr>
+<tr>
+<td><code>led.on()</code> works but no light appears</td>
+<td>Check the small 3-pin jumper labelled <strong>HEARTBEAT</strong>
+sits on its <strong>CYW43</strong> side — that is where
+<code>Pin("LED")</code> drives LED1 on a standard (Wi-Fi-equipped)
+board.</td>
+</tr>
+<tr>
+<td>Settings are in a mess and you want a fresh start</td>
+<td><code>rm("/settings.json")</code> then power-cycle: US keyboard,
+640×480 defaults are restored. Your own files are not affected.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The USB-C port — a lifeline worth knowing about.</strong>
+Alongside the screen and keyboard, the machine carries a second copy of
+the console on its <strong>USB-C</strong> port — the same one that
+supplies its power. Connect it to a PC instead of the charger, open a
+terminal program (PuTTY or TeraTerm on Windows, <code>screen</code> on
+Linux/Mac) at <strong>115200 baud</strong>, and the same
+<code>&gt;&gt;&gt;</code> prompt appears there — whatever state the
+screen is in. You will not need it in normal use, and nothing in this
+book requires it — but if the display is ever unusable (say, a saved
+video mode your monitor rejects), one command typed over USB-C fixes it.
+It is also how files are sent from a PC without an SD card (chapter 5).
+Details are in the User Manual, section 1.</p>
+<h2 data-number="2.8" id="experiments-1">Experiments</h2>
+<ol type="1">
+<li>Change the beep: try <code>beep(1000)</code> and
+<code>beep(200)</code>. Which number do you suppose is the pitch?
+(Guessing and testing is a legitimate research method — you will use it
+constantly.)</li>
+<li>Make the LED blink slowly by alternating <code>led.on()</code> and
+<code>led.off()</code>. Tedious, isn’t it? In chapter 8 you will teach
+the machine to do the repeating for you.</li>
+<li>Switch the machine off mid-sentence, switch it back on, and confirm
+your keymap setting survived but your <code>led</code> variable did not
+(<code>led.on()</code> now gives a <code>NameError</code>). Flash
+remembers; workspace forgets — that distinction from chapter 1, seen
+live.</li>
+</ol>
+<h2 data-number="2.9" id="challenges-1">Challenges</h2>
+<ol type="1">
+<li>Use the prompt-as-calculator to work out how many seconds you have
+been alive. Roughly — no clock-watching required.</li>
+<li>Explore <code>help()</code>. It mentions things this book hasn’t —
+skim it now, recognise it later.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="1-chapter-1-what-is-the-pico-computer-3.html" rel="prev">←&nbsp;Chapter 1 — What is the Pico Computer 3?</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="3-chapter-3-your-first-conversation-with-python.html" rel="next">Chapter 3 — Your first conversation with Python&nbsp;→</a>
+</nav>
+</body>
+</html>

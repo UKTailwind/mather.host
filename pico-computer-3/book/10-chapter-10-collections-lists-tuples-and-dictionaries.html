@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 10 — Collections: lists, tuples and
+dictionaries – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="9-chapter-9-turtle-graphics-loops-you-can-see.html" rel="prev" accesskey="p">←&nbsp;Chapter 9 — Turtle graphics: loops you can see</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="11-chapter-11-functions-building-your-own-commands.html" rel="next" accesskey="n">Chapter 11 — Functions: building your own commands&nbsp;→</a>
+</nav>
+<h1 data-number="10"
+id="chapter-10-collections-lists-tuples-and-dictionaries">Chapter 10 —
+Collections: lists, tuples and dictionaries</h1>
+<p>A variable holds one thing. But the interesting programs are about
+<em>many</em> things: the scores of everyone who ever played, the
+questions in a quiz, the aliens still descending. You could try
+<code>score1</code>, <code>score2</code>, <code>score3</code>… and by
+<code>score7</code> you would know in your bones it is wrong. Python’s
+answer is the <strong>collection</strong> — one variable holding a whole
+crowd.</p>
+<p>Take this chapter slowly. If you come from BASIC (or C), collections
+are the biggest genuinely <em>new</em> idea in this half of the book:
+BASIC’s arrays are fixed-size boxes you declare in advance, and Python’s
+collections are nothing like that. They grow and shrink as you go, they
+answer questions about themselves, and one of them — the dictionary —
+has no BASIC ancestor at all. The good news: they are also the moment
+loops finally get worthy material, and the chapter ends with two
+programs (a high-score table and a data-driven quiz) that use
+everything.</p>
+<p>Here is the whole chapter in advance. Python gives you three
+containers, and choosing between them comes down to two questions —
+<em>does order matter?</em> and <em>will it change?</em></p>
+<ul>
+<li>A <strong>list</strong> <code>[...]</code> — an ordered row of
+values you can grow, shrink and reorder. For sequences: scores, moves,
+shopping.</li>
+<li>A <strong>tuple</strong> <code>(...)</code> — a small bundle of
+values glued together, fixed at birth. For things that travel as one
+fact: a <code>(score, name)</code>, an <code>(x, y)</code>.</li>
+<li>A <strong>dictionary</strong> <code>{...}</code> — a lookup table
+from <em>keys</em> to values, no positions at all. For facts about
+things: name → age, item → count.</li>
+</ul>
+<p>Now each in turn — and this chapter also settles a debt: chapter 8
+borrowed <code>[]</code> and <code>.append</code> for the plot; here is
+the story it came from.</p>
+<h2 data-number="10.1" id="lists-an-ordered-changeable-crowd">Lists: an
+ordered, changeable crowd</h2>
+<h3 data-number="10.1.1" id="making-one-and-reading-it-back">Making one,
+and reading it back</h3>
+<p>Square brackets make a <strong>list</strong>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping <span class="op">=</span> [<span class="st">&quot;milk&quot;</span>, <span class="st">&quot;eggs&quot;</span>, <span class="st">&quot;bread&quot;</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">len</span>(shopping)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(shopping)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>[<span class="st">&#39;milk&#39;</span>, <span class="st">&#39;eggs&#39;</span>, <span class="st">&#39;bread&#39;</span>]</span></code></pre></div>
+<p>One variable, three values, <em>in order</em> — and the order is part
+of the data: <code>["milk", "eggs"]</code> and
+<code>["eggs", "milk"]</code> are different lists. <code>len()</code>
+(chapter 3, where it counted letters) counts anything’s items.</p>
+<h3 data-number="10.1.2" id="fetching-items-positions">Fetching items:
+positions</h3>
+<p>Fetch one item by its position — its <strong>index</strong> — in
+square brackets:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping[<span class="dv">0</span>]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;milk&#39;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping[<span class="dv">2</span>]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;bread&#39;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;bread&#39;</span></span></code></pre></div>
+<p>Position counting starts at <strong>0</strong>. That is not a quirk
+to memorise but a definition to understand: the index says <em>how far
+from the front</em>, and the front item is zero steps away. Lay the list
+out like this and both numbering schemes make sense at a glance:</p>
+<pre><code>  index:     0         1         2
+          +---------+---------+---------+
+          | &quot;milk&quot;  | &quot;eggs&quot;  | &quot;bread&quot; |
+          +---------+---------+---------+
+  index:    -3        -2        -1</code></pre>
+<p>Negative positions count from the back — <code>[-1]</code> is always
+the last item, no <code>len()</code> gymnastics required. (This is also
+why <code>range(5)</code> starts at 0: ranges and list positions are
+made for each other, as you are about to see pay off.)</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> a list is
+<code>DIM a$(10)</code> set free — no declared size (it grows as
+needed), no <code>OPTION BASE</code> (positions always start at 0), and
+one list happily holds strings, numbers or both at once.</p>
+</blockquote>
+<h3 data-number="10.1.3" id="changing-it">Changing it</h3>
+<p>A list is fully editable, and this is where BASIC arrays get left
+behind. Replace an item by assigning to its position; grow, shrink and
+rearrange with methods (chapter 9’s word — commands attached to the
+thing by a dot):</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping[<span class="dv">1</span>] <span class="op">=</span> <span class="st">&quot;duck eggs&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping.append(<span class="st">&quot;coffee&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> shopping.remove(<span class="st">&quot;milk&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(shopping)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>[<span class="st">&#39;duck eggs&#39;</span>, <span class="st">&#39;bread&#39;</span>, <span class="st">&#39;coffee&#39;</span>]</span></code></pre></div>
+<p>The everyday editing toolbox:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x.append(v)</code></td>
+<td>add <code>v</code> at the end (the workhorse)</td>
+</tr>
+<tr>
+<td><code>x.insert(i, v)</code></td>
+<td>squeeze <code>v</code> in at position <code>i</code></td>
+</tr>
+<tr>
+<td><code>x.remove(v)</code></td>
+<td>delete the first <code>v</code> found (error if absent)</td>
+</tr>
+<tr>
+<td><code>x.pop()</code></td>
+<td>take the <em>last</em> item off — and hand it to you</td>
+</tr>
+<tr>
+<td><code>x.sort()</code></td>
+<td>sort in place (its own section below)</td>
+</tr>
+</tbody>
+</table>
+<p><code>pop</code> deserves a demonstration, because “remove it <em>and
+give it to me</em>” is a surprisingly common need (dealing a card,
+taking the next job):</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stack <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stack.pop()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dv">30</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(stack)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>[<span class="dv">10</span>, <span class="dv">20</span>]</span></code></pre></div>
+<h3 data-number="10.1.4" id="asking-it-questions">Asking it
+questions</h3>
+<p>You have met <code>len()</code>. The other question you will ask
+constantly is <em>is this in there?</em> — and it is exactly one English
+word:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;coffee&quot;</span> <span class="kw">in</span> shopping</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">True</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;milk&quot;</span> <span class="kw">in</span> shopping</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="va">False</span></span></code></pre></div>
+<p><em>In one line: a list is an ordered row — make it with
+<code>[]</code>, read it with <code>[i]</code> counting from 0, grow it
+with <code>.append</code>, and ask it questions with <code>len</code>
+and <code>in</code>.</em></p>
+<h2 data-number="10.2" id="walking-a-list">Walking a list</h2>
+<p>Chapter 8’s <code>for</code> was built for this moment. Its true
+calling was never <code>range</code> — it is <em>visit every
+item</em>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> item <span class="kw">in</span> shopping:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Buy: </span><span class="sc">{</span>item<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>No positions, no <code>len()</code> — <code>for ... in</code> hands
+you each item in turn, and the loop body sees them one at a time through
+the variable you named. This is how you will total scores, hunt for a
+winner, draw every alien.</p>
+<p>When you <em>also</em> need the position — say, to print a numbered
+menu — <code>enumerate</code> deals out position-and-item pairs:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, item <span class="kw">in</span> <span class="bu">enumerate</span>(shopping):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>item<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>(That <code>i, item</code> is two variables catching one pair at once
+— the same trick as chapter 6’s <code>a, b = b, a</code> swap. The pairs
+being caught are in fact <em>tuples</em>, this chapter’s second
+container, and they get their own section shortly.)</p>
+<p><em>In one line: <code>for item in mylist:</code> visits everything;
+wrap the list in <code>enumerate(...)</code> when you also want each
+item’s number.</em></p>
+<h2 data-number="10.3" id="slices-a-piece-of-the-list">Slices: a piece
+of the list</h2>
+<p>Sometimes you want a <em>stretch</em> of the list, not one item — the
+top five scores, the first half of the deck. A colon inside the brackets
+does it:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scores <span class="op">=</span> [<span class="dv">90</span>, <span class="dv">75</span>, <span class="dv">82</span>, <span class="dv">66</span>, <span class="dv">91</span>, <span class="dv">43</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scores[<span class="dv">0</span>:<span class="dv">3</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>[<span class="dv">90</span>, <span class="dv">75</span>, <span class="dv">82</span>]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scores[:<span class="dv">3</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>[<span class="dv">90</span>, <span class="dv">75</span>, <span class="dv">82</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scores[<span class="dv">3</span>:]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>[<span class="dv">66</span>, <span class="dv">91</span>, <span class="dv">43</span>]</span></code></pre></div>
+<p><code>[0:3]</code> reads “from position 0, up to <em>but not
+including</em> 3”. The half-open end is the same convention as
+<code>range</code> — the two never disagree, and positions 0–2 plus 3–5
+tile the list with no gap and no overlap; that is <em>why</em> Python
+counts this way. Leaving an end blank means “from the start” / “to the
+end”.</p>
+<p>Slices also work on strings — <code>"turtle"[0:3]</code> is
+<code>'tur'</code> — a fact chapter 12 dines out on.</p>
+<p><em>In one line: <code>x[a:b]</code> is items <code>a</code> up to
+(not including) <code>b</code>; blank ends mean “from the start” and “to
+the end”.</em></p>
+<figure>
+<img src="figs/10-index-slice.png"
+alt="Two ways brackets read a list. An index names one item — counting 0 from the front or −1 from the back. A slice a:b takes a run of items, a up to but not including b; its numbers mark the gaps between items, which is why [1:4] is three items, not four." />
+<figcaption aria-hidden="true">Two ways brackets read a list. An
+<strong>index</strong> names one item — counting <code>0</code> from the
+front or <code>−1</code> from the back. A <strong>slice</strong>
+<code>a:b</code> takes a run of items, <code>a</code> up to but
+<em>not</em> including <code>b</code>; its numbers mark the gaps between
+items, which is why <code>[1:4]</code> is three items, not
+four.</figcaption>
+</figure>
+<h2 data-number="10.4" id="sorting">Sorting</h2>
+<p>Lists sort themselves, in place, with a method:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scores.sort()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(scores)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>[<span class="dv">43</span>, <span class="dv">66</span>, <span class="dv">75</span>, <span class="dv">82</span>, <span class="dv">90</span>, <span class="dv">91</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> scores.sort(reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(scores)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>[<span class="dv">91</span>, <span class="dv">90</span>, <span class="dv">82</span>, <span class="dv">75</span>, <span class="dv">66</span>, <span class="dv">43</span>]</span></code></pre></div>
+<p>Strings sort alphabetically — chapter 7’s
+<code>"bat" &lt; "cat"</code> was the machinery underneath. Now stand
+back and look at what you hold: the high-score table promised in chapter
+7 is three tools laid end to end — <code>append</code> the scores in,
+<code>sort(reverse=True)</code>, slice off the top <code>[:5]</code>.
+Before building it, though, one refinement: a high score is not a
+number. It is a number <em>and a name</em> — which brings us to
+tuples.</p>
+<p><em>In one line: <code>x.sort()</code> reorders the list itself;
+<code>reverse=True</code> for biggest-first.</em></p>
+<h2 data-number="10.5" id="tuples-values-that-belong-together">Tuples:
+values that belong together</h2>
+<h3 data-number="10.5.1"
+id="making-one-and-what-makes-it-different">Making one, and what makes
+it different</h3>
+<p>Round brackets bind values into a <strong>tuple</strong>:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> entry <span class="op">=</span> (<span class="dv">91</span>, <span class="st">&quot;Ada&quot;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> entry[<span class="dv">0</span>]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="dv">91</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">len</span>(entry)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code></pre></div>
+<p>Reading works exactly like a list — positions from 0,
+<code>len</code>, <code>for</code>, even slices. Writing does not: there
+is no <code>append</code>, and assigning to <code>entry[0]</code> is an
+error. A tuple is a list with the lid glued shut — fixed at birth.</p>
+<p>Why would you <em>want</em> that? Because some values are not a
+sequence but a single <strong>fact with parts</strong>: a
+score-and-name, an x-and-y, a question-and-answer. The glue keeps the
+parts travelling together, and guarantees nothing can quietly grow,
+shrink or reorder a fact in passing. When you see <code>(...)</code> in
+a program, you are being told <em>these belong together, and this shape
+won’t change</em> — information a bare list cannot convey. (You have
+already been handed one: the turtle’s <code>t.position()</code> returns
+an <code>(x, y)</code> tuple.)</p>
+<h3 data-number="10.5.2" id="unpacking">Unpacking</h3>
+<p>Tuples come apart into named variables on demand, which is where they
+get graceful:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> score, name <span class="op">=</span> entry</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss"> scored </span><span class="sc">{</span>score<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Ada scored <span class="dv">91</span></span></code></pre></div>
+<p>That is called <strong>unpacking</strong>, and you have used it twice
+without the name: chapter 6’s <code>a, b = b, a</code> swap, and
+<code>for i, item in enumerate(...)</code> above, which unpacks each
+dealt pair on arrival.</p>
+<p>One more gift: when tuples are compared or sorted, their
+<em>first</em> items decide (ties move to the second). So a list of
+<code>(score, name)</code> pairs sorts straight into leaderboard order —
+no extra work at all.</p>
+<p><em>In one line: a tuple <code>(a, b)</code> glues a small fact
+together; unpack it with <code>x, y = pair</code>; lists of tuples sort
+by first element.</em></p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> if you know recent MMBasics,
+tuples scratch the same itch as <strong>structures</strong> — a fixed
+bundle of related values that travels as one. Two differences: a tuple’s
+parts go by <em>position</em> (<code>entry[0]</code>) rather than by
+field name, and one is made on the fly, no declaration. If your MMBasic
+predates structures, the old habit was “parallel arrays”
+(<code>score(i)</code> and <code>name$(i)</code> kept in step by hope) —
+a list of tuples is that idea with the hope made structural.</p>
+</blockquote>
+<h2 data-number="10.6"
+id="dictionaries-look-things-up-by-name">Dictionaries: look things up by
+name</h2>
+<h3 data-number="10.6.1" id="the-idea-and-making-one">The idea, and
+making one</h3>
+<p>A list answers <em>“what is at position 3?”</em>. Just as often the
+real question is <em>“what is <strong>Ada’s</strong> score?”</em> —
+lookup by something meaningful, not by where it happens to sit. That is
+the <strong>dictionary</strong>: curly brackets, holding
+<code>key: value</code> pairs:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ages <span class="op">=</span> {<span class="st">&quot;Ada&quot;</span>: <span class="dv">36</span>, <span class="st">&quot;Grace&quot;</span>: <span class="dv">45</span>, <span class="st">&quot;Alan&quot;</span>: <span class="dv">41</span>}</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ages[<span class="st">&quot;Grace&quot;</span>]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="dv">45</span></span></code></pre></div>
+<p>Reading uses square brackets like a list — but what goes
+<em>inside</em> them is your chosen key, not a position. There are no
+positions. A dictionary is a filing cabinet, not a queue.</p>
+<h3 data-number="10.6.2" id="adding-and-changing">Adding and
+changing</h3>
+<p>Assigning to a key files it — the same syntax both creates and
+updates:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ages[<span class="st">&quot;Linus&quot;</span>] <span class="op">=</span> <span class="dv">12</span>        <span class="co"># new entry</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ages[<span class="st">&quot;Ada&quot;</span>] <span class="op">=</span> <span class="dv">37</span>          <span class="co"># birthday: existing entry updated</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">len</span>(ages)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dv">4</span></span></code></pre></div>
+<h3 data-number="10.6.3" id="missing-keys">Missing keys</h3>
+<p>Ask for a key that isn’t there and you get a <code>KeyError</code>
+naming the culprit (read the last line, as always). When unsure, ask
+first — <code>in</code> checks <em>keys</em>:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;Ada&quot;</span> <span class="kw">in</span> ages</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="va">True</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="st">&quot;Bob&quot;</span> <span class="kw">in</span> ages</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="va">False</span></span></code></pre></div>
+<h3 data-number="10.6.4" id="walking-a-dictionary">Walking a
+dictionary</h3>
+<p>A <code>for</code> over a dictionary visits its keys;
+<code>.items()</code> deals out key-and-value pairs (tuples again!),
+unpacked on arrival:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, age <span class="kw">in</span> ages.items():</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>age<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>One honest warning: the pairs arrive in <strong>no promised
+order</strong> — a filing cabinet has no front row. If you need order
+(an alphabetical listing, a leaderboard), that is the moment to build a
+list from the dictionary and sort <em>it</em>. Order is list
+business.</p>
+<h3 data-number="10.6.5" id="list-or-dictionary">List or
+dictionary?</h3>
+<p>The question you will actually face, program after program: <em>am I
+storing a sequence, or facts about things?</em> Scores as they happen,
+moves in a game, lines of a poem — sequences, lists. Each player’s best
+score, each word’s meaning, how many of each item the hero carries —
+facts looked up by name, dictionaries. When you catch yourself searching
+a list over and over for “the entry whose name is X”, you wanted a
+dictionary.</p>
+<p><em>In one line: <code>d = {"key": value}</code> files facts by name;
+read and write with <code>d["key"]</code>, check with <code>in</code>,
+walk pairs with <code>.items()</code>, and expect no particular
+order.</em></p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> there is no MMBasic equivalent
+— dictionaries are new power. Anywhere you once faked a lookup with
+parallel arrays and a search loop, a dictionary is one line, and it
+cannot get out of step with itself.</p>
+</blockquote>
+<h2 data-number="10.7" id="choosing-your-container">Choosing your
+container</h2>
+<p>The chapter so far, in one table — worth a bookmark:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>List <code>[...]</code></th>
+<th>Tuple <code>(...)</code></th>
+<th>Dictionary <code>{...}</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Holds</td>
+<td>a sequence</td>
+<td>one fact with parts</td>
+<td>facts filed by key</td>
+</tr>
+<tr>
+<td>Ordered?</td>
+<td>yes, and it matters</td>
+<td>yes, fixed</td>
+<td>no promises</td>
+</tr>
+<tr>
+<td>Changeable?</td>
+<td>freely</td>
+<td>never</td>
+<td>add/update by key</td>
+</tr>
+<tr>
+<td>Fetch by</td>
+<td>position <code>x[0]</code></td>
+<td>position <code>x[0]</code></td>
+<td>key <code>d["name"]</code></td>
+</tr>
+<tr>
+<td>Shines at</td>
+<td>scores, moves, queues</td>
+<td><code>(x, y)</code>, <code>(score, name)</code></td>
+<td>name → age, item → count</td>
+</tr>
+</tbody>
+</table>
+<p>And they combine: the natural high-score table is a <em>list of
+tuples</em>; chapter 25’s game will save its state as a <em>dictionary
+holding lists</em>. Containers holding containers is not an advanced
+topic — it is just what data looks like.</p>
+<h2 data-number="10.8" id="project-the-high-score-table">Project: the
+high-score table</h2>
+<p><code>edit("hiscore.py")</code>:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> []</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;HIGH SCORE TABLE -- type a name, or just Enter to finish&quot;</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;Name: &quot;</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> name <span class="op">==</span> <span class="st">&quot;&quot;</span>:</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    points <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="ss">f&quot;Score for </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: &quot;</span>))</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    scores.append((points, name))</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>scores.sort(reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;=&quot;</span> <span class="op">*</span> <span class="dv">24</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;   HALL OF FAME&quot;</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;=&quot;</span> <span class="op">*</span> <span class="dv">24</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (points, name) <span class="kw">in</span> <span class="bu">enumerate</span>(scores[:<span class="dv">5</span>]):</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>name<span class="sc">:12}</span><span class="ss"> </span><span class="sc">{</span>points<span class="sc">:5}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>Every idea in the chapter earning rent: <code>append</code> gathers
+<code>(points, name)</code> tuples, tuple-comparison makes
+<code>sort(reverse=True)</code> a leaderboard, the <code>[:5]</code>
+slice keeps it elite, and <code>enumerate</code> numbers the ranks. (The
+<code>{name:12}</code> in the f-string pads the name to 12 characters so
+the columns line up — a cousin of <code>:.2f</code> from chapter 6.)
+This table is a component: any game you write from now on can
+<code>append</code> to it. Chapter 12 teaches it to <em>survive
+power-off</em>.</p>
+<h2 data-number="10.9" id="project-the-quiz-grown-up">Project: the quiz,
+grown up</h2>
+<p>Chapter 7’s challenge quiz had its questions welded into the code.
+Now the questions are <em>data</em>, and the program is a machine that
+plays any of them. <code>edit("quiz2.py")</code>:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>questions <span class="op">=</span> [</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;What does the M in MMBasic stand for?&quot;</span>, <span class="st">&quot;maximite&quot;</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;What chip powers the Pico Computer 3?&quot;</span>, <span class="st">&quot;rp2350b&quot;</span>),</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;Home is the screen&#39;s... (top-left or centre)&quot;</span>, <span class="st">&quot;centre&quot;</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;What key saves in the editor? (ctrl-...)&quot;</span>, <span class="st">&quot;ctrl-s&quot;</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q, a <span class="kw">in</span> questions:</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    answer <span class="op">=</span> <span class="bu">input</span>(q <span class="op">+</span> <span class="st">&quot; &quot;</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> answer <span class="op">==</span> a:</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>        score <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Correct!&quot;</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;It was: </span><span class="sc">{</span>a<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">You scored </span><span class="sc">{</span>score<span class="sc">}</span><span class="ss"> out of </span><span class="sc">{</span><span class="bu">len</span>(questions)<span class="sc">}</span><span class="ss">.&quot;</span>)</span></code></pre></div>
+<p>The loop unpacks each <code>(question, answer)</code> tuple and plays
+it. Feel the shift in power: to make the quiz twice as long you edit the
+<em>list</em>, not the <em>program</em> — add a tuple, done. Separating
+the machinery from the data it chews is one of the big ideas of
+programming, and you have just done it. (Yes, answers must match
+exactly, capitals and all — chapter 12’s string tools fix that properly;
+<code>.lower()</code> is the spoiler.)</p>
+<h2 data-number="10.10" id="what-you-now-hold">What you now hold</h2>
+<p>The say-it-again summary, because this chapter carries the next
+fifteen:</p>
+<ul>
+<li><strong>Lists</strong> hold sequences: <code>[]</code> to make,
+<code>[i]</code> from 0 to fetch, <code>[-1]</code> for the last,
+<code>.append</code> to grow, <code>in</code> to ask, <code>[a:b]</code>
+to slice (half-open, like <code>range</code>), <code>.sort()</code> to
+order.</li>
+<li><strong><code>for item in collection:</code></strong> is the loop’s
+true form; <code>enumerate</code> adds positions.</li>
+<li><strong>Tuples</strong> glue a fact’s parts together, unpack into
+variables, and sort by first element — <code>(score, name)</code> is a
+whole leaderboard strategy.</li>
+<li><strong>Dictionaries</strong> file values under keys:
+<code>d["key"]</code> to read and write, <code>KeyError</code> when
+absent, <code>in</code> to check, <code>.items()</code> to walk, no
+order promised.</li>
+<li>Choosing: sequence → list; fixed bundle → tuple; lookup by name →
+dictionary. They nest freely.</li>
+</ul>
+<h2 data-number="10.11" id="experiments-9">Experiments</h2>
+<ol type="1">
+<li>Predict, then check: <code>shopping[-2]</code>,
+<code>scores[1:4]</code>, <code>scores[:]</code>,
+<code>"eggs" in shopping</code>. Then find out what
+<code>shopping[10]</code> does — read the error’s last line like the
+professional you now are.</li>
+<li><code>words = ["banana", "Apple", "cherry"]</code>, then
+<code>words.sort()</code>. The result will surprise you — capital
+letters sort before <em>all</em> small ones. (Chapter 12 fixes this
+too.)</li>
+<li>Make the hall of fame kinder: if two entries tie on points, whose
+name comes first, and why? (Tuple comparison keeps deciding — test it
+with two 85s.)</li>
+<li>Deal cards: build a list of a few card names, then
+<code>pop()</code> in a loop until it is empty
+(<code>while cards:</code> works — an empty list counts as False, a
+pleasant idiom to meet early). Why does dealing come off the
+<em>back</em>? Check <code>pop</code>’s table entry.</li>
+<li>Give the quiz a report card: store the <code>(q, a)</code> pairs the
+player missed in a second list, and print them at the end for
+revision.</li>
+<li>Dictionary warm-up: build
+<code>menu = {"beep": 880, "boop": 440}</code> and play
+<code>beep(menu["boop"])</code>. Add a note of your own. Now a
+<em>word</em> is controlling the hardware.</li>
+</ol>
+<h2 data-number="10.12" id="challenges-9">Challenges</h2>
+<ol type="1">
+<li><strong>The menu, completed.</strong> Chapter 5’s challenge menu,
+properly: a list of program filenames, printed numbered
+(<code>enumerate</code>), the player picks a number, and
+<code>run(programs[choice - 1])</code> launches it. Mind the
+<code>- 1</code> — and now you know why it’s there.</li>
+<li><strong>The shop.</strong> An adventure-game inventory as a
+dictionary: item → how many. Commands <code>take sword</code>,
+<code>drop rope</code>, <code>list</code> (loop with
+<code>.items()</code>), <code>quit</code>. String surgery hint: chapter
+12; for now two inputs (<code>verb</code>, then <code>thing</code>) is
+honest.</li>
+<li><strong>Turtle by data.</strong> A list of
+<code>(sides, size, colour)</code> tuples — e.g.
+<code>(3, 60, RED)</code>, <code>(5, 90, CYAN)</code> — and one loop
+that draws each with chapter 9’s any-polygon trick. The drawing changes
+when the <em>list</em> changes. You have invented the display list, and
+chapter 19’s tile maps will shake your hand.</li>
+<li><strong>Lucky dip.</strong> <code>random.choice(questions)</code>
+picks a random tuple from a list. Make the quiz ask five random
+questions — repeats allowed — and then, harder: no repeats (hint:
+<code>remove</code> what you’ve asked).</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="9-chapter-9-turtle-graphics-loops-you-can-see.html" rel="prev">←&nbsp;Chapter 9 — Turtle graphics: loops you can see</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="11-chapter-11-functions-building-your-own-commands.html" rel="next">Chapter 11 — Functions: building your own commands&nbsp;→</a>
+</nav>
+</body>
+</html>

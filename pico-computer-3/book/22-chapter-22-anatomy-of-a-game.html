@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 22 — Anatomy of a
+game – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html" rel="prev" accesskey="p">←&nbsp;Chapter 21 — Reading the player: keyboard, mouse and touch</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="23-chapter-23-breakout.html" rel="next" accesskey="n">Chapter 23 — Breakout&nbsp;→</a>
+</nav>
+<h1 data-number="22" id="chapter-22-anatomy-of-a-game">Chapter 22 —
+Anatomy of a game</h1>
+<p>Welcome to Part IV. You can draw at sixty frames a second, keep score
+in files, make lasers, and read a keyboard six keys at a time — every
+part of a game except the game. This chapter supplies the missing organ:
+the shape that every game shares, from Pong to the newest thing on any
+console in your house. Learn the shape once and every game you ever
+write — including the three that follow in this Part — is a variation on
+it.</p>
+<p>The chapter in advance, because this is one of the big ones:</p>
+<ul>
+<li><strong>The game loop</strong> — read input, update the world, draw
+— and why the order matters.</li>
+<li><strong>Frame timing</strong> — <code>pcgame.Clock</code>,
+<code>dt</code>, and why speed must be measured in <em>per second</em>,
+never <em>per frame</em>.</li>
+<li><strong>Game state</strong> — title, playing, game over: one
+variable, one ladder, a whole architecture.</li>
+<li>Project: <strong>Pong</strong>, built from nothing, playable by two
+humans, in two sittings.</li>
+</ul>
+<h2 data-number="22.1" id="the-loop">The loop</h2>
+<p>Strip any game to the skeleton and this is what remains:</p>
+<pre><code>forever:
+    read the input        (what does the player want?)
+    update the world      (physics, collisions, scores, rules)
+    draw the world        (one complete picture)</code></pre>
+<p>You have written this three times without the ceremony — the gallery,
+the island, paint. The discipline the ceremony adds: <strong>each phase
+completes before the next begins.</strong> Input is read once, at the
+top — not sampled mid-physics, where a key change could act on half the
+update. The world updates entirely — every ball, every paddle, every
+rule — before a single pixel is drawn. And drawing renders <em>the</em>
+world, never nudging it. Games with mysterious bugs are usually games
+where these phases leak into each other; games that feel solid are games
+where they don’t.</p>
+<p><em>In one line: input, then update, then draw — one complete pass
+per frame, no leaking between phases.</em></p>
+<figure>
+<img src="figs/22-game-loop.png"
+alt="The game loop: read the input, update the world, draw it — one complete pass per frame, each phase finished before the next begins." />
+<figcaption aria-hidden="true">The game loop: read the input, update the
+world, draw it — one complete pass per frame, each phase finished before
+the next begins.</figcaption>
+</figure>
+<h2 data-number="22.2" id="frame-timing-the-metronome">Frame timing: the
+metronome</h2>
+<p>Chapter 17’s <code>vsync</code> paced your loops at sixty a second —
+as long as your frame’s work fit. But game frames vary: an explosion
+here, six extra sprites there, and a heavy frame arrives <em>late</em>.
+Two things then go wrong: motion measured per-frame slows down (the ball
+crawls exactly when the action peaks), and naive timing drifts — every
+late frame pushes all the following ones later, forever.</p>
+<p><code>pcgame.Clock</code> is the cure for both, and the machine’s
+version has MMBasic pedigree (<code>SYNC</code>):</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(<span class="dv">60</span>)          <span class="co"># target: 60 beats per second</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># wait for the beat; dt = seconds elapsed</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    dt <span class="op">=</span> clock.tick()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    x <span class="op">+=</span> speed <span class="op">*</span> dt               <span class="co"># speed is now PER SECOND</span></span></code></pre></div>
+<p>Two ideas in three lines. First, <strong>the drift-free
+beat</strong>: <code>tick()</code> waits until the next
+<em>scheduled</em> deadline — anchored to the clock, not to when the
+last frame happened to finish — so one slow frame steals from itself,
+not from the future; the cadence self-heals. (<code>clock.fps</code>
+reports the achieved rate, ready for a corner of your HUD, and
+<code>clock.reset()</code> re-anchors after a pause menu, so the game
+doesn’t try to “catch up” on frames it missed while paused.)</p>
+<p>Second — the habit that separates games that feel right from games
+that don’t — <strong><code>dt</code></strong>. <code>tick()</code>
+returns the seconds actually elapsed (about 0.0167 at sixty). Multiply
+every speed by it, and speeds become <em>per second</em>: a paddle
+moving <code>300 * dt</code> covers 300 pixels each second whether
+frames come at sixty, fifty, or unevenly. Motion is promised to the
+<em>player’s clock</em>, not the processor’s mood. Every velocity in
+this Part is written per-second; do the same and your games survive
+their own success.</p>
+<p>One more gift: <code>pcgame.Clock(vsync=True)</code> anchors the beat
+to the display’s own refresh instead of a timer — each
+<code>tick()</code> returns just as a frame ends, which is exactly the
+moment to flip chapter 17’s F buffer. That combination — tick, update,
+compose, copy — is the display loop Pong uses below, and the games after
+it.</p>
+<p><em>In one line: <code>dt = clock.tick()</code> paces the loop
+without drift; all speeds are per-second, multiplied by
+<code>dt</code>.</em></p>
+<h2 data-number="22.3"
+id="game-state-one-variable-whole-architecture">Game state: one
+variable, whole architecture</h2>
+<p>A game is not always <em>playing</em>. There is a title screen,
+perhaps a pause, a game-over; each reads input differently, updates
+differently, draws differently. The beginner’s instinct — separate loops
+for each — tangles instantly. The games answer is older and simpler:
+<strong>one loop, one <code>state</code> variable, one
+ladder</strong>:</p>
+<pre><code>forever:
+    tick
+    if state == &quot;title&quot;:    ...space starts the game...
+    elif state == &quot;play&quot;:   ...the actual game...
+    elif state == &quot;over&quot;:   ...show the winner, offer again...
+    draw whatever the state calls for</code></pre>
+<p>Changing screens is now an assignment: <code>state = "over"</code>.
+The loop, the clock and the display machinery never notice. You met the
+idea as chapter 7’s ladder and chapter 14 would happily object-ify it;
+for the games in this book, a string and a ladder are exactly
+enough.</p>
+<p><em>In one line: one loop runs everything; a <code>state</code>
+string picks what input/update/draw mean this frame.</em></p>
+<figure>
+<img src="figs/22-state.png"
+alt="One state string, one ladder: the same loop behaves as a title screen, the game, or a game-over — and moving between them is a single assignment the loop never notices." />
+<figcaption aria-hidden="true">One <code>state</code> string, one
+ladder: the same loop behaves as a title screen, the game, or a
+game-over — and moving between them is a single assignment the loop
+never notices.</figcaption>
+</figure>
+<h2 data-number="22.4" id="project-pong-part-one-the-rally">Project:
+Pong, part one — the rally</h2>
+<p>Two evenings, two listings. Tonight: a court, a ball with real
+timing, two paddles, and the deflection physics that made Pong
+<em>Pong</em>. No scoring yet — a rally sandbox for two players (W/S on
+the left, arrows on the right). <code>edit("pong1.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># this game is laid out for 640x480</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x081018</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>PW, PH <span class="op">=</span> <span class="dv">8</span>, <span class="dv">64</span>                      <span class="co"># paddle size</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>BS <span class="op">=</span> <span class="dv">8</span>                              <span class="co"># ball size</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>PSPEED <span class="op">=</span> <span class="fl">320.0</span>                      <span class="co"># pixels per second</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>p1y <span class="op">=</span> p2y <span class="op">=</span> (H <span class="op">-</span> PH) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>bx, by <span class="op">=</span> W <span class="op">/</span> <span class="dv">2</span>, H <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>bdx, bdy <span class="op">=</span> <span class="fl">220.0</span>, <span class="fl">120.0</span>             <span class="co"># ball velocity, per second</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> clock.tick()</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- input</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot;w&quot;</span>)):</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>            p1y <span class="op">-=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot;s&quot;</span>)):</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>            p1y <span class="op">+=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.UP):</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>            p2y <span class="op">-=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.DOWN):</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>            p2y <span class="op">+=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        p1y <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(H <span class="op">-</span> PH, p1y))</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        p2y <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(H <span class="op">-</span> PH, p2y))</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- update</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        bx <span class="op">+=</span> bdx <span class="op">*</span> dt</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>        by <span class="op">+=</span> bdy <span class="op">*</span> dt</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        <span class="co"># top and bottom walls</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> by <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> by <span class="op">&gt;</span> H <span class="op">-</span> BS:</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>            by <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(H <span class="op">-</span> BS, by))</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>            bdy <span class="op">=</span> <span class="op">-</span>bdy</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">440</span>, <span class="dv">15</span>)</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        <span class="co"># side walls (for now!)</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> bx <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> bx <span class="op">&gt;</span> W <span class="op">-</span> BS:</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>            bx <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(W <span class="op">-</span> BS, bx))</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>            bdx <span class="op">=</span> <span class="op">-</span>bdx</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">440</span>, <span class="dv">15</span>)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>        <span class="co"># paddle faces: deflect, and steer by where the ball</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>        <span class="co"># struck</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (bdx <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="dv">16</span> <span class="op">&lt;=</span> bx <span class="op">&lt;=</span> <span class="dv">16</span> <span class="op">+</span> PW</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>            <span class="kw">and</span> p1y <span class="op">-</span> BS <span class="op">&lt;</span> by <span class="op">&lt;</span> p1y <span class="op">+</span> PH):</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>            bdx <span class="op">=</span> <span class="op">-</span>bdx</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>            bdy <span class="op">=</span> <span class="dv">260</span> <span class="op">*</span> ((by <span class="op">+</span> BS <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> p1y) <span class="op">/</span> PH <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">880</span>, <span class="dv">15</span>)</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (bdx <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> W <span class="op">-</span> <span class="dv">24</span> <span class="op">-</span> BS <span class="op">&lt;=</span> bx <span class="op">&lt;=</span> W <span class="op">-</span> <span class="dv">16</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>            <span class="kw">and</span> p2y <span class="op">-</span> BS <span class="op">&lt;</span> by <span class="op">&lt;</span> p2y <span class="op">+</span> PH):</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>            bdx <span class="op">=</span> <span class="op">-</span>bdx</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>            bdy <span class="op">=</span> <span class="dv">260</span> <span class="op">*</span> ((by <span class="op">+</span> BS <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> p2y) <span class="op">/</span> PH <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">880</span>, <span class="dv">15</span>)</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- draw</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>        d.fill(BG)</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the classic dashed net</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> y <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, H, <span class="dv">24</span>):</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">2</span>, y, <span class="dv">4</span>, <span class="dv">12</span>, INK)</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(<span class="dv">16</span>, <span class="bu">int</span>(p1y), PW, PH, INK)</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(W <span class="op">-</span> <span class="dv">16</span> <span class="op">-</span> PW, <span class="bu">int</span>(p2y), PW, PH, INK)</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(<span class="bu">int</span>(bx), <span class="bu">int</span>(by), BS, BS, INK)</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Play a rally before reading on — the feel is the lesson. Then the
+autopsy, top to bottom:</p>
+<ul>
+<li><strong>The three phases are labelled</strong>, and nothing crosses
+the lines. Input adjusts intentions (paddle positions); update moves the
+world and applies the rules; draw paints the world it is given.</li>
+<li><strong>Everything moves in per-second units</strong> —
+<code>320.0 * dt</code>, <code>220.0 * dt</code>. Positions are floats
+(<code>p1y</code>, <code>bx</code>…) and only become pixels at the
+moment of drawing (<code>int(p1y)</code>) — keep physics in real numbers
+and rounding out of the simulation, or slow movement dies of
+truncation.</li>
+<li><strong>The deflection line is the game design.</strong>
+<code>(by + BS/2 - p1y) / PH - 0.5</code> measures <em>where on the
+paddle</em> the ball struck, −0.5 at the top through +0.5 at the bottom;
+scaled by 2 and by 260, an edge-of-paddle strike sends the ball off at a
+fierce angle while a centre strike returns it flat. One line, and
+suddenly there is <em>aiming</em>, and therefore skill, and therefore a
+game.</li>
+<li>The <code>bdx &lt; 0</code> guard on each paddle test stops the ball
+colliding with the same paddle twice in successive frames — the sign of
+the velocity says which paddle could possibly be struck.</li>
+</ul>
+<h2 data-number="22.5" id="project-pong-part-two-the-match">Project:
+Pong, part two — the match</h2>
+<p>Now the side walls stop being walls: a ball past a paddle is a
+<em>point</em>. Add serving, a font-6 scoreboard, and the state ladder —
+title, play, game over, play again. <code>edit("pong.py")</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># this game is laid out for 640x480</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x081018</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>DIM <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>PW, PH, BS <span class="op">=</span> <span class="dv">8</span>, <span class="dv">64</span>, <span class="dv">8</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>PSPEED <span class="op">=</span> <span class="fl">320.0</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>WIN <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> serve(direction):</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Centre the ball, heading toward `direction` (+1 right, -1</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co">    left).&quot;&quot;&quot;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (W <span class="op">/</span> <span class="dv">2</span>, H <span class="op">/</span> <span class="dv">2</span>,</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>            direction <span class="op">*</span> <span class="fl">220.0</span>, random.randint(<span class="op">-</span><span class="dv">140</span>, <span class="dv">140</span>) <span class="op">*</span> <span class="fl">1.0</span>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>p1y <span class="op">=</span> p2y <span class="op">=</span> (H <span class="op">-</span> PH) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>bx, by, bdx, bdy <span class="op">=</span> serve(<span class="dv">1</span>)</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> s2 <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> clock.tick()</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)):</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>                s1 <span class="op">=</span> s2 <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>                bx, by, bdx, bdy <span class="op">=</span> serve(<span class="dv">1</span>)</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;play&quot;</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>                clock.reset()</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;play&quot;</span>:</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot;w&quot;</span>)):</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>                p1y <span class="op">-=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot;s&quot;</span>)):</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>                p1y <span class="op">+=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.UP):</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>                p2y <span class="op">-=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.DOWN):</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>                p2y <span class="op">+=</span> PSPEED <span class="op">*</span> dt</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>            p1y <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(H <span class="op">-</span> PH, p1y))</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>            p2y <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(H <span class="op">-</span> PH, p2y))</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>            bx <span class="op">+=</span> bdx <span class="op">*</span> dt</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>            by <span class="op">+=</span> bdy <span class="op">*</span> dt</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> by <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> by <span class="op">&gt;</span> H <span class="op">-</span> BS:</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>                by <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(H <span class="op">-</span> BS, by))</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>                bdy <span class="op">=</span> <span class="op">-</span>bdy</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">440</span>, <span class="dv">15</span>)</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (bdx <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="dv">16</span> <span class="op">&lt;=</span> bx <span class="op">&lt;=</span> <span class="dv">16</span> <span class="op">+</span> PW</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>                <span class="kw">and</span> p1y <span class="op">-</span> BS <span class="op">&lt;</span> by <span class="op">&lt;</span> p1y <span class="op">+</span> PH):</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>                <span class="co"># every return, faster</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>                bdx <span class="op">=</span> <span class="op">-</span>bdx <span class="op">*</span> <span class="fl">1.04</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>                bdy <span class="op">=</span> <span class="dv">260</span> <span class="op">*</span> ((by <span class="op">+</span> BS <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> p1y) <span class="op">/</span> PH <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">880</span>, <span class="dv">15</span>)</span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (bdx <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> W <span class="op">-</span> <span class="dv">24</span> <span class="op">-</span> BS <span class="op">&lt;=</span> bx <span class="op">&lt;=</span> W <span class="op">-</span> <span class="dv">16</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>                <span class="kw">and</span> p2y <span class="op">-</span> BS <span class="op">&lt;</span> by <span class="op">&lt;</span> p2y <span class="op">+</span> PH):</span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>                bdx <span class="op">=</span> <span class="op">-</span>bdx <span class="op">*</span> <span class="fl">1.04</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>                bdy <span class="op">=</span> <span class="dv">260</span> <span class="op">*</span> ((by <span class="op">+</span> BS <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> p2y) <span class="op">/</span> PH <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">880</span>, <span class="dv">15</span>)</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>            <span class="co"># past the left edge: P2 scores</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> bx <span class="op">&lt;</span> <span class="op">-</span>BS:</span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>                s2 <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">220</span>, <span class="dv">200</span>)</span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>                bx, by, bdx, bdy <span class="op">=</span> serve(<span class="op">-</span><span class="dv">1</span>)      <span class="co"># loser receives</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>            <span class="co"># past the right: P1 scores</span></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> bx <span class="op">&gt;</span> W:</span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>                s1 <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">220</span>, <span class="dv">200</span>)</span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>                bx, by, bdx, bdy <span class="op">=</span> serve(<span class="dv">1</span>)</span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> s1 <span class="op">==</span> WIN <span class="kw">or</span> s2 <span class="op">==</span> WIN:</span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;over&quot;</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;over&quot;</span>:</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)):</span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- draw (every state draws the court; some add words)</span></span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>        d.fill(BG)</span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> y <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, H, <span class="dv">24</span>):</span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">2</span>, y, <span class="dv">4</span>, <span class="dv">12</span>, INK)</span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(<span class="dv">16</span>, <span class="bu">int</span>(p1y), PW, PH, INK)</span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>        d.fill_rect(W <span class="op">-</span> <span class="dv">16</span> <span class="op">-</span> PW, <span class="bu">int</span>(p2y), PW, PH, INK)</span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="bu">str</span>(s1), W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">96</span>, <span class="dv">24</span>, DIM, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">6</span>)</span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="bu">str</span>(s2), W <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">64</span>, <span class="dv">24</span>, DIM, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">6</span>)</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;play&quot;</span>:</span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>            d.fill_rect(<span class="bu">int</span>(bx), <span class="bu">int</span>(by), BS, BS, INK)</span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;P O N G&quot;</span>, W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">112</span>, <span class="dv">180</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;W/S and UP/DOWN -- first to 5 -- SPACE to &quot;</span></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;start&quot;</span>,</span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>                      W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">188</span>, <span class="dv">260</span>, DIM)</span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;over&quot;</span>:</span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>            champ <span class="op">=</span> <span class="st">&quot;PLAYER 1&quot;</span> <span class="cf">if</span> s1 <span class="op">==</span> WIN <span class="cf">else</span> <span class="st">&quot;PLAYER 2&quot;</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>            hdmi.text(champ <span class="op">+</span> <span class="st">&quot; WINS&quot;</span>, W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">176</span>, <span class="dv">180</span>, INK, <span class="op">-</span><span class="dv">1</span>,</span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>                      <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;SPACE for a rematch&quot;</span>, W <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">76</span>, <span class="dv">260</span>,</span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>                      DIM)</span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>That is a finished, giftable arcade game — about a hundred lines —
+and the additions since part one are worth naming:</p>
+<ul>
+<li><strong>The ladder holds the whole architecture.</strong> Title and
+game-over are a few lines each; the game didn’t get more complicated
+when it got more <em>states</em>, because each frame still flows through
+one loop, one clock, one draw. Note <code>clock.reset()</code> when play
+begins — the title screen’s idle frames mustn’t be “caught up”.</li>
+<li><strong><code>serve()</code> is a function because it happens three
+ways</strong> (game start, either side scoring) — chapter 11’s rule of
+thumb in the wild. The loser receives the serve; small mercies keep
+games close.</li>
+<li><strong><code>* 1.04</code> is the difficulty curve.</strong> Every
+successful return quickens the ball a touch, so every rally escalates
+toward a mistake. One constant to tune; playtest it on a human.</li>
+<li><strong>Scoring waits for the ball to be fully out</strong>
+(<code>bx &lt; -BS</code>, past the edge, not touching it) — a small
+honesty that keeps edge bounces from becoming phantom points.</li>
+<li>And the miss branches show why draw checks the state: after a score,
+the ball teleports to centre — drawing it <em>only in play</em> spares
+you a one-frame ghost on the title and over screens.</li>
+</ul>
+<p>Hand a second human the right-hand keys. You built this from an empty
+file, and every part of it — clock, phases, states, deflection — is the
+skeleton of chapters 23, 24 and 25.</p>
+<h2 data-number="22.6" id="what-you-now-hold-5">What you now hold</h2>
+<ul>
+<li><strong>The loop</strong>: read input → update world → draw, one
+complete pass per frame, phases sealed.</li>
+<li><strong><code>pcgame.Clock</code></strong>: <code>tick()</code>
+gives a drift-free beat and returns <code>dt</code>;
+<code>vsync=True</code> anchors it to the display, <code>fps</code>
+measures, <code>reset()</code> re-anchors after pauses.</li>
+<li><strong>Per-second motion</strong>: every speed multiplied by
+<code>dt</code>; positions are floats, pixels only at draw time.</li>
+<li><strong>The state ladder</strong>: one string chooses what
+input/update/draw mean this frame; changing screens is an
+assignment.</li>
+<li><strong>Game feel lives in single lines</strong>: the deflection
+formula, the 1.04 speed-up, loser-receives — small numbers, tuned on
+humans.</li>
+</ul>
+<h2 data-number="22.7" id="experiments-21">Experiments</h2>
+<ol type="1">
+<li>Put <code>clock.fps</code> on the screen (font 8, a corner). Then
+make frames deliberately heavy — draw the net with 4-pixel steps instead
+of 24 — and watch what the number does. That’s your budget gauge for
+every game to come.</li>
+<li>Tune the feel: <code>PSPEED</code> 250 vs 400; deflection 260 vs
+380; speed-up 1.04 vs 1.10. Two minutes per change, with a human
+opponent. Write down the combination your household prefers — game
+design is exactly this.</li>
+<li>Break a phase wall on purpose: move the P1 input lines
+<em>between</em> the ball update and the paddle tests. Play. It feels…
+slightly wrong, doesn’t it? Half a frame’s staleness, felt in the hands
+— now you know what phase discipline is protecting.</li>
+<li>First-person Pong: make the right paddle a wall (full height) and
+the game becomes squash — one player, and suddenly <code>s2</code> means
+<em>misses</em>. Ten changed lines, different game.</li>
+<li>Give the title screen a demo mode: if no key arrives for ten seconds
+(<code>ticks_diff</code>, chapter 21), set both paddles to track the
+ball (<code>p1y += (by - p1y) * 0.05</code> each frame) and let it play
+itself behind the title. Every arcade machine you ever admired did
+exactly this.</li>
+</ol>
+<h2 data-number="22.8" id="challenges-21">Challenges</h2>
+<ol type="1">
+<li><strong>The sound of Pong, properly.</strong> Replace the
+<code>beep</code>s with chapter 20’s <code>sfx</code> (import it!): a
+synth <em>thock</em> for paddles (short square sweep), a duller wall
+tap, a sad little slide for a point conceded. The 1972 original had
+three sounds; honour them.</li>
+<li><strong>Best-of tournament.</strong> Wrap the match in chapter 12’s
+<code>scorelib</code>: winners enter a name (<code>input()</code> is
+legal on the over screen — the right philosophy for the moment!), the
+hall of fame shows at the title, first to three <em>matches</em> takes
+the crown.</li>
+<li><strong>Pong for one.</strong> A computer opponent for the right
+paddle: it tracks the ball (experiment 5’s line) but with a top speed —
+tune that one number until it beats your weak side and loses to your
+strong one. Fair AI is a speed limit, not a brain.</li>
+<li><strong>Four walls, one survivor.</strong> Rotate the court: paddles
+top and bottom (A/D and LEFT/RIGHT), ball speeding up forever, last
+touch loses. Then the real challenge: <em>four</em> paddles, two players
+each controlling a pair. The loop shape doesn’t change. It never
+does.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="21-chapter-21-reading-the-player-keyboard-mouse-and-touch.html" rel="prev">←&nbsp;Chapter 21 — Reading the player: keyboard, mouse and touch</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="23-chapter-23-breakout.html" rel="next">Chapter 23 — Breakout&nbsp;→</a>
+</nav>
+</body>
+</html>

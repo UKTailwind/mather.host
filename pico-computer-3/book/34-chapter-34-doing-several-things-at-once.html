@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 34 — Doing several things at
+once – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="33-chapter-33-standing-on-others-shoulders.html" rel="prev" accesskey="p">←&nbsp;Chapter 33 — Standing on others’ shoulders</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="35-chapter-35-performance-and-memory.html" rel="next" accesskey="n">Chapter 35 — Performance and memory&nbsp;→</a>
+</nav>
+<h1 data-number="34"
+id="chapter-34-doing-several-things-at-once">Chapter 34 — Doing several
+things at once</h1>
+<p>Welcome to Part VI: under the hood. Every program so far has been one
+loop doing one thing at a time — and yet keys registered during your
+games, hot-swapped SD cards announced themselves, and
+<code>play()</code> kept singing while you typed. The machine has been
+doing several things at once all along; this chapter hands you the
+machinery. There are two kinds, philosophically different:</p>
+<ul>
+<li><strong>Interrupts</strong> — being tapped on the shoulder. Timers,
+pin changes and arriving data can call your function <em>between the
+statements</em> of whatever else is running.</li>
+<li><strong><code>asyncio</code></strong> — juggling politely. Many
+tasks on one core, each running until it volunteers to pause.</li>
+</ul>
+<p>And one honest limit before anything else: Python here owns exactly
+<strong>one processor core</strong> (the other paints the screen, full
+time — you have known this since chapter 1). Nothing in this chapter
+makes two pieces of Python compute <em>simultaneously</em>; everything
+makes turn-taking so fine-grained it feels simultaneous — which, for the
+record, is most of what your phone is doing too.</p>
+<h2 data-number="34.1" id="the-tap-on-the-shoulder">The tap on the
+shoulder</h2>
+<p>MicroPython’s callback model is MMBasic’s software-interrupt model,
+piece for piece — the translation table:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>MMBasic</th>
+<th>Here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SETTICK period, sub</code></td>
+<td><code>machine.Timer(period=..., callback=f)</code></td>
+</tr>
+<tr>
+<td><code>SETTICK 0</code></td>
+<td><code>timer.deinit()</code></td>
+</tr>
+<tr>
+<td><code>SETPIN n, INTL/INTH/INTB, sub</code></td>
+<td><code>Pin(n).irq(f, Pin.IRQ_FALLING / IRQ_RISING / both)</code></td>
+</tr>
+<tr>
+<td><code>ON KEY sub</code></td>
+<td><code>keyboard.on_key(f)</code></td>
+</tr>
+<tr>
+<td><code>WATCHDOG timeout</code></td>
+<td><code>machine.WDT(timeout=ms)</code> + <code>.feed()</code></td>
+</tr>
+<tr>
+<td>COM interrupt</td>
+<td><code>machine.UART.irq(f, UART.IRQ_RXIDLE)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Handlers are ordinary functions, called with the object that fired
+(the timer, the pin) — and they run <strong>between statements</strong>
+of the main program, including during <code>time.sleep()</code> and even
+at the idle prompt. Try that last part, because it rearranges the mind.
+At the <code>&gt;&gt;&gt;</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> machine <span class="im">import</span> Timer</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t <span class="op">=</span> Timer(period<span class="op">=</span><span class="dv">2000</span>, callback<span class="op">=</span><span class="kw">lambda</span> t: beep(<span class="dv">660</span>, <span class="dv">30</span>))</span></code></pre></div>
+<p>The machine now chirps every two seconds <em>while you carry on using
+the prompt</em> — type, run things, edit; the heartbeat persists,
+because a timer callback needs no loop of yours to live in. (And
+<code>t.deinit()</code> when the novelty fades — the board runs about
+sixteen timers at once, against MMBasic’s four.) This is also chapter
+21’s <code>on_key</code> demystified: same mechanism,
+keyboard-shaped.</p>
+<h2 data-number="34.2" id="pin-interrupts-the-doorbell">Pin interrupts:
+the doorbell</h2>
+<p>Chapter 32 polled its button sixty times a second. The interrupt way
+inverts it: the <em>pin</em> calls <em>you</em>.</p>
+<figure>
+<img src="figs/34-interrupt.png"
+alt="An interrupt is a tap on the shoulder: when the pin (or timer) fires, its handler runs between two statements of your main program, then the program resumes exactly where it paused." />
+<figcaption aria-hidden="true">An interrupt is a tap on the shoulder:
+when the pin (or timer) fires, its handler runs between two statements
+of your main program, then the program resumes exactly where it
+paused.</figcaption>
+</figure>
+<p>Wire the chapter 32 button (GP1 to GND) and
+<code>edit("doorbell.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># the flag the handler is allowed to touch</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>presses <span class="op">=</span> [<span class="dv">0</span>]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ring(pin):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># note it and LEAVE -- no real work here</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    presses[<span class="dv">0</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>button <span class="op">=</span> Pin(<span class="dv">1</span>, Pin.IN, Pin.PULL_UP)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># call ring() on each high -&gt; low edge</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>button.irq(ring, Pin.IRQ_FALLING)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;busy doing something else entirely...&quot;</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>announced <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># deep in important work, clearly</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">200</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> presses[<span class="dv">0</span>] <span class="op">!=</span> announced:</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>            announced <span class="op">=</span> presses[<span class="dv">0</span>]</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f&quot;doorbell rang! (</span><span class="sc">{</span>announced<span class="sc">}</span><span class="ss"> so far)&quot;</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">880</span>, <span class="dv">40</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># always disconnect your handlers</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    button.irq(<span class="va">None</span>)</span></code></pre></div>
+<p>The main loop sleeps 200 ms at a stretch, yet no press is ever missed
+— the edge fires <code>ring()</code> mid-sleep. Study the shape, because
+it is <em>the</em> shape: <strong>the handler sets a flag; the main loop
+does the work</strong>. <code>ring()</code> doesn’t print, beep, or draw
+— it increments a counter and leaves. That division isn’t style, it’s
+law, and the rules section below says why. (The <code>finally</code>
+disconnecting the handler is the collar again — a handler left ringing
+after its program dies is a haunting.)</p>
+<p>For microsecond-critical edges, <code>irq(..., hard=True)</code> runs
+your handler in the true hardware interrupt — with strict rules (no
+memory allocation inside) that the MicroPython docs spell out; the
+scheduled default is right for everything in this book.</p>
+<h2 data-number="34.3" id="the-promise-kept-waking-to-the-ds3231">The
+promise kept: waking to the DS3231</h2>
+<p>Chapter 29’s hardware alarm, completed. The chip decides
+<em>when</em>; the pin taps the shoulder; the program does nothing at
+all in between — <code>edit("wake.py")</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ds3231</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># alarm: one minute from now (for the demo&#39;s sake)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>h, m <span class="op">=</span> gettime()[<span class="dv">3</span>:<span class="dv">5</span>]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>m <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> m <span class="op">==</span> <span class="dv">60</span>:</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    m, h <span class="op">=</span> <span class="dv">0</span>, (h <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">24</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ds3231.set_alarm(h, m)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;alarm set for </span><span class="sc">{</span>h<span class="sc">:02}</span><span class="ss">:</span><span class="sc">{</span>m<span class="sc">:02}</span><span class="ss"> -- doing nothing &quot;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f&quot;whatsoever...&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>rang <span class="op">=</span> [<span class="va">False</span>]</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wake(pin):</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    rang[<span class="dv">0</span>] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>pin <span class="op">=</span> ds3231.alarm_pin()</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>pin.irq(wake, Pin.IRQ_FALLING)       <span class="co"># the chip pulls the line low</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> rang[<span class="dv">0</span>]:</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># could be days; costs nothing</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">500</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;WAKE UP&quot;</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        tone(<span class="dv">880</span>, <span class="dv">880</span>, <span class="dv">150</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        tone(<span class="dv">1318</span>, <span class="dv">1318</span>, <span class="dv">250</span>, wait<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    pin.irq(<span class="va">None</span>)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    ds3231.clear_alarm()</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    ds3231.alarm_off()</span></code></pre></div>
+<p>Flag-and-loop again — and notice <em>what</em> is asleep: everything.
+No polling of <code>gettime()</code>, no comparing minutes; the
+battery-backed chip holds the appointment and the falling edge delivers
+it. This is the architecture of every device that waits well.</p>
+<h2 data-number="34.4" id="the-watchdog-for-machines-left-alone">The
+watchdog: for machines left alone</h2>
+<p>The photo frame in the hallway, the plant sentinel on the sill — what
+happens when, one Tuesday, a bug freezes them? <code>machine.WDT</code>
+is the deadman’s handle: start it, and <em>feed it forever</em>, or the
+machine reboots:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> machine</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;I must be fed every 5 seconds. Hold SPACE to feed me.&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>wdt <span class="op">=</span> machine.WDT(timeout<span class="op">=</span><span class="dv">5000</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> keydown(<span class="dv">1</span>) <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot; &quot;</span>):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        wdt.feed()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;fed.&quot;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    time.sleep_ms(<span class="dv">500</span>)</span></code></pre></div>
+<p><strong>Fair warning before you run it: this one reboots the machine
+on purpose</strong> — that is the demonstration. Hold SPACE and all is
+well; let go for five seconds and you’re watching the boot banner (files
+untouched, as ever). Two facts define its character: once started, a
+watchdog <em>cannot be stopped</em> — even Ctrl-C to the prompt only
+delays the reboot by one unfed timeout — and that irrevocability is
+exactly the point: no bug, no hang, no crashed handler can disarm it.
+Production appliances feed it once per healthy main-loop pass;
+<code>/main.py</code> gadgets destined for hallways deserve one.</p>
+<p>(The last shoulder-tap, for completeness:
+<code>machine.UART.irq</code> fires when serial data arrives on header
+pins — <code>u.irq(handler, UART.IRQ_RXIDLE)</code> — the same
+flag-and-loop shape when you get there.)</p>
+<h2 data-number="34.5" id="the-rules-of-the-tap">The rules of the
+tap</h2>
+<p>Four rules, each with its because:</p>
+<ol type="1">
+<li><strong>Short handlers, always</strong> — they run to completion,
+delaying the main program, the REPL, and <em>each other</em>. Set the
+flag, leave.</li>
+<li><strong>Bursts drop.</strong> The callback queue is finite —
+<strong>eight deep</strong> on this board (it is MicroPython’s
+<code>micropython.schedule()</code> queue, which the firmware sizes at
+8; the standard MicroPython default is 4). A storm of events past that
+is silently discarded. This is why <em>games poll</em> —
+<code>keydown()</code>, <code>mouse("X")</code> read live state and
+can’t lose events they never queued. (Chapter 21’s philosophy table, now
+with its engineering justification.)</li>
+<li><strong>A handler that raises may die silently</strong> — the
+exception prints once and that callback can stop firing.
+<code>try/except</code> inside any handler that does something
+risky.</li>
+<li><strong>When callbacks start calling callbacks, stop</strong> —
+nested-event spaghetti is the signal that the <em>other</em> philosophy
+fits better. Which brings us to it.</li>
+</ol>
+<h2 data-number="34.6"
+id="asyncio-the-polite-jugglers"><code>asyncio</code>: the polite
+jugglers</h2>
+<p>A different deal entirely: no interruptions — instead, many
+<strong>tasks</strong>, each running until it <em>volunteers</em> a
+pause with <code>await</code>. Three jugglers;
+<code>edit("juggler.py")</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> drummer():</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;boom&quot;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> asyncio.sleep_ms(<span class="dv">400</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> singer():</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;      la&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> asyncio.sleep_ms(<span class="dv">650</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> countdown():</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;            </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> asyncio.sleep(<span class="dv">1</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;            LIFT OFF&quot;</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> main():</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    asyncio.create_task(drummer())</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    asyncio.create_task(singer())</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> countdown()                <span class="co"># main() ends when this ends</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>asyncio.run(main())</span></code></pre></div>
+<p>Three rhythms interleave on one core. The grammar:
+<code>async def</code> marks a function as a <strong>task
+recipe</strong>; <code>await asyncio.sleep_ms(...)</code> is the
+volunteering (“wake me in 400 ms — someone else can have the core”);
+<code>create_task</code> starts a recipe running alongside;
+<code>asyncio.run(main())</code> starts the whole circus and ends when
+<code>main()</code> returns (taking the background tasks with it).</p>
+<figure>
+<img src="figs/34-asyncio.png"
+alt="asyncio shares one core between many tasks. Each runs until its await, then hands the core to the next ready task — cooperative, so tasks share variables without locks, but any task that never awaits freezes them all." />
+<figcaption aria-hidden="true"><code>asyncio</code> shares one core
+between many tasks. Each runs until its <code>await</code>, then hands
+the core to the next ready task — cooperative, so tasks share variables
+without locks, but any task that never awaits freezes them
+all.</figcaption>
+</figure>
+<p>Two properties make asyncio <em>kind</em> to programmers. Because
+only one task ever runs at an instant, <strong>tasks share variables
+freely</strong> — no locks, no races; the juggler’s baton passes only at
+<code>await</code>s. And the cost of that kindness names itself:
+<strong>a task that blocks, blocks everyone</strong> —
+<code>time.sleep()</code> (the non-async one), a heavy computation, a
+slow file read stall the whole circus. The discipline is one sentence:
+<em>inside async code, every pause is an <code>await</code></em>.</p>
+<h2 data-number="34.7" id="project-the-game-that-downloads">Project: the
+game that downloads</h2>
+<p>The pattern behind every connected gadget with a live display —
+chapter 17’s bouncing ball, animating <em>while</em> chapter 30’s
+weather arrives. <code>edit("skywatch.py")</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> (<span class="st">&quot;https://api.open-meteo.com/v1/forecast?latitude=51.5&quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>       <span class="st">&quot;&amp;longitude=-0.13&amp;current_weather=true&quot;</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x080814</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(GOLD)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>DIM <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co"># shared freely: asyncio&#39;s gift</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>report <span class="op">=</span> [<span class="st">&quot;fetching...&quot;</span>]</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> fetcher():</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>            <span class="co"># blocking! see the prose</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>            r <span class="op">=</span> requests.get(URL)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span>:</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> r.status_code <span class="op">==</span> <span class="dv">200</span>:</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>                    wx <span class="op">=</span> r.json()[<span class="st">&quot;current_weather&quot;</span>]</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>                    report[<span class="dv">0</span>] <span class="op">=</span> (<span class="ss">f&quot;</span><span class="sc">{</span>wx[<span class="st">&#39;temperature&#39;</span>]<span class="sc">:.0f}</span><span class="ss"> &quot;</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>                                  <span class="ss">f&quot;C outside&quot;</span>)</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>                    report[<span class="dv">0</span>] <span class="op">=</span> <span class="st">&quot;sky unavailable&quot;</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">finally</span>:</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>                r.close()</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> (<span class="pp">OSError</span>, <span class="pp">ValueError</span>, <span class="pp">KeyError</span>):</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>            report[<span class="dv">0</span>] <span class="op">=</span> <span class="st">&quot;offline&quot;</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> asyncio.sleep(<span class="dv">60</span>)</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> bouncer():</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    x, y <span class="op">=</span> <span class="fl">100.0</span>, <span class="fl">100.0</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    dx, dy <span class="op">=</span> <span class="fl">220.0</span>, <span class="fl">150.0</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    last <span class="op">=</span> time.ticks_ms()</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>        now <span class="op">=</span> time.ticks_ms()</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> time.ticks_diff(now, last) <span class="op">/</span> <span class="dv">1000</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>        last <span class="op">=</span> now</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        x <span class="op">+=</span> dx <span class="op">*</span> dt</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        y <span class="op">+=</span> dy <span class="op">*</span> dt</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> x <span class="op">&lt;</span> <span class="dv">12</span> <span class="kw">or</span> x <span class="op">&gt;</span> W <span class="op">-</span> <span class="dv">12</span>:</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> <span class="bu">max</span>(<span class="dv">12</span>, <span class="bu">min</span>(W <span class="op">-</span> <span class="dv">12</span>, x))</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>            dx <span class="op">=</span> <span class="op">-</span>dx</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> y <span class="op">&lt;</span> <span class="dv">12</span> <span class="kw">or</span> y <span class="op">&gt;</span> H <span class="op">-</span> <span class="dv">12</span>:</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>            y <span class="op">=</span> <span class="bu">max</span>(<span class="dv">12</span>, <span class="bu">min</span>(H <span class="op">-</span> <span class="dv">12</span>, y))</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>            dy <span class="op">=</span> <span class="op">-</span>dy</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>        d.fill(BG)</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>        d.ellipse(<span class="bu">int</span>(x), <span class="bu">int</span>(y), <span class="dv">10</span>, <span class="dv">10</span>, INK, <span class="va">True</span>)</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>        hdmi.text(report[<span class="dv">0</span>], <span class="dv">16</span>, <span class="dv">12</span>, DIM)</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>        hdmi.vsync()</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> asyncio.sleep_ms(<span class="dv">5</span>)    <span class="co"># the volunteer&#39;s pause</span></span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> main():</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>    asyncio.create_task(fetcher())</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> asyncio.create_task(bouncer())</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> asyncio.sleep_ms(<span class="dv">50</span>)</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>    b.cancel()</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>    wifi()</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>    asyncio.run(main())</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>The ball bounces; once a minute the corner caption updates itself;
+nobody’s loop contains anybody else’s business. Now the honest
+engineering, because this program contains a deliberate imperfection:
+<strong><code>requests.get</code> blocks</strong> — for the second or so
+a fetch takes, <em>every</em> task stalls, ball included. Watch for it
+at the minute mark. Two things make it livable, and both are old
+friends: the fetch is <em>rare</em> (a stall a minute is a blink; this
+is why the chapter 30 panel fetched every ten), and the ball’s motion is
+<strong><code>dt</code>-based</strong> — chapter 22’s per-second
+discipline means the ball reappears where it <em>would have been</em>, a
+skip rather than a slow-motion smear. For the day you need truly
+non-blocking networking, <code>asyncio</code>’s stream API exists (the
+manual’s docs link) — but know that most shipped gadgets do exactly what
+this one does, and choose their fetch moments kindly.</p>
+<h2 data-number="34.8" id="a-note-on-threads-and-why-not">A note on
+threads, and why not</h2>
+<p>MicroPython elsewhere offers <code>_thread</code>; <strong>this board
+deliberately does not</strong>. An rp2 thread runs on the second core,
+and the second core here has a full-time job you would not want
+interrupted — chapter 17 taught you exactly how relentless the scanout
+is. Nor would threads buy what people hope: all Python shares one core
+regardless, so a heavy computation pauses the world under <em>any</em>
+of these schemes. <code>asyncio</code> for structure, callbacks for
+shoulder-taps, and — for genuinely parallel heavy lifting — the honest
+answer on this machine is C modules, which is Part VI’s final chapter’s
+territory to point at, not to teach.</p>
+<h2 data-number="34.9" id="experiments-33">Experiments</h2>
+<ol type="1">
+<li>Two timers at the prompt — a 300 ms chirp and a 700 ms lower one —
+then <code>deinit</code> just the first. Polyrhythm from the idle REPL;
+the mechanism could not care less that no program is running.</li>
+<li>Move the doorbell’s <code>beep</code> <em>into</em> the handler and
+hammer the button. Feel rule 1 (the main loop stutters) — then break
+rule 3: make the handler divide by zero on the fifth press and watch the
+doorbell die silently. Resurrect it with <code>try/except</code>
+inside.</li>
+<li>Give the juggler a fourth task that reads <code>input()</code> — the
+ultimate blocking call — and watch the whole circus freeze until Enter.
+(This is why asyncio programs use the keyboard via polling or
+<code>on_key</code>, never <code>input()</code>.)</li>
+<li>In <code>skywatch</code>, drop the fetch interval to 5 s and the URL
+to something far away, and <em>measure</em> the stall:
+<code>ticks_diff</code> around the <code>requests.get</code>, worst case
+on screen. Engineering is knowing your numbers.</li>
+<li>Watchdog roulette (save everything first): start
+<code>deadman.py</code>, then Ctrl-C to the prompt and try to out-type
+the reboot. Five seconds focuses the mind — and teaches precisely why
+production code feeds the dog <em>in the main loop</em>, not in a timer
+callback (what would a hung main loop plus a healthy timer mean for the
+reboot you wanted?).</li>
+</ol>
+<h2 data-number="34.10" id="challenges-33">Challenges</h2>
+<ol type="1">
+<li><strong>The morning machine.</strong> Chapter 29’s bedside clock,
+rebuilt on this chapter: the DS3231 pin-interrupt wakes it, an asyncio
+task fades the sunrise (chapter 26’s palette stops), another plays the
+chapter 20 tune, a third watches for the any-key silence — and a
+watchdog guards the whole thing, because 6:59 a.m. is no time for a hung
+gadget.</li>
+<li><strong>The stall-free panel.</strong> Rework
+<code>skywatch</code>’s fetcher with
+<code>asyncio.open_connection</code> and a hand-rolled HTTP GET (the
+docs link has the recipe) — then measure: did the minute-mark skip
+vanish? (This is real systems work; budget an evening and expect to
+learn why <code>requests</code> is popular.)</li>
+<li><strong>Event bus.</strong> A tiny <code>bus.py</code>:
+<code>on(name, fn)</code> and <code>emit(name, **info)</code> — a dict
+of lists of functions (chapters 10 + 11). Wire the doorbell, a timer and
+a key handler to emit; one asyncio task drains a queue and dispatches.
+You will have built the pattern inside every GUI toolkit, including
+chapter 27’s.</li>
+<li><strong>The uptime champion.</strong> A <code>/main.py</code> gadget
+of your choice made <em>unkillable</em>: watchdog fed on health checks
+(not blindly!), all handlers <code>try</code>-wrapped, every network
+touch chapter 30 hardened, and a boot counter file that increments on
+every start — so the number on screen tells you honestly how often it
+has died. Ship it; check the counter in a month; iterate. That number
+reaching single digits per year is the whole discipline of Part VI in
+one integer.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="33-chapter-33-standing-on-others-shoulders.html" rel="prev">←&nbsp;Chapter 33 — Standing on others’ shoulders</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="35-chapter-35-performance-and-memory.html" rel="next">Chapter 35 — Performance and memory&nbsp;→</a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 25 — The adventure: NPCs, dialogue and saved
+worlds – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="24-chapter-24-asteroids-vectors-crowds-and-particles.html" rel="prev" accesskey="p">←&nbsp;Chapter 24 — Asteroids: vectors, crowds and particles</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="26-chapter-26-polish-the-last-ten-percent.html" rel="next" accesskey="n">Chapter 26 — Polish: the last ten percent&nbsp;→</a>
+</nav>
+<h1 data-number="25"
+id="chapter-25-the-adventure-npcs-dialogue-and-saved-worlds">Chapter 25
+— The adventure: NPCs, dialogue and saved worlds</h1>
+<p>The last three games were arcade machines: sit down, play, lose,
+again. This chapter builds the other kind — a <em>place</em>: an island
+with an inhabitant, an errand, and a save file, so that switching off
+means <em>pausing a world</em> rather than ending one. Nothing in it is
+new machinery — it is chapter 19’s island, chapter 22’s state ladder and
+chapter 12’s files, composed — and that is the chapter’s real thesis:
+<strong>past a certain point, programming is architecture, not
+vocabulary.</strong></p>
+<p>Three genuinely new <em>patterns</em> do arrive, all small: the
+just-pressed key test, dialogue as data driven by a state, and the save
+file that lets a title screen say <em>Continue</em>.</p>
+<h2 data-number="25.1" id="the-forge-extended">The forge, extended</h2>
+<p>Two new residents join chapter 19’s tileset: the
+<strong>elder</strong> (tile 7) and the <strong>amulet shard</strong>
+(tile 8). Same studio, two more benches — this listing supersedes
+<code>maketiles.py</code>. <code>edit("maketiles2.py")</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d.fill(d.colour(BLACK))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>GRASS <span class="op">=</span> d.colour(<span class="bn">0x1E7A1E</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>DARK <span class="op">=</span> d.colour(<span class="bn">0x156015</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 1: grass</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    d.pixel(<span class="dv">2</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">2</span>, (i <span class="op">*</span> <span class="dv">5</span>) <span class="op">%</span> <span class="dv">16</span>, DARK)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 2: water</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, d.colour(<span class="bn">0x1040A0</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>d.hline(<span class="dv">18</span>, <span class="dv">5</span>, <span class="dv">10</span>, d.colour(<span class="bn">0x3070D0</span>))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>d.hline(<span class="dv">20</span>, <span class="dv">11</span>, <span class="dv">10</span>, d.colour(<span class="bn">0x3070D0</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 3: tree</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">32</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">39</span>, <span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">5</span>, d.colour(BROWN))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>d.ellipse(<span class="dv">40</span>, <span class="dv">6</span>, <span class="dv">6</span>, <span class="dv">6</span>, d.colour(MYRTLE), <span class="va">True</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 4: rock</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">48</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>d.rbox(<span class="dv">50</span>, <span class="dv">4</span>, <span class="dv">12</span>, <span class="dv">10</span>, <span class="dv">3</span>, d.colour(GRAY), d.colour(GRAY))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 5: flowers</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">64</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> fx, fy <span class="kw">in</span> ((<span class="dv">68</span>, <span class="dv">4</span>), (<span class="dv">74</span>, <span class="dv">9</span>), (<span class="dv">69</span>, <span class="dv">12</span>)):</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx, fy <span class="op">-</span> <span class="dv">1</span>, d.colour(MAGENTA))</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx <span class="op">-</span> <span class="dv">1</span>, fy, d.colour(MAGENTA))</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx <span class="op">+</span> <span class="dv">1</span>, fy, d.colour(MAGENTA))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx, fy <span class="op">+</span> <span class="dv">1</span>, d.colour(MAGENTA))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx, fy, d.colour(YELLOW))</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 6: the hero (on black = cut-out)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">84</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">7</span>, d.colour(GOLD))</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">85</span>, <span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">5</span>, d.colour(LITEGRAY))</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">84</span>, <span class="dv">13</span>, <span class="dv">3</span>, <span class="dv">3</span>, d.colour(RED))</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">89</span>, <span class="dv">13</span>, <span class="dv">3</span>, <span class="dv">3</span>, d.colour(RED))</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 7: the elder (blue robe, white beard)</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">100</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">9</span>, d.colour(COBALT))</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">101</span>, <span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">5</span>, d.colour(LITEGRAY))</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">102</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">3</span>, d.colour(WHITE))</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">100</span>, <span class="dv">14</span>, <span class="dv">8</span>, <span class="dv">2</span>, d.colour(GRAY))</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 8: an amulet shard (on grass, so it sits in the world)</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">112</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">117</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">6</span>, d.colour(GOLD))</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">119</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, d.colour(GOLD))</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">118</span>, <span class="dv">10</span>, <span class="dv">4</span>, <span class="dv">3</span>, d.colour(YELLOW))</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>save_image(<span class="st">&quot;tiles2.bmp&quot;</span>)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;tileset saved: 8 tiles&quot;</span>)</span></code></pre></div>
+<h2 data-number="25.2" id="the-game">The game</h2>
+<p><code>edit("adventure.py")</code> — read the dissection after your
+first errand:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcgame</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pcimage <span class="im">import</span> load_image</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>GRASS, WATER, TREE, ROCK, FLOWER, HERO, ELDER, SHARD <span class="op">=</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">9</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>SOLID <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>SAVE <span class="op">=</span> <span class="st">&quot;/adventure.sav&quot;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>sheet <span class="op">=</span> load_image(<span class="st">&quot;tiles2.bmp&quot;</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>tm <span class="op">=</span> TileMap(sheet, <span class="dv">16</span>, <span class="dv">16</span>, cols<span class="op">=</span><span class="dv">64</span>, rows<span class="op">=</span><span class="dv">48</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the island (fixed seed: everyone&#39;s island is this island)</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">12</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>tm.fill(GRASS)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">64</span>):</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">46</span>, <span class="dv">47</span>):</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        tm.<span class="bu">set</span>(col, row, WATER)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">48</span>):</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">62</span>, <span class="dv">63</span>):</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        tm.<span class="bu">set</span>(col, row, WATER)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">110</span>):</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">2</span>, <span class="dv">61</span>), random.randint(<span class="dv">2</span>, <span class="dv">45</span>), TREE)</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">30</span>):</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">2</span>, <span class="dv">61</span>), random.randint(<span class="dv">2</span>, <span class="dv">45</span>), ROCK)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">30</span>):</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">2</span>, <span class="dv">61</span>), random.randint(<span class="dv">2</span>, <span class="dv">45</span>), FLOWER)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co"># the five shards</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">4</span>, <span class="dv">59</span>), random.randint(<span class="dv">4</span>, <span class="dv">43</span>), SHARD)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co"># the village clearing</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">30</span>, <span class="dv">36</span>):</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> r <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">22</span>, <span class="dv">27</span>):</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>        tm.<span class="bu">set</span>(c, r, GRASS)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>tm.set_attr(WATER, SOLID)</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>tm.set_attr(TREE, SOLID)</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>tm.set_attr(ROCK, SOLID)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>tm.clamp(W, H)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co"># --- the cast</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>px, py <span class="op">=</span> <span class="dv">32</span> <span class="op">*</span> <span class="fl">16.0</span>, <span class="dv">25</span> <span class="op">*</span> <span class="fl">16.0</span>                     <span class="co"># the hero</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>ex, ey <span class="op">=</span> <span class="dv">33</span> <span class="op">*</span> <span class="fl">16.0</span>, <span class="dv">23</span> <span class="op">*</span> <span class="fl">16.0</span>                     <span class="co"># the elder...</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co"># ...and her patrol</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>E_LEFT, E_RIGHT, espeed <span class="op">=</span> <span class="dv">31</span> <span class="op">*</span> <span class="fl">16.0</span>, <span class="dv">35</span> <span class="op">*</span> <span class="fl">16.0</span>, <span class="fl">22.0</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shards_left():</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>(row.count(SHARD) <span class="cf">for</span> row <span class="kw">in</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>               [[tm.get(c,</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>                r) <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">64</span>)] <span class="cf">for</span> r <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">48</span>)])</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_game():</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(SAVE, <span class="st">&quot;w&quot;</span>) <span class="im">as</span> f:</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>        f.write(<span class="ss">f&quot;</span><span class="sc">{</span><span class="bu">int</span>(px)<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span><span class="bu">int</span>(py)<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>        cells <span class="op">=</span> []</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> r <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">48</span>):</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">64</span>):</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> tm.get(c, r) <span class="op">==</span> SHARD:</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>                    cells.append(<span class="ss">f&quot;</span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        f.write(<span class="st">&quot;;&quot;</span>.join(cells) <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_game():</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Apply a saved game. Returns the restored (px, py), or</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="co">    None.&quot;&quot;&quot;</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(SAVE) <span class="im">as</span> f:</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>            pos <span class="op">=</span> f.readline().strip().split(<span class="st">&quot;,&quot;</span>)</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>            cellline <span class="op">=</span> f.readline().strip()</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="co"># strip the fresh shards...</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> r <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">48</span>):</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">64</span>):</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> tm.get(c, r) <span class="op">==</span> SHARD:</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>                tm.<span class="bu">set</span>(c, r, GRASS)</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...and lay the saved ones</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> cellline:</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> cell <span class="kw">in</span> cellline.split(<span class="st">&quot;;&quot;</span>):</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>            c, r <span class="op">=</span> cell.split(<span class="st">&quot;:&quot;</span>)</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>            tm.<span class="bu">set</span>(<span class="bu">int</span>(c), <span class="bu">int</span>(r), SHARD)</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(pos[<span class="dv">0</span>]), <span class="bu">float</span>(pos[<span class="dv">1</span>])</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> save_exists():</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(SAVE) <span class="im">as</span> f:</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> elder_lines():</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="dv">5</span> <span class="op">-</span> shards_left()</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="st">&quot;Traveller! The storm broke my amulet&quot;</span>,</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;and scattered five shards across the island.&quot;</span>,</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Bring them home, please.&quot;</span>]</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">&lt;</span> <span class="dv">5</span>:</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="ss">f&quot;You carry </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> of the five shards.&quot;</span>,</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;The forest hides the rest. Keep looking!&quot;</span>]</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="st">&quot;My amulet... whole again!&quot;</span>,</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;The island thanks you, hero.&quot;</span>]</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> <span class="st">&quot;title&quot;</span></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>talk_lines <span class="op">=</span> []</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>talk_i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a><span class="co"># held from the title press</span></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>space_was <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>e_was <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>edir <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>clock <span class="op">=</span> pcgame.Clock(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)                    <span class="co"># start clean (rerun-proof)</span></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>hdmi.create()                      <span class="co"># the back buffer, after screen()</span></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>        dt <span class="op">=</span> clock.tick()</span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>        space_now <span class="op">=</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>))</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>        e_now <span class="op">=</span> held(<span class="bu">ord</span>(<span class="st">&quot;e&quot;</span>))</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>        space_pressed <span class="op">=</span> space_now <span class="kw">and</span> <span class="kw">not</span> space_was</span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>        e_pressed <span class="op">=</span> e_now <span class="kw">and</span> <span class="kw">not</span> e_was</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>        space_was, e_was <span class="op">=</span> space_now, e_now</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot;n&quot;</span>)):</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;play&quot;</span></span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>                clock.reset()</span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> space_pressed <span class="kw">and</span> save_exists():</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>                loaded <span class="op">=</span> load_game()</span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> loaded:</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>                    px, py <span class="op">=</span> loaded</span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;play&quot;</span></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>                clock.reset()</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;play&quot;</span>:</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>            nx, ny <span class="op">=</span> px, py</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.LEFT):</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>                nx <span class="op">-=</span> <span class="dv">120</span> <span class="op">*</span> dt</span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.RIGHT):</span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>                nx <span class="op">+=</span> <span class="dv">120</span> <span class="op">*</span> dt</span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.UP):</span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>                ny <span class="op">-=</span> <span class="dv">120</span> <span class="op">*</span> dt</span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(keyboard.DOWN):</span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>                ny <span class="op">+=</span> <span class="dv">120</span> <span class="op">*</span> dt</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> tm.collide(nx, py, <span class="dv">14</span>, <span class="dv">14</span>, mask<span class="op">=</span>SOLID):</span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>                px <span class="op">=</span> nx</span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> tm.collide(px, ny, <span class="dv">14</span>, <span class="dv">14</span>, mask<span class="op">=</span>SOLID):</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>                py <span class="op">=</span> ny</span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>            <span class="co"># pick a shard up</span></span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> tm.tile_at(px <span class="op">+</span> <span class="dv">7</span>, py <span class="op">+</span> <span class="dv">7</span>) <span class="op">==</span> SHARD:</span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>                tm.<span class="bu">set</span>(<span class="bu">int</span>(px <span class="op">+</span> <span class="dv">7</span>) <span class="op">//</span> <span class="dv">16</span>, <span class="bu">int</span>(py <span class="op">+</span> <span class="dv">7</span>) <span class="op">//</span> <span class="dv">16</span>,</span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a>                       GRASS)</span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>                beep(<span class="dv">880</span> <span class="op">+</span> (<span class="dv">5</span> <span class="op">-</span> shards_left()) <span class="op">*</span> <span class="dv">110</span>, <span class="dv">60</span>)</span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a>            <span class="co"># the elder&#39;s patrol</span></span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>            ex <span class="op">+=</span> espeed <span class="op">*</span> edir <span class="op">*</span> dt</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> ex <span class="op">&lt;</span> E_LEFT <span class="kw">or</span> ex <span class="op">&gt;</span> E_RIGHT:</span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>                ex <span class="op">=</span> <span class="bu">max</span>(E_LEFT, <span class="bu">min</span>(E_RIGHT, ex))</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a>                edir <span class="op">=</span> <span class="op">-</span>edir</span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>            near <span class="op">=</span> (px <span class="op">-</span> ex) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> (py <span class="op">-</span> ey) <span class="op">**</span> <span class="dv">2</span> <span class="op">&lt;</span> <span class="dv">30</span> <span class="op">*</span> <span class="dv">30</span></span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> e_pressed <span class="kw">and</span> near:</span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>                talk_lines <span class="op">=</span> elder_lines()</span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a>                talk_i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a>                state <span class="op">=</span> <span class="st">&quot;talk&quot;</span></span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a>            <span class="co"># save and rest</span></span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot;q&quot;</span>)):</span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a>                save_game()</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;talk&quot;</span>:</span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> space_pressed:</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>                talk_i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> talk_i <span class="op">&gt;=</span> <span class="bu">len</span>(talk_lines):</span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> shards_left() <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">try</span>:</span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>                            <span class="im">import</span> os</span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>                            <span class="co"># the tale is told</span></span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>                            os.remove(SAVE)</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">pass</span></span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>                        state <span class="op">=</span> <span class="st">&quot;win&quot;</span></span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">else</span>:</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a>                        state <span class="op">=</span> <span class="st">&quot;play&quot;</span></span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;win&quot;</span>:</span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> space_pressed:</span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a>        <span class="co"># --- draw (the world shows under every state)</span></span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a>        vx <span class="op">=</span> px <span class="op">+</span> <span class="dv">7</span> <span class="op">-</span> W <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a>        vy <span class="op">=</span> py <span class="op">+</span> <span class="dv">7</span> <span class="op">-</span> H <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a>        tm.view(<span class="bu">int</span>(vx), <span class="bu">int</span>(vy))      <span class="co"># whole pixels (px is a float)</span></span>
+<span id="cb2-211"><a href="#cb2-211" aria-hidden="true" tabindex="-1"></a>        cvx <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(vx, <span class="dv">64</span> <span class="op">*</span> <span class="dv">16</span> <span class="op">-</span> W))</span>
+<span id="cb2-212"><a href="#cb2-212" aria-hidden="true" tabindex="-1"></a>        cvy <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(vy, <span class="dv">48</span> <span class="op">*</span> <span class="dv">16</span> <span class="op">-</span> H))</span>
+<span id="cb2-213"><a href="#cb2-213" aria-hidden="true" tabindex="-1"></a>        hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb2-214"><a href="#cb2-214" aria-hidden="true" tabindex="-1"></a>        tm.draw()</span>
+<span id="cb2-215"><a href="#cb2-215" aria-hidden="true" tabindex="-1"></a>        tm.blit_tile(ELDER, <span class="bu">int</span>(ex <span class="op">-</span> cvx), <span class="bu">int</span>(ey <span class="op">-</span> cvy),</span>
+<span id="cb2-216"><a href="#cb2-216" aria-hidden="true" tabindex="-1"></a>                     skip<span class="op">=</span>d.colour(BLACK))</span>
+<span id="cb2-217"><a href="#cb2-217" aria-hidden="true" tabindex="-1"></a>        tm.blit_tile(HERO, <span class="bu">int</span>(px <span class="op">-</span> cvx), <span class="bu">int</span>(py <span class="op">-</span> cvy),</span>
+<span id="cb2-218"><a href="#cb2-218" aria-hidden="true" tabindex="-1"></a>                     skip<span class="op">=</span>d.colour(BLACK))</span>
+<span id="cb2-219"><a href="#cb2-219" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;shards: </span><span class="sc">{</span><span class="dv">5</span> <span class="op">-</span> shards_left()<span class="sc">}</span><span class="ss">/5&quot;</span>, <span class="dv">8</span>, <span class="dv">8</span>,</span>
+<span id="cb2-220"><a href="#cb2-220" aria-hidden="true" tabindex="-1"></a>                  d.colour(WHITE), d.colour(BLACK))</span>
+<span id="cb2-221"><a href="#cb2-221" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state <span class="op">==</span> <span class="st">&quot;title&quot;</span>:</span>
+<span id="cb2-222"><a href="#cb2-222" aria-hidden="true" tabindex="-1"></a>            d.rbox(<span class="dv">120</span>, <span class="dv">160</span>, <span class="dv">400</span>, <span class="dv">150</span>, <span class="dv">12</span>, d.colour(GOLD),</span>
+<span id="cb2-223"><a href="#cb2-223" aria-hidden="true" tabindex="-1"></a>                   d.colour(<span class="bn">0x102030</span>))</span>
+<span id="cb2-224"><a href="#cb2-224" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;THE FIVE SHARDS&quot;</span>, <span class="dv">200</span>, <span class="dv">190</span>, d.colour(GOLD),</span>
+<span id="cb2-225"><a href="#cb2-225" aria-hidden="true" tabindex="-1"></a>                      <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb2-226"><a href="#cb2-226" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> save_exists():</span>
+<span id="cb2-227"><a href="#cb2-227" aria-hidden="true" tabindex="-1"></a>                hdmi.text(<span class="st">&quot;SPACE continue    N new &quot;</span></span>
+<span id="cb2-228"><a href="#cb2-228" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&quot;game&quot;</span>, <span class="dv">208</span>, <span class="dv">240</span>,</span>
+<span id="cb2-229"><a href="#cb2-229" aria-hidden="true" tabindex="-1"></a>                          d.colour(WHITE))</span>
+<span id="cb2-230"><a href="#cb2-230" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb2-231"><a href="#cb2-231" aria-hidden="true" tabindex="-1"></a>                hdmi.text(<span class="st">&quot;N to begin&quot;</span>, <span class="dv">280</span>, <span class="dv">240</span>, d.colour(WHITE))</span>
+<span id="cb2-232"><a href="#cb2-232" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;arrows walk  E talk  Q &quot;</span></span>
+<span id="cb2-233"><a href="#cb2-233" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;save+quit&quot;</span>, <span class="dv">192</span>, <span class="dv">270</span>,</span>
+<span id="cb2-234"><a href="#cb2-234" aria-hidden="true" tabindex="-1"></a>                      d.colour(GRAY))</span>
+<span id="cb2-235"><a href="#cb2-235" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;talk&quot;</span>:</span>
+<span id="cb2-236"><a href="#cb2-236" aria-hidden="true" tabindex="-1"></a>            d.rbox(<span class="dv">60</span>, H <span class="op">-</span> <span class="dv">120</span>, W <span class="op">-</span> <span class="dv">120</span>, <span class="dv">90</span>, <span class="dv">10</span>,</span>
+<span id="cb2-237"><a href="#cb2-237" aria-hidden="true" tabindex="-1"></a>                   d.colour(GOLD), d.colour(<span class="bn">0x102030</span>))</span>
+<span id="cb2-238"><a href="#cb2-238" aria-hidden="true" tabindex="-1"></a>            hdmi.text(talk_lines[<span class="bu">min</span>(talk_i,</span>
+<span id="cb2-239"><a href="#cb2-239" aria-hidden="true" tabindex="-1"></a>                                     <span class="bu">len</span>(talk_lines) <span class="op">-</span> <span class="dv">1</span>)],</span>
+<span id="cb2-240"><a href="#cb2-240" aria-hidden="true" tabindex="-1"></a>                      <span class="dv">80</span>, H <span class="op">-</span> <span class="dv">96</span>, d.colour(WHITE))</span>
+<span id="cb2-241"><a href="#cb2-241" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;SPACE&quot;</span>, W <span class="op">-</span> <span class="dv">130</span>, H <span class="op">-</span> <span class="dv">52</span>, d.colour(GRAY))</span>
+<span id="cb2-242"><a href="#cb2-242" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state <span class="op">==</span> <span class="st">&quot;win&quot;</span>:</span>
+<span id="cb2-243"><a href="#cb2-243" aria-hidden="true" tabindex="-1"></a>            d.rbox(<span class="dv">140</span>, <span class="dv">160</span>, <span class="dv">360</span>, <span class="dv">120</span>, <span class="dv">12</span>, d.colour(GOLD),</span>
+<span id="cb2-244"><a href="#cb2-244" aria-hidden="true" tabindex="-1"></a>                   d.colour(<span class="bn">0x102030</span>))</span>
+<span id="cb2-245"><a href="#cb2-245" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;THE AMULET IS WHOLE&quot;</span>, <span class="dv">168</span>, <span class="dv">195</span>,</span>
+<span id="cb2-246"><a href="#cb2-246" aria-hidden="true" tabindex="-1"></a>                      d.colour(GOLD), <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb2-247"><a href="#cb2-247" aria-hidden="true" tabindex="-1"></a>            hdmi.text(<span class="st">&quot;SPACE to rest&quot;</span>, <span class="dv">268</span>, <span class="dv">245</span>, d.colour(WHITE))</span>
+<span id="cb2-248"><a href="#cb2-248" aria-hidden="true" tabindex="-1"></a>        hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb2-249"><a href="#cb2-249" aria-hidden="true" tabindex="-1"></a>        hdmi.vsync()</span>
+<span id="cb2-250"><a href="#cb2-250" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb2-251"><a href="#cb2-251" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb2-252"><a href="#cb2-252" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb2-253"><a href="#cb2-253" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Walk to the clearing. Talk to the elder (E, then SPACE through her
+lines). Find shards by their glint. Press Q mid-errand, run the program
+again, and choose <em>continue</em> — the island remembers. That moment
+is the chapter.</p>
+<h2 data-number="25.3" id="the-just-pressed-pattern">The just-pressed
+pattern</h2>
+<p>The game’s one new input idea, and it matters everywhere.
+<code>held()</code> answers <em>is the key down?</em> — sixty times a
+second. If SPACE advanced dialogue on <code>held</code>, one tap would
+blast through every line in four frames. What dialogue needs is <em>was
+it pressed this frame?</em>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>space_now <span class="op">=</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>space_pressed <span class="op">=</span> space_now <span class="kw">and</span> <span class="kw">not</span> space_was</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>space_was <span class="op">=</span> space_now</span></code></pre></div>
+<p>Down <em>now</em> and not down <em>last frame</em> — an edge, not a
+level (the same distinction chapter 18’s collision events drew). Note
+the sly initialisation <code>space_was = True</code>: the SPACE that
+chose <em>continue</em> on the title screen is still physically held on
+the first play frame, and without that line it would immediately count
+as “pressed” inside whatever came next. Carrying a key across a state
+change is the classic bug of state machines; now you’ve met it in
+daylight.</p>
+<h2 data-number="25.4"
+id="dialogue-is-a-state-and-the-words-are-data">Dialogue is a state, and
+the words are data</h2>
+<p>The <code>talk</code> state runs <em>instead of</em>
+<code>play</code> in the ladder — so while the elder speaks, nobody
+moves, nothing collides, shards stay put: the world freezes because its
+update simply isn’t reached. And the words come from
+<code>elder_lines()</code>, which builds them <strong>from the world’s
+state</strong> — the shard count decides whether she pleads, encourages
+or rejoices. One NPC, three conversations, no flags: the dialogue is
+<em>derived</em>. (Which is this chapter’s quiet design principle — see
+the save file next.)</p>
+<p>The elder herself is fifteen lines: a position, a patrol between two
+waypoints, and an interaction radius (<code>30 * 30</code>, squared
+distance, chapter 24’s trick). NPCs in games a hundred times this size
+are the same three things with better wardrobes.</p>
+<h2 data-number="25.5" id="the-save-file-derive-dont-store">The save
+file: derive, don’t store</h2>
+<p>Look at what <code>save_game</code> writes: the hero’s position, and
+<em>where the remaining shards are</em>. Not the score, not the “stage”,
+not the elder’s mood — all of those are <strong>derived</strong> from
+the world every time they’re needed (<code>shards_left()</code> counts
+the map; <code>elder_lines()</code> reads the count). The less a save
+file stores, the less can disagree with itself — a corrupted or
+hand-edited save (chapter 12, experiment 4!) can misplace a shard, but
+it cannot claim six-of-five.</p>
+<p>The mechanics are pure chapter 12 — one <code>write</code> per line,
+<code>split</code> on the way back, <code>try/except OSError</code>
+making <em>no save file</em> a normal, handled case — plus two manners
+worth copying: the title screen only offers <em>continue</em> when a
+save exists, and victory <strong>deletes</strong> the save, so the tale,
+once told, is done.</p>
+<h2 data-number="25.6" id="what-this-chapter-proves">What this chapter
+proves</h2>
+<p>Count the machinery: <code>TileMap</code> (19), the F-flip and collar
+(17), the state ladder and <code>dt</code> (22), squared-distance (24),
+text files (12), the just-pressed test (new, eight lines). The
+<em>game</em> — the errand, the patrol, the conversation that knows how
+your quest is going, the world that waits for you — is those parts
+<em>arranged</em>. You are no longer learning to program; you are
+designing. Part V takes exactly this skill to applications.</p>
+<h2 data-number="25.7" id="experiments-24">Experiments</h2>
+<ol type="1">
+<li>Give the island a second NPC — a goat: a position, a random heading
+changed every few seconds, <code>blit_tile</code> of the rock… no, draw
+a goat tile in the forge (tile 9 — the studio is yours). No dialogue:
+proximity makes it <em>bleat</em> (<code>beep</code>) and trot away.
+Ambience is cheap and worth everything.</li>
+<li>Signposts: when <code>tile_at</code> under the hero is a FLOWER,
+show a one-line hint bar (“the elder waits in the clearing”) —
+dialogue’s little sibling, no state needed. Where should the
+<em>text</em> live? (A dict keyed by tile — the words stay data.)</li>
+<li>Break the save on purpose (chapter 13’s ritual): edit
+<code>/adventure.sav</code>, misplace a shard into the ocean, reload.
+What <em>should</em> the game do about an unreachable shard? Design an
+answer, then implement your favourite (shards float? regenerate on land?
+elder accepts four-of-five with a sigh?).</li>
+<li>The patrol is a metronome — make it <em>pause</em>: the elder stands
+still while you’re near (<code>near</code> already knows). Politeness,
+in four lines, and the game feels startlingly more alive.</li>
+<li>Autosave: call <code>save_game()</code> on every shard pickup. Now Q
+is just <em>quit</em> — and pulling the power loses nothing. What did
+that cost? (Measure: <code>ticks_diff</code> around the call — chapter
+21.)</li>
+</ol>
+<h2 data-number="25.8" id="challenges-24">Challenges</h2>
+<ol type="1">
+<li><strong>The second quest.</strong> After the amulet, the elder wants
+flowers — five of those — and the win becomes a <em>stage</em> that must
+now be stored (derive-don’t-store meets its limit: the amulet’s shards
+are gone from the world, so completion must be <em>remembered</em>).
+Extend the save format honestly — version line first, chapter 12.</li>
+<li><strong>The cave.</strong> A second, smaller map (a dungeon of ROCK
+walls, loaded from a CSV — chapter 19’s cartographer) entered by walking
+onto a cave-mouth tile, exited likewise. Two TileMaps, one
+<code>where</code> variable choosing which is live — the state ladder’s
+idea applied to <em>space</em>.</li>
+<li><strong>Trading.</strong> Flowers are currency: the elder pays two
+shards’ worth of <em>hints</em> (the nearest shard’s compass direction)
+per bouquet. Inventory is a dict (chapter 10), the hint is arithmetic on
+cell coordinates, and suddenly your island has an economy.</li>
+<li><strong>The heirloom.</strong> Save files that survive
+<em>versions</em>: add a <code>v=2</code> header, and make
+<code>load_game</code> read v1 files too (default the new fields). Every
+shipped game faces this within a month; face it on an island first.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="24-chapter-24-asteroids-vectors-crowds-and-particles.html" rel="prev">←&nbsp;Chapter 24 — Asteroids: vectors, crowds and particles</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="26-chapter-26-polish-the-last-ten-percent.html" rel="next">Chapter 26 — Polish: the last ten percent&nbsp;→</a>
+</nav>
+</body>
+</html>

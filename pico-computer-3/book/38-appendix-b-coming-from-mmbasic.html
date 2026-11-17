@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Appendix B — Coming from
+MMBasic – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="37-appendix-a-the-cheat-sheet.html" rel="prev" accesskey="p">←&nbsp;Appendix A — The cheat sheet</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="39-appendix-c-the-modules-one-paragraph-each.html" rel="next" accesskey="n">Appendix C — The modules, one paragraph each&nbsp;→</a>
+</nav>
+<h1 data-number="38" id="appendix-b-coming-from-mmbasic">Appendix B —
+Coming from MMBasic</h1>
+<p>The full translation table, gathered from every margin note in the
+book. The right-hand column is this machine’s idiom; chapter numbers
+point to where each is taught. Three habits cover most of the
+adjustment: <strong>indentation replaces END-markers</strong>,
+<strong><code>=</code> assigns and <code>==</code> compares</strong>,
+and <strong>lower case matters</strong> (<code>print</code>, never
+<code>PRINT</code>).</p>
+<h2 data-number="38.1" id="language">Language</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>MMBasic</th>
+<th>Here</th>
+<th>Ch.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PRINT a; b</code></td>
+<td><code>print(a, b)</code> — or an f-string</td>
+<td>3, 6</td>
+</tr>
+<tr>
+<td><code>INPUT "Q", A</code></td>
+<td><code>a = input("Q")</code> — <strong>always a string</strong>: wrap
+in <code>int()</code>/<code>float()</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>LET A = 1</code> / <code>A = 1</code></td>
+<td><code>a = 1</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>INC A, 2</code></td>
+<td><code>a += 2</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>A$ = "hi"</code> (type suffixes)</td>
+<td>no suffixes — any variable holds anything</td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>IF ... THEN ... ELSE ... ENDIF</code></td>
+<td><code>if ...:</code> / <code>elif</code> / <code>else:</code> —
+indentation is the block</td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>=</code> (comparison) / <code>&lt;&gt;</code></td>
+<td><code>==</code> / <code>!=</code></td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>AND OR NOT</code> (logic)</td>
+<td><code>and or not</code></td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>FOR i = 1 TO 10 STEP 2 ... NEXT</code></td>
+<td><code>for i in range(1, 11, 2):</code> — stop is
+<em>excluded</em></td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>DO WHILE c ... LOOP</code></td>
+<td><code>while c:</code></td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>EXIT DO</code> / <code>EXIT FOR</code></td>
+<td><code>break</code></td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>CONTINUE DO</code></td>
+<td><code>continue</code></td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>SUB name ... END SUB</code></td>
+<td><code>def name():</code> — call without <code>CALL</code></td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>FUNCTION f(x) ... f = v</code></td>
+<td><code>def f(x): ... return v</code></td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>LOCAL x</code></td>
+<td>automatic — <em>everything</em> assigned in a <code>def</code> is
+local</td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>DIM a(10)</code></td>
+<td><code>a = []</code> + <code>.append</code> — no size, 0-based, no
+<code>OPTION BASE</code></td>
+<td>10</td>
+</tr>
+<tr>
+<td>structures (newer MMBasics)</td>
+<td>tuples (positional) or classes (named fields + methods)</td>
+<td>10, 14</td>
+</tr>
+<tr>
+<td><code>DATA</code> / <code>READ</code> / <code>RESTORE</code></td>
+<td>lists, walked with <code>for</code></td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>GOTO</code> / <code>GOSUB</code></td>
+<td>absent — loops, functions and <code>state</code> variables
+instead</td>
+<td>8, 22</td>
+</tr>
+<tr>
+<td><code>ON ERROR SKIP/IGNORE</code>, <code>MM.ERRNO</code></td>
+<td><code>try:</code> / <code>except NameOfError as e:</code></td>
+<td>13</td>
+</tr>
+<tr>
+<td><code>END</code></td>
+<td>the program simply ends (or <code>break</code> out of the main
+loop)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>REM</code> / <code>'</code></td>
+<td><code>#</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>^</code>, <code>\</code>, <code>MOD</code></td>
+<td><code>**</code>, <code>//</code>, <code>%</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>PEEK</code> / <code>POKE</code></td>
+<td><code>machine.mem32[...]</code> — rarely needed; handle with
+care</td>
+<td></td>
+</tr>
+<tr>
+<td><code>CSUB</code></td>
+<td><code>@micropython.native</code>, <code>@micropython.viper</code>,
+or a C module</td>
+<td>35</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="38.2" id="strings">Strings</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>MMBasic</th>
+<th>Here</th>
+<th>Ch.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LEN(s$)</code></td>
+<td><code>len(s)</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>UCASE$</code> / <code>LCASE$</code></td>
+<td><code>s.upper()</code> / <code>s.lower()</code> — returns a
+<em>copy</em></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>INSTR(s$, x$)</code></td>
+<td><code>s.find(x)</code> (−1 if absent) — or <code>x in s</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>MID$(s$, 3, 4)</code></td>
+<td><code>s[2:6]</code> — 0-based slicing</td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>LEFT$(s$, 4)</code> / <code>RIGHT$(s$, 4)</code></td>
+<td><code>s[:4]</code> / <code>s[-4:]</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>CHR$(n)</code> / <code>ASC(c$)</code></td>
+<td><code>chr(n)</code> / <code>ord(c)</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>STR$(n)</code> / <code>VAL(s$)</code></td>
+<td><code>str(n)</code> / <code>int(s)</code>,
+<code>float(s)</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>FORMAT$(n, "%.2f")</code></td>
+<td><code>f"{n:.2f}"</code></td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="38.3" id="files-and-the-shell">Files and the shell</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>MMBasic</th>
+<th>Here</th>
+<th>Ch.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>drives <code>A:</code> / <code>B:</code></td>
+<td>paths <code>/</code> (flash) and <code>/sd</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>FILES</code> / <code>KILL</code> / <code>COPY</code> /
+<code>RENAME</code></td>
+<td><code>ls()</code> / <code>rm()</code> / <code>cp()</code> /
+<code>mv()</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>MKDIR</code> / <code>CHDIR</code></td>
+<td><code>mkdir()</code> / <code>cd()</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>OPEN f$ FOR INPUT AS #1</code></td>
+<td><code>with open(f) as f:</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>OPEN ... FOR OUTPUT / APPEND</code></td>
+<td><code>open(f, "w")</code> (wipes!) / <code>open(f, "a")</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>OPEN ... FOR RANDOM</code>, <code>SEEK</code>,
+<code>LOC()</code></td>
+<td><code>open(f, "r+")</code>, <code>f.seek(n)</code>,
+<code>f.tell()</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>PRINT #1, x</code></td>
+<td><code>f.write(text)</code> — add your own <code>\n</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>LINE INPUT #1, a$</code></td>
+<td><code>for line in f:</code> (+ <code>.strip()</code>)</td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>EOF(#1)</code></td>
+<td>the <code>for</code> loop just ends</td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>CLOSE #1</code></td>
+<td>the <code>with</code> block’s dedent — unforgettable by design</td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>RUN</code> / <code>EDIT</code></td>
+<td><code>run("f.py")</code> / <code>edit("f.py")</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>RUN "prog", cmdline</code> + <code>MM.CMDLINE$</code></td>
+<td><code>run("f.py", "a", "b")</code> + <code>sys.argv</code>
+(<code>argv[0]</code> = path, rest are the arguments as strings)</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>AUTOSAVE</code></td>
+<td><code>autosave("f.py")</code>, Ctrl-Z ends</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>XMODEM SEND/RECEIVE</code></td>
+<td><code>xsend()</code> / <code>xrecv()</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>FM</code></td>
+<td><code>fm()</code> — plus Space multi-select</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>OPTION AUTORUN</code></td>
+<td><code>/main.py</code> (and <code>/boot.py</code> before it)</td>
+<td>5, 36</td>
+</tr>
+<tr>
+<td><code>OPTION</code>s generally</td>
+<td><code>/settings.json</code> — set via <code>keymap()</code>,
+<code>screen()</code>, <code>wifi()</code>…</td>
+<td>36</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="38.4" id="screen-and-graphics">Screen and graphics</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>MMBasic</th>
+<th>Here</th>
+<th>Ch.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MODE</code></td>
+<td><code>screen(hdmi.RGB640 / RGB320 / RGB320_8 / RGB512 / RGB1024 / RGB640_4)</code>
+— persisted</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>CLS</code></td>
+<td><code>cls()</code> (console) or <code>d.fill(c)</code>
+(graphics)</td>
+<td>3, 15</td>
+</tr>
+<tr>
+<td><code>RGB(r,g,b)</code> / colour names</td>
+<td><code>0xRRGGBB</code> or the same 16 names + extras — <strong>wrap
+in <code>d.colour()</code></strong></td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>PIXEL LINE BOX RBOX CIRCLE ARC POLYGON</code></td>
+<td><code>Display</code> methods:
+<code>pixel line rect/rbox ellipse arc poly</code></td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>CIRCLE x, y, r, lw, a, c, fill</code></td>
+<td><code>d.ellipse(x, y, r, r, c, True)</code> — stock MicroPython
+<code>framebuf</code>: the sixth argument is a
+<strong><code>True</code>/<code>False</code> flag</strong>, not a fill
+colour, and it’s positional (<code>f=True</code> is a
+<code>TypeError</code>). Two colours: solid in the fill colour first,
+then the outline</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>TEXT x, y, s$</code> / <code>FONT n</code></td>
+<td><code>hdmi.text(s, x, y, fg, bg, scale, font)</code> — same font
+numbers</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>PRINT @(x, y)</code></td>
+<td><code>hdmi.text(...)</code> at the pixel</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>LOAD JPG/PNG/BMP</code></td>
+<td><code>draw_jpg/png/bmp(path)</code> (+
+<code>dither=True</code>)</td>
+<td>16</td>
+</tr>
+<tr>
+<td><code>SAVE IMAGE</code></td>
+<td><code>save_image(path)</code></td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>BLIT</code></td>
+<td><code>hdmi.blit(x,y,w,h,x1,y1,src,dst,skip)</code></td>
+<td>16</td>
+</tr>
+<tr>
+<td><code>BLIT READ/WRITE</code> (memory frames)</td>
+<td><code>load_image()</code> →
+<code>Image.blit</code>/<code>.cell</code></td>
+<td>16</td>
+</tr>
+<tr>
+<td><code>FRAMEBUFFER N/L/F, WRITE, COPY, CLOSE</code></td>
+<td><code>hdmi.layer()/create()/write()/copy()/close()</code> — same
+letters</td>
+<td>17</td>
+</tr>
+<tr>
+<td><code>SPRITE</code> family (+ layers, collisions)</td>
+<td><code>import pcsprite</code> — objects; events from
+<code>sp.update()</code></td>
+<td>18</td>
+</tr>
+<tr>
+<td><code>TILEMAP</code></td>
+<td><code>TileMap</code> — 0 = empty, 1-based tiles, attrs,
+<code>collide</code></td>
+<td>19</td>
+</tr>
+<tr>
+<td><code>TURTLE</code></td>
+<td><code>Turtle()</code> — same headings, home = centre</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>GUI</code> controls, <code>CTRLVAL(r)</code></td>
+<td><code>pcgui</code> — <code>control.value</code></td>
+<td>27</td>
+</tr>
+<tr>
+<td><code>GUI INTERRUPT</code></td>
+<td><code>g.on_touch(down=, up=, move=)</code></td>
+<td>27</td>
+</tr>
+<tr>
+<td><code>GUI CURSOR</code></td>
+<td><code>pccursor.on()/refresh()/off()</code></td>
+<td>27</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="38.5" id="input-sound-time-events">Input, sound, time,
+events</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>MMBasic</th>
+<th>Here</th>
+<th>Ch.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KEYDOWN(n)</code></td>
+<td><code>keydown(n)</code> — identical, console-drain included</td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>ON KEY</code></td>
+<td><code>keyboard.on_key(fn)</code></td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>MOUSE(X)</code> etc.</td>
+<td><code>mouse("X")</code> etc.</td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>TOUCH(X)</code> etc.</td>
+<td><code>touch("X")</code> etc. — gestures latched</td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>PLAY TONE</code></td>
+<td><code>tone(l, r, ms)</code> — retunes live, ends click-free</td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>PLAY SOUND v, ch, type, f</code></td>
+<td><code>sound(voice, side, wave, freq, vol)</code> — same letters</td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>PLAY MODFILE</code> / <code>MODSAMPLE</code></td>
+<td><code>play("f.mod", loop=True)</code> /
+<code>mod_sample(n)</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>PLAY WAV/MP3/FLAC</code></td>
+<td><code>play(path)</code> — background, <code>wait=True</code>
+blocks</td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>PAUSE ms</code></td>
+<td><code>time.sleep_ms(ms)</code> — callbacks still fire</td>
+<td>8, 21</td>
+</tr>
+<tr>
+<td><code>TIMER</code></td>
+<td><code>time.ticks_ms()</code> + <code>ticks_diff()</code></td>
+<td>21</td>
+</tr>
+<tr>
+<td><code>DATE$</code> / <code>TIME$</code></td>
+<td><code>gettime()</code> tuple + f-strings</td>
+<td>29</td>
+</tr>
+<tr>
+<td><code>SETTIME</code></td>
+<td><code>settime(...)</code>; <code>ntpsync()</code> from the
+internet</td>
+<td>29, 30</td>
+</tr>
+<tr>
+<td><code>SETTICK p, sub</code> / <code>SETTICK 0</code></td>
+<td><code>machine.Timer(period=p, callback=f)</code> /
+<code>t.deinit()</code></td>
+<td>34</td>
+</tr>
+<tr>
+<td><code>SETPIN n, INTL/INTH/INTB</code></td>
+<td><code>Pin(n).irq(f, Pin.IRQ_FALLING/RISING/both)</code></td>
+<td>34</td>
+</tr>
+<tr>
+<td><code>SETPIN DOUT/DIN/AIN/PWM</code></td>
+<td><code>Pin</code> / <code>Pin(+PULL_UP)</code> /
+<code>machine.ADC</code> / <code>machine.PWM</code></td>
+<td>32</td>
+</tr>
+<tr>
+<td><code>WATCHDOG t</code></td>
+<td><code>machine.WDT(timeout=ms)</code> + <code>.feed()</code></td>
+<td>34</td>
+</tr>
+<tr>
+<td><code>SYNC</code></td>
+<td><code>pcgame.Clock</code> / <code>hdmi.vsync()</code></td>
+<td>17, 22</td>
+</tr>
+<tr>
+<td><code>OPTION CONSOLE</code></td>
+<td><code>console("both"/"serial"/"screen"/"none")</code></td>
+<td>2, 17</td>
+</tr>
+<tr>
+<td><code>OPTION KEYBOARD</code></td>
+<td><code>keymap("UK")</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>WEB NTP / GET / MQTT</code> (WebMite)</td>
+<td><code>ntpsync()</code> / <code>requests.get()</code> /
+<code>umqtt</code></td>
+<td>30</td>
+</tr>
+<tr>
+<td><code>MATH</code> verbs (CORREL, CHI, FFT, V_, Q_)</td>
+<td><code>pcmath</code> + <code>ulab.numpy</code></td>
+<td>31</td>
+</tr>
+<tr>
+<td><code>MM.INFO()</code></td>
+<td><code>os.uname()</code>, <code>gc.mem_free()</code>,
+<code>os.statvfs()</code></td>
+<td>36</td>
+</tr>
+</tbody>
+</table>
+<p>Two things have no MMBasic ancestor and repay early study:
+<strong>dictionaries</strong> (chapter 10) — lookup tables that replace
+every parallel-array trick you own — and
+<strong><code>asyncio</code></strong> (chapter 34), a cleaner shape for
+programs juggling several activities.</p>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="37-appendix-a-the-cheat-sheet.html" rel="prev">←&nbsp;Appendix A — The cheat sheet</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="39-appendix-c-the-modules-one-paragraph-each.html" rel="next">Appendix C — The modules, one paragraph each&nbsp;→</a>
+</nav>
+</body>
+</html>

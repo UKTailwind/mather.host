@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 4 — Finding your way around: files and the
+shell – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="3-chapter-3-your-first-conversation-with-python.html" rel="prev" accesskey="p">←&nbsp;Chapter 3 — Your first conversation with Python</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="5-chapter-5-writing-real-programs-the-editor.html" rel="next" accesskey="n">Chapter 5 — Writing real programs: the editor&nbsp;→</a>
+</nav>
+<h1 data-number="4"
+id="chapter-4-finding-your-way-around-files-and-the-shell">Chapter 4 —
+Finding your way around: files and the shell</h1>
+<p>Everything you will ever make on this machine — programs, pictures,
+game scores, notes — will live in a <strong>file</strong>. This chapter
+is about looking after them: seeing what you have, organising them into
+folders, copying and renaming and deleting, and moving them between the
+machine and an SD card. First with typed commands, and then with
+<code>fm</code>, a full-screen file manager that makes it all feel like
+a desktop computer.</p>
+<h2 data-number="4.1" id="two-drives">Two drives</h2>
+<p>The machine has two places to keep files:</p>
+<ul>
+<li><strong>The flash drive</strong>, called <code>/</code>. This is the
+12 MB of storage built into the board — the machine’s filing cabinet. It
+survives power-off (you proved that in chapter 2: your keyboard setting
+lives here, in a file).</li>
+<li><strong>The SD card</strong>, called <code>/sd</code>. It exists
+only while a card is in the slot, and can be swapped without switching
+off. Its superpower: a PC can read and write the same card, so it is the
+bridge between your machine and the rest of the world — and cheap, roomy
+storage for music, images and whole projects.</li>
+</ul>
+<p>A file’s full name — its <strong>path</strong> — spells out where it
+lives, with <code>/</code> between the steps: <code>/notes.txt</code> is
+a file on the flash; <code>/sd/games/breakout.py</code> is a file in the
+<code>games</code> folder of the SD card.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> paths replace drive letters —
+<code>A:</code> is the flash <code>/</code>, <code>B:</code> is the SD
+card <code>/sd</code>. And the commands you know are all here under
+Unix-style names: <code>FILES</code> → <code>ls</code>,
+<code>KILL</code> → <code>rm</code>, <code>COPY</code> →
+<code>cp</code>, <code>RENAME</code> → <code>mv</code>,
+<code>MKDIR</code> → <code>mkdir</code>, <code>CHDIR</code> →
+<code>cd</code>.</p>
+</blockquote>
+<h2 data-number="4.2" id="where-am-i">Where am I?</h2>
+<p>The machine always has a notion of the folder you are “standing in” —
+the <strong>current directory</strong>. Two commands orient you:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> pwd()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">/</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ls()</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>       <span class="dv">211</span>  <span class="dv">2026</span><span class="op">-</span><span class="dv">0</span><span class="er">7</span><span class="op">-</span><span class="dv">12</span> <span class="dv">0</span><span class="er">9</span>:<span class="dv">30</span>  settings.json</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> item</span></code></pre></div>
+<p><code>pwd</code> — <em>print working directory</em> — says where you
+are; a freshly started machine stands at <code>/</code>, the top of the
+flash drive. <code>ls</code> <strong>lists</strong> what is here: so
+far, one file — <code>settings.json</code>, a couple of hundred bytes,
+which is where your keyboard layout from chapter 2 is remembered. Each
+line shows the size in bytes, when the file last changed (the
+battery-backed clock at work), and the name.</p>
+<p>One thing before we go on: these commands are MicroPython, so the
+brackets are required, and <strong>filenames go in quotes</strong> —
+they are strings, exactly like <code>"hello"</code> in chapter 3.
+<code>ls</code> alone names the command; <code>ls()</code> runs it.</p>
+<blockquote>
+<p><strong>Pico Computer 3 specific.</strong> These shell-style commands
+— <code>ls</code>, <code>cd</code>, <code>pwd</code>, <code>cp</code>,
+<code>mv</code>, <code>rm</code>, <code>mkdir</code>, <code>cat</code>,
+and the <code>fm</code> file manager — are conveniences this machine
+adds. Standard MicroPython does the same jobs through the
+<code>os</code> module (<code>os.listdir()</code>,
+<code>os.remove()</code>, <code>os.rename()</code>,
+<code>os.mkdir()</code>, <code>os.chdir()</code>…), which works here too
+if you prefer it. The friendly names are for comfort at the prompt; the
+<code>os</code> names are what travel to other boards. A Colour Maximite
+2’s MicroPython app has both (Appendix K).</p>
+</blockquote>
+<h2 data-number="4.3" id="making-some-files-to-practise-on">Making some
+files to practise on</h2>
+<p>A brand-new machine is nearly empty, so let’s create a practice file.
+The polite way to make files is chapter 12’s business, but here is a
+three-line preview — a spell to copy now and understand later:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;notes.txt&quot;</span>, <span class="st">&quot;w&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f.write(<span class="st">&quot;Remember the milk</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dv">18</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> f.close()</span></code></pre></div>
+<p>(That <code>18</code> is the echo you know from chapter 3:
+<code>write</code> reports how many characters it wrote — seventeen
+letters and spaces, plus one invisible “start a new line” character,
+spelled <code>\n</code>.)</p>
+<p>Now look around, and read your file back with <code>cat</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ls()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="dv">18</span>  <span class="dv">2026</span><span class="op">-</span><span class="dv">0</span><span class="er">7</span><span class="op">-</span><span class="dv">15</span> <span class="dv">10</span>:<span class="dv">14</span>  notes.txt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>       <span class="dv">211</span>  <span class="dv">2026</span><span class="op">-</span><span class="dv">0</span><span class="er">7</span><span class="op">-</span><span class="dv">12</span> <span class="dv">0</span><span class="er">9</span>:<span class="dv">30</span>  settings.json</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span> items</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cat(<span class="st">&quot;notes.txt&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>Remember the milk</span></code></pre></div>
+<p><code>cat</code> prints a text file to the screen. For a file longer
+than the screen it stops at each screenful with
+<code>PRESS ANY KEY ...</code> — any key for the next page,
+<strong>q</strong> to give up. (You will appreciate this the first time
+you <code>cat</code> a thousand-line program.)</p>
+<h2 data-number="4.4" id="folders-copies-and-moves">Folders, copies, and
+moves</h2>
+<p>A filing cabinet with everything in one drawer is no filing cabinet
+at all. <code>mkdir</code> <strong>makes a directory</strong> (folder),
+and <code>cd</code> <strong>changes</strong> into it:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> mkdir(<span class="st">&quot;lists&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cd(<span class="st">&quot;lists&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> pwd()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">/</span>lists</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cd(<span class="st">&quot;/&quot;</span>)</span></code></pre></div>
+<p><code>cd</code> with no path takes you home to <code>/</code> from
+anywhere — worth remembering when you feel lost.</p>
+<p><code>cp</code> <strong>copies</strong> — give it the file and the
+destination. If the destination is a folder, the copy lands inside; if
+it is a name, the copy takes that name:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># a copy inside the lists folder</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cp(<span class="st">&quot;notes.txt&quot;</span>, <span class="st">&quot;lists&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cp(<span class="st">&quot;notes.txt&quot;</span>, <span class="st">&quot;backup.txt&quot;</span>)       <span class="co"># a second copy, new name</span></span></code></pre></div>
+<p><code>mv</code> <strong>moves</strong> — same idea, but the original
+goes away. Moving a file to a new name <em>is</em> renaming it, and
+there is no separate rename command:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> mv(<span class="st">&quot;backup.txt&quot;</span>, <span class="st">&quot;shopping.txt&quot;</span>)    <span class="co"># renamed</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> mv(<span class="st">&quot;shopping.txt&quot;</span>, <span class="st">&quot;lists&quot;</span>)         <span class="co"># ...and filed away</span></span></code></pre></div>
+<p>And <code>rm</code> <strong>removes</strong>. Respect this one: there
+is no recycle bin and no undo on this machine — a removed file is gone,
+immediately and forever:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rm(<span class="st">&quot;notes.txt&quot;</span>)</span></code></pre></div>
+<p>(<code>rmdir</code> removes a directory, and insists it be empty
+first — a small safety catch.)</p>
+<h2 data-number="4.5"
+id="wildcards-acting-on-many-files-at-once">Wildcards: acting on many
+files at once</h2>
+<p>Every command so far handled one file. A <strong>wildcard</strong>
+pattern handles a crowd: <code>*</code> stands for “anything here”,
+<code>?</code> for “any single character”.</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ls(<span class="st">&quot;*.txt&quot;</span>)                 <span class="co"># only the .txt files</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># copy every Python program to the SD card</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cp(<span class="st">&quot;*.py&quot;</span>, <span class="st">&quot;/sd/backup&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rm(<span class="st">&quot;*.tmp&quot;</span>)                 <span class="co"># delete all the .tmp files</span></span></code></pre></div>
+<p><code>cp</code> and <code>mv</code> with a wildcard need the
+destination to be a folder (the machine cannot copy five files onto one
+name). Matching ignores capital letters, so <code>*.txt</code> also
+finds <code>NOTES.TXT</code>. (The flash filesystem itself is
+<strong>case-sensitive</strong>, though: <code>notes.txt</code> and
+<code>NOTES.TXT</code> would be two genuinely different files. It is
+only the wildcard <em>matching</em> that is relaxed about case, as a
+convenience.)</p>
+<p>Treat <code>rm</code> plus wildcard as the chainsaw it is.
+<code>ls</code> accepts the <em>same patterns</em>, so the professional
+habit is: <strong><code>ls</code> the pattern first</strong>, see
+exactly what matches, then arrow-up, change <code>ls</code> to
+<code>rm</code>, and run it.</p>
+<h2 data-number="4.6" id="the-sd-card-and-your-pc">The SD card and your
+PC</h2>
+<p>Slide a card in and it appears as <code>/sd</code>; take it out (when
+nothing is using it) and <code>/sd</code> vanishes. No unmount ceremony
+required.</p>
+<p>The workflow this enables is wonderfully old-school: fill a card with
+music, images or code on a PC, sneaker it over, and
+<code>ls("/sd")</code>. Everything you learned above works across both
+drives — <code>cp("/sd/photo.jpg", "/")</code> pulls a file in from the
+card, <code>cp("game.py", "/sd")</code> publishes one back out. Chapter
+5 adds a way to get programs across <em>without</em> the card (the USB-C
+console), but for bulk — a folder of MP3s, a sprite sheet collection —
+the card is king.</p>
+<p>A <strong>USB memory stick</strong> works the same way: plug one into
+the hub and it appears as <code>/usb</code> (the machine says so), pull
+it out and <code>/usb</code> vanishes. The card’s rule applies here too
+— the stick must be formatted <strong>FAT32</strong>, which big ones
+usually aren’t out of the box — and every command you have met works on
+it unchanged: <code>cp("/usb/album/*.mp3", "/sd/music")</code>. Three
+drives, one set of commands.</p>
+<h2 data-number="4.7" id="fm-the-file-manager"><code>fm</code> — the
+file manager</h2>
+<p>Typed commands are precise, scriptable (a program can call
+<code>cp</code> too — file that thought for later), and mandatory
+knowledge. They are also, for a morning of reorganising, slow.
+Enter:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> fm()</span></code></pre></div>
+<p>The screen becomes two side-by-side panes, each showing a folder. The
+controls, which are also listed at the bottom of the screen:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>↑/↓</strong>, PgUp/PgDn, Home/End</td>
+<td>move the highlight</td>
+</tr>
+<tr>
+<td><strong>Tab</strong> (or <strong>←/→</strong>)</td>
+<td>switch the active pane</td>
+</tr>
+<tr>
+<td><strong>Enter</strong></td>
+<td>open: enter a folder, or act on a file <em>by type</em></td>
+</tr>
+<tr>
+<td><strong>Backspace</strong></td>
+<td>go up one folder</td>
+</tr>
+<tr>
+<td><strong>Space</strong></td>
+<td>select/deselect the file, and step down a row</td>
+</tr>
+<tr>
+<td><strong>C</strong> / <strong>M</strong></td>
+<td>copy / move the selected file(s) <strong>to the other
+pane</strong></td>
+</tr>
+<tr>
+<td><strong>R</strong> / <strong>D</strong></td>
+<td>rename / delete (delete asks first)</td>
+</tr>
+<tr>
+<td><strong>N</strong></td>
+<td>new folder</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>edit the file (chapter 5’s editor)</td>
+</tr>
+<tr>
+<td><strong>S</strong>, <strong>+/-</strong></td>
+<td>stop audio / volume</td>
+</tr>
+<tr>
+<td><strong>Q</strong></td>
+<td>quit back to the prompt</td>
+</tr>
+</tbody>
+</table>
+<p>Three ideas make <code>fm</code> more than a pretty <code>ls</code>.
+First, the <strong>two panes</strong>: point the left one at a source
+(say <code>/sd</code>) and the right one at a destination (say
+<code>/</code>), and <strong>C</strong> copies whatever is highlighted
+from one to the other. Filing a card full of downloads takes
+seconds.</p>
+<p>Second, the <strong>Space bar selects several files at once</strong>.
+Each press marks the highlighted file — it turns yellow, the status line
+counts the haul — and steps down a row, so a run of presses sweeps up a
+whole block of files (press Space again on a file to change your mind).
+Then one <strong>C</strong>, <strong>M</strong> or <strong>D</strong>
+copies, moves or deletes <em>the lot</em>: a multi-file delete asks
+once, “Delete 12 selected files?”. The selection belongs to its pane and
+is forgotten when that pane changes folder.</p>
+<p>Third, <strong>Enter does the right thing per file</strong>. A
+<code>.py</code> program <em>runs</em> — and when it finishes,
+<code>fm</code> is waiting where you left it. Music (<code>.mp3</code>,
+<code>.wav</code>, <code>.mod</code>) <em>plays</em>, and keeps playing
+in the background while you browse on. An image (<code>.jpg</code>,
+<code>.bmp</code>, <code>.png</code>) is <em>shown</em> — any key
+returns. A text file is <em>viewed</em>, a page at a time. The file
+manager is thus also your programs menu, jukebox and photo viewer — many
+owners live in it.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>fm()</code> is MMBasic’s
+<code>FM</code>, keys and all.</p>
+</blockquote>
+<p>Start <code>fm("/sd")</code> to open both panes on the card, or plain
+<code>fm()</code> for the current directory.</p>
+<h2 data-number="4.8" id="experiments-3">Experiments</h2>
+<ol type="1">
+<li>Rebuild the practice file (the <code>open</code> spell), then use
+only typed commands to end with <code>lists/todo.txt</code> as its sole
+surviving copy — no strays left anywhere. <code>ls</code> is your audit
+tool.</li>
+<li>Do the same job entirely inside <code>fm</code> — create a folder
+with <strong>N</strong>, copy with <strong>C</strong>, rename with
+<strong>R</strong>, delete with <strong>D</strong>. Which way suits you?
+(There is no right answer; there is a reason both exist.)</li>
+<li>With an SD card and a PC: put three files on the card from the PC,
+then use <code>fm</code>’s two panes to bring them onto the flash —
+Space, Space, Space, <strong>C</strong>, one trip. Note what the PC
+calls the card versus what this machine calls it.</li>
+<li>Run <code>ls("/sd/*.??3")</code> on a card with music on it. Work
+out what the pattern matches before you look.</li>
+</ol>
+<h2 data-number="4.9" id="challenges-3">Challenges</h2>
+<ol type="1">
+<li>Set up a folder structure for your life with this book — something
+like <code>/projects</code>, <code>/projects/games</code>,
+<code>/scraps</code> — and re-file what you have so <code>ls("/")</code>
+shows folders, <code>settings.json</code> and nothing else. Future
+chapters assume tidy habits, not this exact layout; make one you’ll
+keep.</li>
+<li>In <code>fm</code>, highlight <code>settings.json</code> and press
+Enter. Predict what happens first (it is a text file). Then explain the
+contents from what you set in chapter 2.</li>
+<li>A puzzle from chapter 2’s troubleshooting table: what would
+<code>rm("/settings.json")</code> do, and when might that be exactly
+what you want? (Don’t run it idly — is your keymap worth
+re-typing?)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="3-chapter-3-your-first-conversation-with-python.html" rel="prev">←&nbsp;Chapter 3 — Your first conversation with Python</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="5-chapter-5-writing-real-programs-the-editor.html" rel="next">Chapter 5 — Writing real programs: the editor&nbsp;→</a>
+</nav>
+</body>
+</html>

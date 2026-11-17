@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Appendix D — Hardware
+reference – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="39-appendix-c-the-modules-one-paragraph-each.html" rel="prev" accesskey="p">←&nbsp;Appendix C — The modules, one paragraph each</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="41-appendix-e-python-the-taught-subset.html" rel="next" accesskey="n">Appendix E — Python, the taught subset&nbsp;→</a>
+</nav>
+<h1 data-number="40" id="appendix-d-hardware-reference">Appendix D —
+Hardware reference</h1>
+<h2 data-number="40.1" id="the-machine">The machine</h2>
+<p>RP2350B (two ARM cores at 252 MHz — one runs Python, one paints HDMI;
+315/378 MHz via <code>screen(mode, clock)</code>) · 512 KB SRAM
+(framebuffers) · 8 MB PSRAM (the Python heap) · 16 MB flash (12 MB
+filesystem at <code>/</code>) · CYW43 Wi-Fi/Bluetooth on an RM2 module ·
+PCM5102 audio DAC → 3.5 mm stereo jack · DS3231 battery-backed clock
+(CR2032) · CH334U 4-port USB hub for keyboard/mouse/touch · micro-SD
+slot, hot-swappable.</p>
+<h2 data-number="40.2" id="sockets-switches-and-buttons">Sockets,
+switches and buttons</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>USB-C</strong></td>
+<td>power in (2 A supply recommended — the hub passes up to 2 A on)
+<strong>and</strong> the serial console (CH340 → GP8/9, 115200 8N1)</td>
+</tr>
+<tr>
+<td><strong>Power switch</strong></td>
+<td>push-on / push-off, on the USB-C feed</td>
+</tr>
+<tr>
+<td><strong>Prog</strong> (micro-USB)</td>
+<td>firmware flashing only — with <strong>USB HUB</strong> switch at
+<strong>DISABLE</strong></td>
+</tr>
+<tr>
+<td><strong>USB HUB switch</strong></td>
+<td>ENABLE = keyboard sockets live; DISABLE = Prog port live</td>
+</tr>
+<tr>
+<td><strong>BOOT + RESET</strong></td>
+<td>hold BOOT, click RESET → UF2 drive appears on a PC</td>
+</tr>
+<tr>
+<td><strong>HDMI</strong></td>
+<td>to any monitor/TV</td>
+</tr>
+<tr>
+<td><strong>SYSTEM I2C</strong> (QWIIC/Qw/ST)</td>
+<td>plug-in I2C modules — GP20/21, 3.3 V, 10 K pull-ups fitted</td>
+</tr>
+<tr>
+<td><strong>HEARTBEAT jumper</strong></td>
+<td>LED1 source: <strong>CYW43</strong> position (normal —
+<code>Pin("LED")</code>) or GP25 (only for boards built <em>without</em>
+the wireless module — GP25 is the CYW43 chip-select otherwise)</td>
+</tr>
+<tr>
+<td><strong>DEBUG header</strong></td>
+<td>SWD (CLK/DAT/GND) — C-level debugging</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="40.3" id="flashing-chapter-2">Flashing (chapter 2)</h2>
+<p>USB HUB switch → DISABLE · connect Prog to PC · hold
+<strong>BOOT</strong>, click <strong>RESET</strong> · drag
+<code>firmware.uf2</code> onto the drive that appears · switch back to
+<strong>ENABLE</strong>. Files and settings survive reflashing.</p>
+<h2 data-number="40.4" id="the-io-header">The I/O header</h2>
+<pre><code>GP21  GND        I2C0 SCL (bus shared with QWIIC + DS3231)
+GP20  +5V        I2C0 SDA
+GP45  GP46   \
+GP43  GP44    |  GP40-GP46 are ANALOGUE inputs (machine.ADC)
+GP41  GP42    |
+GP39  GP40   /
+GP37  GP38
+GP35  GP36
+GP26  GP34
+GP07  GP06
+GP05  GP04
+GP03  GP02
+GP01  GP00
+VCC   VCC        3.3 V out  (3.3 V logic; 5 V powers, never GPIO)
+GND   GND</code></pre>
+<p>Every GP pin: digital in/out and PWM. <strong>GP32</strong> = DS3231
+alarm INT (open-drain, active low — <code>ds3231.alarm_pin()</code>
+supplies the pull-up); <strong>GP27</strong> = DS3231 32 kHz output
+(enable a pull-up to use).</p>
+<h2 data-number="40.5"
+id="reserved-pins-unavailable-to-machine.pin">Reserved pins (unavailable
+to <code>machine.Pin</code>)</h2>
+<p>GP8/9 console UART · GP12–19 HDMI · GP28/30/31/33 SD card (SPI1) ·
+GP10/11/22 audio I2S · GP23/24/25/29 wireless · GP47 PSRAM CS. The
+status LED is <code>Pin("LED")</code> (on the wireless chip). Full
+table: manual §2.</p>
+<h2 data-number="40.6" id="screen-modes-chapter-15-manual-5">Screen
+modes (chapter 15; manual §5)</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Pixels</th>
+<th>Colours</th>
+<th>Clock (MHz)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RGB640</code> (default)</td>
+<td>640×480</td>
+<td>256 (8-bit)</td>
+<td>252 / 315 / 378</td>
+</tr>
+<tr>
+<td><code>RGB320</code></td>
+<td>320×240 (doubled)</td>
+<td>65,536 (16-bit)</td>
+<td>252 / 315 / 378</td>
+</tr>
+<tr>
+<td><code>RGB320_8</code></td>
+<td>320×240 (doubled)</td>
+<td>256 (8-bit)</td>
+<td>252 / 315 / 378</td>
+</tr>
+<tr>
+<td><code>RGB512</code></td>
+<td>512×300 (doubled to 1024×600)</td>
+<td>65,536 (16-bit)</td>
+<td>252</td>
+</tr>
+<tr>
+<td><code>RGB1024</code></td>
+<td>1024×600 native</td>
+<td>16 (palette)</td>
+<td>252</td>
+</tr>
+<tr>
+<td><code>RGB640_4</code></td>
+<td>640×480</td>
+<td>16 (palette)</td>
+<td>252 / 315 / 378</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The <strong>overlay layer</strong> (<code>hdmi.layer()</code>) is
+available in <code>RGB320</code> and <code>RGB320_8</code>.</li>
+<li><code>RGB640_4</code> and <code>RGB320_8</code> are the
+<strong>fast-SRAM modes</strong>: the off-screen <code>create()</code>
+buffer fits in the spare video SRAM rather than the slower PSRAM, for
+double-buffered composing that never stalls. <code>RGB320_8</code> is
+the only mode offering the overlay <em>and</em> a fast double buffer at
+once.</li>
+<li>Allow ~3 s after a mode change for the monitor to lock.</li>
+</ul>
+<h2 data-number="40.7" id="notes">Notes</h2>
+<ul>
+<li><strong>Serial console:</strong> any terminal at 115200 8N1 on the
+USB-C port; XMODEM transfers ride the same link. Input works even when
+<code>console("none")</code> hides output — type <code>console()</code>
+blind to recover.</li>
+<li><strong>SD cards:</strong> FAT-formatted, hot-swappable, PC-readable
+— the bridge for photos, music and backups.</li>
+<li><strong>DS3231:</strong> ±2 ppm-class accuracy; CR2032 keeps it
+through years of power-off; the daily alarm survives resets (chapter
+29).</li>
+<li><strong>Wi-Fi credentials</strong> are stored in plain text in
+<code>/settings.json</code>.</li>
+</ul>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="39-appendix-c-the-modules-one-paragraph-each.html" rel="prev">←&nbsp;Appendix C — The modules, one paragraph each</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="41-appendix-e-python-the-taught-subset.html" rel="next">Appendix E — Python, the taught subset&nbsp;→</a>
+</nav>
+</body>
+</html>

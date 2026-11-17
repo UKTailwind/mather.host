@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 30 — Going online: Wi-Fi and the
+internet – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="29-chapter-29-time-and-schedules-the-real-time-clock.html" rel="prev" accesskey="p">←&nbsp;Chapter 29 — Time and schedules: the real-time clock</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="31-chapter-31-numbers-at-speed-the-maths-lab.html" rel="next" accesskey="n">Chapter 31 — Numbers at speed: the maths lab&nbsp;→</a>
+</nav>
+<h1 data-number="30"
+id="chapter-30-going-online-wi-fi-and-the-internet">Chapter 30 — Going
+online: Wi-Fi and the internet</h1>
+<p>The wireless chip has sat quietly since chapter 1, blinking its LED.
+Time to use it: this chapter connects the machine to your network and
+then to the planet — setting its clock from atomic time, asking a
+weather service about your sky, and whispering to other machines over
+MQTT. One theme runs through it all, so let it be said first:
+<strong>networks fail, constantly and normally</strong> — out of range,
+router rebooting, server napping — and the difference between a
+networked gadget and a networked <em>nuisance</em> is chapter 13 applied
+without mercy. Every listing here treats failure as routine — something
+to expect and handle quietly, never a surprise that stops the
+program.</p>
+<h2 data-number="30.1" id="connecting">Connecting</h2>
+<p>The board helper does the ceremony and remembers:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># connect, and save the credentials</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>wifi(<span class="st">&quot;MyNetwork&quot;</span>, <span class="st">&quot;MyPassword&quot;</span>)</span></code></pre></div>
+<p>From then on, plain <code>wifi()</code> reconnects with the saved
+details — after a reboot, in a program, anywhere. One honest note, worth
+repeating in a book for households: the saved password is
+<strong>scrambled and tied to this board</strong> — not readable at a
+glance in <code>/settings.json</code>, and useless if the file is copied
+to another machine. But that is obfuscation, not real security: the
+board can unscramble its own password, so anyone holding the board can
+too. There is no secure vault on hardware like this. If a network’s
+password must not be kept at all, connect without saving it:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>wifi(<span class="st">&quot;MyNetwork&quot;</span>, <span class="st">&quot;MyPassword&quot;</span>, save<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
+<blockquote>
+<p><strong>Pico Computer 3 specific.</strong> <code>wifi()</code>,
+<code>tz()</code>, <code>ntpsync()</code> and <code>auto()</code> are
+this machine’s convenience layer over the radio and clock. Underneath
+sits MicroPython’s standard <code>network</code> module
+(<code>wlan = network.WLAN(...)</code> and friends) for the day you need
+signal strength or a static address, and <code>ntptime</code> for the
+clock — the manual points the way. <code>tz()</code> in particular is
+just a saved hour offset that this machine applies for you; core
+MicroPython has no timezone support at all. A Colour Maximite 2 has all
+of this with its Wi-Fi module, once <code>OPTION WIFI</code> is set at
+the MMBasic prompt (Appendix K).</p>
+</blockquote>
+<p>With Wi-Fi up, one more door opens: the <code>mip</code> installer
+from chapter 11 can now reach the internet, so
+<code>import mip; mip.install("...")</code> will pull libraries onto
+<code>/lib</code>. Getting online is also what puts the whole
+MicroPython library ecosystem within reach.</p>
+<h2 data-number="30.2" id="the-first-fruit-atomic-time">The first fruit:
+atomic time</h2>
+<p>Chapter 29 left you setting the clock by hand. Never again:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># your offset from UTC, in hours (fractions allowed)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>tz(<span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fetch the time, apply tz, set system clock AND DS3231</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ntpsync()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>auto(<span class="va">True</span>)         <span class="co"># ...and do that automatically at every boot</span></span></code></pre></div>
+<p><code>ntpsync()</code> asks an internet time server (the same
+infrastructure your phone trusts) and writes <em>local</em> time into
+the battery-backed DS3231 — so the machine is correct even offline
+afterwards, and with <code>auto(True)</code> the bedside clock of
+chapter 29 becomes an appliance that is simply never wrong.
+(<code>auto</code> falls back silently to the DS3231 when the network is
+away — an everyday case, quietly handled.)</p>
+<h2 data-number="30.3" id="asking-the-web-a-question">Asking the web a
+question</h2>
+<p>A web request is a plain transaction: send a URL, receive text. The
+frozen <code>requests</code> module does it, HTTPS included:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># GitHub turns away a request that does not say who is asking</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="st">&quot;https://api.github.com&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                 headers<span class="op">=</span>{<span class="st">&quot;User-Agent&quot;</span>: <span class="st">&quot;pc3&quot;</span>})</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(r.status_code)               <span class="co"># 200 means &quot;here you are&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(r.text[:<span class="dv">120</span>])                <span class="co"># the reply is text...</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ALWAYS -- replies hold real memory</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>r.close()</span></code></pre></div>
+<p>Three habits, stated once and kept forever. <strong>Check
+<code>status_code</code></strong> — 200 is success; 404 and friends are
+the server declining, politely. <strong>Close every reply</strong> — on
+a machine with megabytes rather than gigabytes, a forgotten
+<code>r.close()</code> is how long-running programs die young (the
+<code>try/finally</code> in the project below is the professional form).
+And <strong>wrap the whole call in
+<code>try/except OSError</code></strong> — between you and any server
+lies a router, a landlord’s wall and an ocean of weather;
+<code>OSError</code> is all of them speaking at once.</p>
+<h2 data-number="30.4"
+id="json-the-internets-data-in-a-familiar-costume">JSON: the internet’s
+data, in a familiar costume</h2>
+<p>Ask a modern service a question and the answer comes as
+<strong>JSON</strong> — and here is the chapter’s best news: JSON is
+just <em>dictionaries and lists wearing quotes</em>.
+<code>r.json()</code> parses it straight into chapter 10:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> requests.get(<span class="st">&quot;https://api.open-meteo.com/v1/forecast&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;?latitude=51.5&amp;longitude=-0.13&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;&amp;current_weather=true&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> r.json()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>r.close()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data[<span class="st">&quot;current_weather&quot;</span>][<span class="st">&quot;temperature&quot;</span>])</span></code></pre></div>
+<p>That reply, on the wire, is text like
+<code>{"current_weather": {"temperature": 21.4, "windspeed": 14.0, ...}}</code>
+— and after <code>r.json()</code> it is a dict holding a dict, navigated
+exactly as you have navigated all of Part II’s data. Spelunking an
+unfamiliar API is <code>print(data)</code> and chapter 10 reflexes; no
+new skill required.</p>
+<h2 data-number="30.5" id="project-the-weather-panel">Project: the
+weather panel</h2>
+<p>A live instrument for the shelf: your sky, updated every ten minutes,
+degrading gracefully when the internet sulks. The service is Open-Meteo
+— free, no sign-up, no key — and the design point is the
+<strong>last-good-data pattern</strong>: a failed refresh never blanks
+the panel; it keeps yesterday’s truth and says so.
+<code>edit("weather.py")</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># London -- point it at YOUR sky</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>LAT, LON <span class="op">=</span> <span class="fl">51.5</span>, <span class="op">-</span><span class="fl">0.13</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>URL <span class="op">=</span> (<span class="st">&quot;https://api.open-meteo.com/v1/forecast&quot;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>       <span class="st">&quot;?latitude=&quot;</span> <span class="op">+</span> <span class="bu">str</span>(LAT) <span class="op">+</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>       <span class="st">&quot;&amp;longitude=&quot;</span> <span class="op">+</span> <span class="bu">str</span>(LON) <span class="op">+</span> <span class="st">&quot;&amp;current_weather=true&quot;</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>REFRESH_MS <span class="op">=</span> <span class="dv">10</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">1000</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>SKIES <span class="op">=</span> {<span class="dv">0</span>: <span class="st">&quot;clear sky&quot;</span>, <span class="dv">1</span>: <span class="st">&quot;mostly clear&quot;</span>, <span class="dv">2</span>: <span class="st">&quot;partly cloudy&quot;</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>         <span class="dv">3</span>: <span class="st">&quot;overcast&quot;</span>, <span class="dv">45</span>: <span class="st">&quot;fog&quot;</span>, <span class="dv">51</span>: <span class="st">&quot;drizzle&quot;</span>, <span class="dv">61</span>: <span class="st">&quot;light &quot;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;rain&quot;</span>,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>         <span class="dv">63</span>: <span class="st">&quot;rain&quot;</span>, <span class="dv">65</span>: <span class="st">&quot;heavy rain&quot;</span>, <span class="dv">71</span>: <span class="st">&quot;snow&quot;</span>, <span class="dv">80</span>: <span class="st">&quot;showers&quot;</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>         <span class="dv">95</span>: <span class="st">&quot;thunderstorm&quot;</span>}</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fetch():</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;The current weather dict, or None. Never raises, always</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co">    closes.&quot;&quot;&quot;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> requests.get(URL)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">OSError</span>:</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> r.status_code <span class="op">!=</span> <span class="dv">200</span>:</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> r.json()[<span class="st">&quot;current_weather&quot;</span>]</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> (<span class="pp">OSError</span>, <span class="pp">ValueError</span>, <span class="pp">KeyError</span>):</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        r.close()</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x0A1420</span>)</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>INK <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>BIG <span class="op">=</span> d.colour(GOLD)</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>DIM <span class="op">=</span> d.colour(GRAY)</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>wx <span class="op">=</span> <span class="va">None</span>                          <span class="co"># the last GOOD reading</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>stamp <span class="op">=</span> <span class="st">&quot;&quot;</span>                         <span class="co"># when we got it</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>failures <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> redraw():</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>    d.fill(BG)</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>    hdmi.text(<span class="ss">f&quot;WEATHER  </span><span class="sc">{</span>LAT<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>LON<span class="sc">}</span><span class="ss">&quot;</span>, <span class="dv">16</span>, <span class="dv">12</span>, DIM)</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> wx <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="st">&quot;asking the sky...&quot;</span>, <span class="dv">200</span>, <span class="dv">220</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>        t <span class="op">=</span> <span class="ss">f&quot;</span><span class="sc">{</span>wx[<span class="st">&#39;temperature&#39;</span>]<span class="sc">:.0f}</span><span class="ss">&quot;</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 72x96 digits</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> hdmi.text(t, <span class="dv">60</span>, <span class="dv">120</span>, BIG, <span class="op">-</span><span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>)</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the degree ring</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>        d.ellipse(x <span class="op">+</span> <span class="dv">18</span>, <span class="dv">132</span>, <span class="dv">10</span>, <span class="dv">10</span>, BIG)</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>        sky <span class="op">=</span> SKIES.get(wx[<span class="st">&quot;weathercode&quot;</span>], <span class="st">&quot;sky doing something&quot;</span>)</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>        hdmi.text(sky, <span class="dv">60</span>, <span class="dv">260</span>, INK, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;wind </span><span class="sc">{</span>wx[<span class="st">&#39;windspeed&#39;</span>]<span class="sc">:.0f}</span><span class="ss"> km/h&quot;</span>, <span class="dv">60</span>, <span class="dv">300</span>,</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>                  INK)</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>        status <span class="op">=</span> <span class="st">&quot;updated &quot;</span> <span class="op">+</span> stamp</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> failures:</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>            status <span class="op">+=</span> (<span class="ss">f&quot;  --  offline, showing last good &quot;</span></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>                       <span class="ss">f&quot;(x</span><span class="sc">{</span>failures<span class="sc">}</span><span class="ss">)&quot;</span>)</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>        hdmi.text(status, <span class="dv">16</span>, H <span class="op">-</span> <span class="dv">24</span>, DIM)</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    hdmi.text(<span class="st">&quot;R refresh   ESC quit&quot;</span>, W <span class="op">-</span> <span class="dv">176</span>, <span class="dv">12</span>, DIM)</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>    wifi()                         <span class="co"># saved credentials, if any</span></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a><span class="co"># none saved? the fetch loop copes</span></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>last_try <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>r_was <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>    redraw()</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>        now <span class="op">=</span> time.ticks_ms()</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>        r_now <span class="op">=</span> held(<span class="bu">ord</span>(<span class="st">&quot;r&quot;</span>))</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>        force <span class="op">=</span> r_now <span class="kw">and</span> <span class="kw">not</span> r_was</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>        r_was <span class="op">=</span> r_now</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> force <span class="kw">or</span> last_try <span class="kw">is</span> <span class="va">None</span> <span class="kw">or</span> <span class="op">\</span></span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>                time.ticks_diff(now, last_try) <span class="op">&gt;=</span> REFRESH_MS:</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>            last_try <span class="op">=</span> now</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>            fresh <span class="op">=</span> fetch()</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> fresh <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>                wx <span class="op">=</span> fresh</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>                stamp <span class="op">=</span> <span class="st">&quot;</span><span class="sc">{:02}</span><span class="st">:</span><span class="sc">{:02}</span><span class="st">&quot;</span>.<span class="bu">format</span>(<span class="op">*</span>gettime()[<span class="dv">3</span>:<span class="dv">5</span>])</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>                failures <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>                failures <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>            redraw()</span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>        time.sleep_ms(<span class="dv">100</span>)</span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Prop it on the shelf. Then read <code>fetch()</code> again, because
+that one function is the chapter: <em>never raises, always closes</em> —
+the network <code>try</code> around <code>.get()</code>, the parsing
+<code>try</code> around the rest (a half-received reply can be broken
+JSON; a changed API can drop a key — <code>ValueError</code> and
+<code>KeyError</code> are both to be expected here too), and the
+<code>finally: r.close()</code> that runs whatever happened. The main
+loop consequently never needs to know <em>why</em> a refresh failed —
+<code>None</code> means “keep the old truth, count it, say so on
+screen.” Graceful degradation is a design stance, and the status line is
+its honest face. (The R key rides chapter 25’s just-pressed pattern; the
+refresh timer is chapter 29’s poll-loop clock.)</p>
+<h2 data-number="30.6"
+id="a-taste-of-mqtt-machines-talking-to-machines">A taste of MQTT:
+machines talking to machines</h2>
+<p>HTTP asks; <strong>MQTT chats</strong>. A broker (a post-office
+machine) relays short messages between anyone subscribed to a
+<em>topic</em> — the protocol under a million home-automation gadgets,
+and the natural way for two Pico Computers to talk. The frozen
+<code>umqtt.simple</code> speaks it:</p>
+<figure>
+<img src="figs/30-net.png"
+alt="Two ways to use the network. HTTP (earlier in the chapter) is a one-shot question and answer with a server; MQTT lets many machines chat by topic through a shared broker that relays each message to every subscriber." />
+<figcaption aria-hidden="true">Two ways to use the network.
+<strong>HTTP</strong> (earlier in the chapter) is a one-shot question
+and answer with a server; <strong>MQTT</strong> lets many machines chat
+by <em>topic</em> through a shared broker that relays each message to
+every subscriber.</figcaption>
+</figure>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># mqtt_hello.py -- say hello on a public test broker.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (Public brokers are for hellos, never for anything private!)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> umqtt.simple <span class="im">import</span> MQTTClient</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>wifi()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># every client needs a UNIQUE name</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ME <span class="op">=</span> <span class="st">&quot;pc3-ada&quot;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> MQTTClient(ME, <span class="st">&quot;test.mosquitto.org&quot;</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>c.<span class="ex">connect</span>()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> on_msg(topic, msg):</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;heard:&quot;</span>, msg.decode())</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>c.set_callback(on_msg)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>c.subscribe(<span class="st">b&quot;pc3/book/chat&quot;</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>c.publish(<span class="st">b&quot;pc3/book/chat&quot;</span>, <span class="st">b&quot;hello from &quot;</span> <span class="op">+</span> ME)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">300</span>):               <span class="co"># listen for ~30 seconds</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    c.check_msg()                  <span class="co"># deliver anything that arrived</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    time.sleep_ms(<span class="dv">100</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>c.disconnect()</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;done listening&quot;</span>)</span></code></pre></div>
+<p>Run it on two machines (or persuade a friend with this book — the
+topic is shared by every reader on Earth, which is rather the point) and
+each hears the other’s hello. Two novelties earn their footnotes: topics
+and messages are <strong>bytes</strong> — the <code>b"..."</code>
+literals — because networks move bytes, not text; <code>.decode()</code>
+turns received bytes back into a string (and <code>.encode()</code> goes
+the other way). And <code>check_msg()</code> is chapter 21’s
+<em>polling</em> philosophy on a network socket: your loop stays in
+charge, messages are delivered when you ask.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> on the WebMite this territory
+is the <code>WEB</code> commands — <code>WEB NTP</code> is
+<code>ntpsync()</code>, <code>WEB GET</code> is
+<code>requests.get</code>, <code>WEB MQTT</code> is <code>umqtt</code> —
+with JSON now landing as live dictionaries rather than strings to
+dissect.</p>
+</blockquote>
+<h2 data-number="30.7" id="experiments-29">Experiments</h2>
+<ol type="1">
+<li>Point the panel at your actual sky: your latitude and longitude are
+one map-app long-press away. Then a holiday destination. Gloat either
+way.</li>
+<li>Spelunk: <code>r = requests.get(URL)</code> at the prompt,
+<code>data = r.json()</code>, and explore <code>data</code> with chapter
+10 moves (<code>data.keys()</code>,
+<code>data["current_weather"]</code>…). Every API you ever meet yields
+to this.</li>
+<li>Break it on purpose, chapter 13 style: wrong URL (watch the 404
+path), Wi-Fi off at the router (the <code>OSError</code> path), then
+watch the panel’s offline counter climb — and recover by itself when the
+network returns.</li>
+<li><code>auto(True)</code>, then power-cycle and watch the boot: the
+clock sets itself. Now <code>tz(5.5)</code> — half-hour timezones exist,
+and the manual said fractions work; verify it.</li>
+<li>Latency safari: <code>ticks_diff</code> around
+<code>requests.get</code> to three different servers. The internet has
+<em>geography</em> — measure it from your shelf.</li>
+</ol>
+<h2 data-number="30.8" id="challenges-29">Challenges</h2>
+<ol type="1">
+<li><strong>The panel, upholstered.</strong> Weather panel + chapter 27:
+a GUI refresh button, a spinner for the refresh interval, and a second
+city on a <code>listbox</code>. (Open-Meteo takes any coordinates — a
+dict of <code>city: (lat, lon)</code> and you’ve built a travel
+gadget.)</li>
+<li><strong>The weather diary.</strong> Once an hour (chapter 29’s
+cron-junior), append <code>date,temp,code</code> to
+<code>/sd/weather.csv</code> — and after a week, <code>plot()</code>
+your own climate record (chapter 8’s plotter, at last fed real data).
+This is a <em>data logger</em>, and laboratories pay money for
+worse.</li>
+<li><strong>Remote lamp.</strong> Subscribe to
+<code>pc3/&lt;yourname&gt;/led</code> and obey <code>b"on"</code> /
+<code>b"off"</code> with <code>Pin("LED")</code> — then send those
+messages from a phone MQTT app. You have built home automation; the
+distance between this and a commercial smart plug is a plastic
+case.</li>
+<li><strong>The two-house hotline.</strong> Two machines, both on
+<code>mqtt_hello</code>’s pattern, each publishing keystrokes and
+printing arrivals — a teletype between houses. Add chapter 20 sounds for
+arrival and chapter 27 for a send box, and grandparents become reachable
+by Pico Computer.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="29-chapter-29-time-and-schedules-the-real-time-clock.html" rel="prev">←&nbsp;Chapter 29 — Time and schedules: the real-time clock</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="31-chapter-31-numbers-at-speed-the-maths-lab.html" rel="next">Chapter 31 — Numbers at speed: the maths lab&nbsp;→</a>
+</nav>
+</body>
+</html>

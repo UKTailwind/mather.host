@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 11 — Functions: building your own
+commands – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="10-chapter-10-collections-lists-tuples-and-dictionaries.html" rel="prev" accesskey="p">←&nbsp;Chapter 10 — Collections: lists, tuples and dictionaries</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="12-chapter-12-strings-and-files.html" rel="next" accesskey="n">Chapter 12 — Strings and files&nbsp;→</a>
+</nav>
+<h1 data-number="11"
+id="chapter-11-functions-building-your-own-commands">Chapter 11 —
+Functions: building your own commands</h1>
+<p>From the first <code>print("I am alive!")</code> you have been giving
+orders in a language somebody else stocked: <code>beep</code>,
+<code>len</code>, <code>input</code>, <code>t.forward</code>. This
+chapter hands you the stockroom keys. A <strong>function</strong> is a
+command <em>you</em> define — named, reusable, parameterised — and the
+moment you can make your own, programs stop being scripts and start
+being <em>built</em>.</p>
+<p>The chapter in advance, since this idea carries as much weight as
+chapter 10’s:</p>
+<ul>
+<li><strong><code>def</code></strong> teaches the machine a new command;
+<em>calling</em> it runs it.</li>
+<li><strong>Parameters</strong> let one function do a family of jobs —
+<code>square(50)</code>, <code>square(120)</code>.</li>
+<li><strong><code>return</code></strong> makes functions that
+<em>answer</em> rather than act.</li>
+<li><strong>Scope</strong>: what happens in a function stays in a
+function — and why that is a gift.</li>
+<li>Finale: your functions move into a <strong>library file</strong>
+that any program can <code>import</code>, and chapter 9’s flower is
+rebuilt in four lines.</li>
+</ul>
+<h2 data-number="11.1" id="def-teaching-then-telling"><code>def</code>:
+teaching, then telling</h2>
+<p><code>edit("learn.py")</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fanfare():</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">440</span>, <span class="dv">200</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">550</span>, <span class="dv">200</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">660</span>, <span class="dv">400</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Ta-da!&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Presenting...&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>fanfare()</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;And once more!&quot;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>fanfare()</span></code></pre></div>
+<p>Two new things and one enormous idea. <code>def fanfare():</code>
+<strong>defines</strong> a command called <code>fanfare</code> — the
+indented block beneath is what it means, exactly as chapter 5 wrote it
+out longhand. Then <code>fanfare()</code> — the name with brackets —
+<strong>calls</strong> it: run my block, then come back here.</p>
+<p>The enormous idea is the timing. When Python reads the
+<code>def</code>, <em>nothing beeps</em>. Definition is teaching, not
+doing — the machine just files the recipe under the name. Only the
+<em>call</em> cooks. Run the program and read its output against the
+source until that ordering feels natural: one definition, two
+performances.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>def</code> is
+<code>SUB ... END SUB</code> (the <code>END SUB</code> being, as ever,
+the dedent), a call needs no <code>CALL</code>, and — coming shortly —
+Python makes no <code>SUB</code>/<code>FUNCTION</code> distinction: one
+keyword covers both.</p>
+</blockquote>
+<p><em>In one line: <code>def name():</code> files a recipe;
+<code>name()</code> cooks it; nothing happens until the call.</em></p>
+<h2 data-number="11.2"
+id="parameters-one-function-a-family-of-jobs">Parameters: one function,
+a family of jobs</h2>
+<p>Chapter 9’s square was always 100 pixels. Compare:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> square(t, size):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">90</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>square(t, <span class="dv">40</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>square(t, <span class="dv">80</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>square(t, <span class="dv">160</span>)</span></code></pre></div>
+<p><code>t</code> and <code>size</code> are <strong>parameters</strong>
+— variables that belong to the function and are filled in fresh at every
+call, from the values (the <strong>arguments</strong>) in the caller’s
+brackets, matched up left to right. One definition, an infinity of
+squares. This is the pattern of every command you have ever called:
+<code>beep(440, 200)</code> was filling in somebody else’s
+<code>freq</code> and <code>ms</code> all along.</p>
+<p>(Why pass the turtle in as <code>t</code>? So the function works on
+<em>any</em> turtle it is handed, rather than reaching for one
+particular turtle by name — the sealed-room section below makes this
+precise.)</p>
+<p>Two refinements you have already <em>used</em> and can now
+<em>make</em>. A parameter can carry a <strong>default</strong>, used
+when the caller doesn’t say:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polygon(t, sides, size<span class="op">=</span><span class="dv">60</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(sides):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> sides)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>polygon(t, <span class="dv">6</span>)          <span class="co"># a hexagon, default size</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>polygon(t, <span class="dv">3</span>, <span class="dv">200</span>)     <span class="co"># a big triangle</span></span></code></pre></div>
+<p>— which is exactly why <code>beep()</code> works bare (its definition
+says <code>freq=880, ms=150</code>) and <code>t.right()</code> turns 90.
+And arguments can be given <strong>by name</strong>, which reads
+beautifully when there are several:
+<code>polygon(t, sides=8, size=45)</code>. You met this as
+<code>sort(reverse=True)</code> and
+<code>plot(readings, style="bar")</code> — keyword arguments,
+demystified.</p>
+<p><em>In one line: parameters make a function general; defaults make it
+polite; naming arguments makes calls readable.</em></p>
+<h2 data-number="11.3"
+id="return-functions-that-answer"><code>return</code>: functions that
+answer</h2>
+<p><code>fanfare</code> and <code>square</code> <em>act</em>. The other
+half of the family <em>answers</em> — they hand a value back to whoever
+called, with <code>return</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dog_years(age):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> age <span class="op">*</span> <span class="dv">7</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dog_years(<span class="dv">6</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>oldest <span class="op">=</span> dog_years(<span class="dv">15</span>)</span></code></pre></div>
+<p>A call with a <code>return</code> behind it is an <em>expression</em>
+— it can sit anywhere a value sits: inside a <code>print</code>, on the
+right of an <code>=</code>, inside another call. You have leaned on this
+shape all book: <code>len(name)</code>, <code>int(input(...))</code>,
+<code>random.randint(1, 5)</code> are all functions answering.</p>
+<p>Now the confusion to kill early, because it catches everyone:
+<strong><code>return</code> is not <code>print</code>.</strong>
+<code>print</code> shows a value to a <em>human</em> and hands back
+nothing; <code>return</code> hands a value to <em>code</em> and shows
+nothing. A function that prints its result cannot be used in arithmetic;
+a function that returns it can do both — the caller decides whether to
+print. When in doubt, return.</p>
+<p>Functions can return early (handy for verdicts), and — chapter 10
+cashing in — can return <em>several</em> things as a tuple, unpacked on
+arrival:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> spread(numbers):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">min</span>(numbers), <span class="bu">max</span>(numbers)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>low, high <span class="op">=</span> spread([<span class="dv">31</span>, <span class="dv">7</span>, <span class="dv">90</span>, <span class="dv">44</span>])</span></code></pre></div>
+<p>(<code>min</code> and <code>max</code> are built-ins that do what
+they say — meet them properly in appendix E.)</p>
+<p><em>In one line: <code>return</code> hands a value back to the
+caller; print is for people, return is for code.</em></p>
+<h2 data-number="11.4" id="scope-the-sealed-room">Scope: the sealed
+room</h2>
+<p>Type this and predict the last line before running it:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> experiment():</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    inside <span class="op">=</span> <span class="dv">99</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>experiment()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inside)</span></code></pre></div>
+<p><code>NameError: name 'inside' isn't defined</code>. The variable
+born inside the function <em>died</em> when the function finished.
+Parameters and any names a function assigns are <strong>local</strong> —
+chalk marks on the inside of a sealed room, wiped when the call ends.
+Ten calls, ten fresh rooms; no call can see another’s chalk.</p>
+<p>This is a feature of the first rank. It means you can write a
+function using whatever throwaway names you like (<code>i</code>,
+<code>total</code>, <code>size</code>) with a guarantee it cannot
+trample your program’s variables — nor your program its. It is
+<em>why</em> a library written by a stranger is safe to import. The room
+has exactly two doors, both of which you control: parameters carry
+values in, <code>return</code> carries answers out.</p>
+<p>(For completeness: a function may <em>read</em> an outside name it
+never assigns — that is why <code>square</code> could have used a global
+turtle. Prefer the doors anyway; functions that name their needs in
+their parameter list can be read, tested and reused without archaeology.
+Python does have a <code>global</code> escape hatch; this book will not
+be needing it for a long while.)</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> the default has flipped. In
+MMBasic a SUB sees the program’s variables unless it says
+<code>LOCAL</code>; in Python everything a function assigns is local
+unless it goes out of its way. The Python default is the one you would
+have chosen with hindsight — <code>LOCAL</code> everywhere, enforced by
+the language.</p>
+</blockquote>
+<p><em>In one line: names made in a function live and die there; pass in
+through parameters, hand back through <code>return</code>.</em></p>
+<figure>
+<img src="figs/11-function.png"
+alt="A function is a sealed room with two doors: arguments enter through the parameters, the answer leaves through return. Names made inside are private and vanish when the call ends — ten calls, ten fresh rooms." />
+<figcaption aria-hidden="true">A function is a sealed room with two
+doors: arguments enter through the parameters, the answer leaves through
+<code>return</code>. Names made inside are private and vanish when the
+call ends — ten calls, ten fresh rooms.</figcaption>
+</figure>
+<h2 data-number="11.5"
+id="the-refactor-chapter-9-four-lines-at-a-time">The refactor: chapter
+9, four lines at a time</h2>
+<p>Watch what functions do to the flower. Before — chapter 9’s nested
+loops; after:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polygon(t, sides, size<span class="op">=</span><span class="dv">60</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(sides):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> sides)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flower(t, petals, size):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(petals):</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        polygon(t, <span class="dv">4</span>, size)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> petals)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>t.pencolor(MAGENTA)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>flower(t, <span class="dv">12</span>, <span class="dv">70</span>)</span></code></pre></div>
+<p>Read <code>flower</code> aloud: <em>petals times — draw a square,
+turn a petal’s worth.</em> The nested loop is still there, but the inner
+one now has a <strong>name</strong>, and the name does the explaining.
+Functions calling functions is how small ideas compose into big ones —
+and notice <code>flower</code> doesn’t know how <code>polygon</code>
+walks, only what it <em>achieves</em>. You will feel the full force of
+this in Part IV, when <code>update_aliens()</code> and
+<code>draw_score()</code> make a game loop read like a story.</p>
+<h2 data-number="11.6" id="project-your-shapes-library">Project: your
+shapes library</h2>
+<p>The functions above are too good to belong to one program. Any
+<code>.py</code> file is a <strong>module</strong> — the same mechanism
+as <code>math</code> and <code>random</code> — and <code>import</code>
+will fetch yours by filename. <code>edit("shapes.py")</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># shapes.py -- turtle shape library. import shapes; shapes.star(t,</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 5, 100)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polygon(t, sides, size<span class="op">=</span><span class="dv">60</span>):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(sides):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> sides)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> star(t, points, size<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(points):</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">180</span> <span class="op">-</span> <span class="dv">180</span> <span class="op">/</span> points)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flower(t, petals, size<span class="op">=</span><span class="dv">60</span>):</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(petals):</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        polygon(t, <span class="dv">4</span>, size)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> petals)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> burst(t, spokes, size<span class="op">=</span><span class="dv">80</span>):</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(spokes):</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        t.forward(size)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        t.back(size)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        t.right(<span class="dv">360</span> <span class="op">/</span> spokes)</span></code></pre></div>
+<p>(One upgrade smuggled in: <code>star</code> now computes its own
+angle — <code>180 - 180/points</code> closes a star for any odd number
+of points; try proving that with chapter 9’s turning-total argument.
+Also note the comment on line 1 saying what the file is and how to use
+it: the first line of every library you write deserves this.)</p>
+<p>Now a gallery program that <em>uses</em> it —
+<code>edit("gallery.py")</code>:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shapes</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> Turtle()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>t.reset()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>t.pencolor(YELLOW)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>shapes.star(t, <span class="dv">7</span>, <span class="dv">90</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>t.penup()<span class="op">;</span> t.goto(<span class="dv">120</span>, <span class="dv">120</span>)<span class="op">;</span> t.pendown()</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>t.pencolor(CYAN)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>shapes.flower(t, <span class="dv">9</span>, <span class="dv">40</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>t.penup()<span class="op">;</span> t.goto(<span class="dv">520</span>, <span class="dv">360</span>)<span class="op">;</span> t.pendown()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>t.pencolor(RED)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>shapes.burst(t, <span class="dv">24</span>, <span class="dv">60</span>)</span></code></pre></div>
+<p><code>import shapes</code> reads your file once and serves its
+functions under the <code>shapes.</code> prefix — exactly
+<code>math.sqrt</code>’s arrangement, now that you have seen behind the
+curtain. (<code>from shapes import star, flower</code> imports chosen
+names <em>without</em> the prefix — handy in small programs; the
+prefixed form scales better once several libraries are in play.)</p>
+<h3 data-number="11.6.1" id="optional-type-hints">Optional: type
+hints</h3>
+<p>You will see MicroPython code that writes functions like this:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> area(width: <span class="bu">int</span>, height: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> width <span class="op">*</span> height</span></code></pre></div>
+<p>The <code>: int</code> and <code>-&gt; float</code> are <strong>type
+hints</strong> — notes about what each parameter expects and what the
+function hands back. For an ordinary function MicroPython
+<em>ignores</em> them while the program runs (exactly as desktop Python
+does): they are documentation, for human readers and for tools, not
+rules the machine enforces — <code>area("a", "b")</code> still fails
+only when the <code>*</code> gives up, not at the door. They earn their
+keep in two ways. First, they make a function’s contract obvious when
+you are reading — or debugging — code, your own included. Second, and
+less obviously, the speed-up decorators of chapter 35
+(<code>@micropython.viper</code> above all) read them as <em>real</em>
+type declarations and use them to generate fast machine code. Optional
+everywhere else; a good habit once functions grow.</p>
+<h3 data-number="11.6.2" id="where-import-looks">Where
+<code>import</code> looks</h3>
+<p>Notice what <code>import shapes</code> does <em>not</em> say: where
+the file is. An import names a module, never a path —
+<code>import "/sd/shapes.py"</code> is a SyntaxError, quotes, slashes
+and all. Instead, Python keeps a list of folders it searches, and you
+can inspect it:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">import</span> sys</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(sys.path)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>[<span class="st">&#39;&#39;</span>, <span class="st">&#39;.frozen&#39;</span>, <span class="st">&#39;/lib&#39;</span>]</span></code></pre></div>
+<p>Three entries, each worth knowing:</p>
+<ul>
+<li><strong><code>''</code> — the current folder.</strong> For you this
+is better than it looks: <code>run()</code> always moves into the
+program’s own folder while it runs, so <em>a library sitting next to
+your program is always found</em> — flash or SD card alike. A game on
+<code>/sd/games</code> finds its <code>shapes.py</code> neighbour with
+no arrangements at all; program and libraries travel together, and
+copying the folder copies the lot.</li>
+<li><strong><code>.frozen</code> — inside the firmware.</strong> The
+system’s own modules (<code>pye</code>, the shell, the sprite engine…)
+are baked in here. Nothing to manage; just know the name so the list
+doesn’t look mysterious.</li>
+<li><strong><code>/lib</code> — the machine-wide shelf.</strong> A
+folder on the flash drive searched from anywhere:
+<code>cp("shapes.py", "/lib")</code> and every program on the machine
+can <code>import shapes</code>, no neighbouring required.</li>
+</ul>
+<p>Python walks that list <strong>in order, stopping at the first
+match</strong> — your program’s folder, then <code>.frozen</code>, then
+<code>/lib</code>. So a <code>shapes.py</code> sitting beside your
+program <em>shadows</em> one on the <code>/lib</code> shelf: handy when
+a project wants its own tweaked copy, a trap on the day you forget an
+old neighbour is hiding the shelf version you meant to use.</p>
+<p>The list is a plain list — chapter 10 applies — so you can put more
+shelves on it:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sys.path.append(<span class="st">&quot;/sd/mylibs&quot;</span>)</span></code></pre></div>
+<p>From then on (until the next reset) imports also search that folder.
+To make it permanent, put it in <code>/boot.py</code> —
+<code>main.py</code>’s quieter sibling from chapter 5, which runs at
+every start-up, before anything else:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># /boot.py -- runs before any program, at every start-up</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">&quot;/sd/mylibs&quot;</span>)</span></code></pre></div>
+<p>One caution before you build your library empire on the SD card: the
+card is removable, and a shelf that vanishes mid-project makes for
+puzzling <code>ImportError</code>s. The reliable homes are the two that
+are always there: next to the program, and <code>/lib</code> on
+flash.</p>
+<h3 data-number="11.6.3"
+id="libraries-the-world-already-wrote">Libraries the world already
+wrote</h3>
+<p>You have written your own modules, and the machine came with dozens
+frozen in. There is a third shelf, and it is vast: the libraries other
+people have written and shared. MicroPython has an installer for exactly
+this — <strong><code>mip</code></strong>, the small cousin of the
+<code>pip</code> you may have heard of. Given Wi-Fi (chapter 30), one
+line fetches a library from the internet and files it under
+<code>/lib</code>, ready to <code>import</code>:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">import</span> mip</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># a fuller date/time library, from micropython-lib</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> mip.install(<span class="st">&quot;datetime&quot;</span>)</span></code></pre></div>
+<p>That is the whole idea; the <em>craft</em> of it — where the good
+libraries live, how to tell a sound one from a shaky one, and how to
+wire one to real hardware — earns a chapter of its own later on
+(<strong>chapter 33</strong>). Note only that, unlike the shell commands
+and <code>run()</code>, none of this is Pico Computer 3 specific:
+<code>mip</code>, <code>/lib</code> and <code>import</code> work the
+same on every MicroPython board, so a library you learn to install here
+you can install anywhere.</p>
+<h3 data-number="11.6.4" id="the-stale-library-gotcha">The stale-library
+gotcha</h3>
+<p>One more thing before the chapter closes, worth meeting today rather
+than mid-project: Python reads a module <strong>once per
+session</strong> and keeps it cached — if you edit
+<code>shapes.py</code>, a re-<code>run</code> of <code>gallery.py</code>
+still sees the <em>old</em> version. Press <strong>Ctrl-D</strong> at
+the prompt (a “soft reset” — the machine restarts Python itself, in a
+second, files untouched) and run again: edits picked up. Edit library,
+Ctrl-D, run — let it become a reflex.</p>
+<p>This is the exception chapter 5 hinted at when it called each run
+only <em>fresh-ish</em>. Your program’s own variables really do vanish
+between runs; but an <code>import</code> is cached one level deeper — in
+the interpreter, not in your program — so it outlives them. The same
+soft reset (Ctrl-D) clears both.</p>
+<h2 data-number="11.7" id="what-you-now-hold-1">What you now hold</h2>
+<ul>
+<li><strong><code>def name(parameters):</code></strong> files a recipe;
+<code>name(arguments)</code> cooks it, matching arguments to parameters
+left to right. Nothing runs at definition time.</li>
+<li><strong>Defaults</strong> (<code>size=60</code>) make arguments
+optional; <strong>keyword arguments</strong>
+(<code>polygon(t, sides=8)</code>) make calls readable — and both now
+explain every API you have used.</li>
+<li><strong><code>return</code></strong> hands a value to the caller; a
+returning call sits anywhere a value sits. Print is for people, return
+is for code. Tuples let one call answer with several values.</li>
+<li><strong>Scope</strong>: what a function assigns is local — a sealed
+room with two doors, parameters in and <code>return</code> out. (MMBasic
+users: the <code>LOCAL</code> default just flipped, in your
+favour.)</li>
+<li><strong>Any <code>.py</code> file is a module</strong>:
+<code>import shapes</code> serves your own functions like
+<code>math</code> serves <code>sqrt</code>. Imports take names, not
+paths — the search list is <code>sys.path</code> (<code>''</code> = the
+running program’s own folder, <code>/lib</code> = the machine-wide
+shelf, and <code>sys.path.append</code> adds more). After editing a
+library, Ctrl-D then run.</li>
+</ul>
+<h2 data-number="11.8" id="experiments-10">Experiments</h2>
+<ol type="1">
+<li>Give <code>fanfare</code> a <code>notes</code> parameter and play a
+scale: <code>for</code> over <code>range(notes)</code> raising the
+frequency each beep. Then give it a default.</li>
+<li>Predict, run, explain: what does <code>print(fanfare())</code> print
+<em>after</em> the ta-da? (Every function returns something — the
+no-answer answer is called <code>None</code>, and now you have seen
+it.)</li>
+<li>Write <code>c_to_f(c)</code> returning the Fahrenheit conversion
+from chapter 6, and use it three ways: in a <code>print</code>, in an
+<code>if</code> (frost warning), and to build a table with a loop. One
+<code>return</code>, three careers.</li>
+<li>Break the seal on purpose: have <code>square</code> assign
+<code>size = 999</code> inside, and print <code>size</code> before and
+after calling it from a program that also has a <code>size</code>. Whose
+survives? Why?</li>
+<li>Add <code>ring(t, n, size)</code> to the library — <code>n</code>
+small circles (<code>t.circle</code>) around a centre,
+<code>push()</code>/<code>pop()</code> to come home each time. Then
+Ctrl-D, and see it appear in the gallery.</li>
+</ol>
+<h2 data-number="11.9" id="challenges-10">Challenges</h2>
+<ol type="1">
+<li><strong>The dojo, refactored.</strong> Rebuild chapter 8’s
+times-table dojo as three functions: <code>ask(a, b)</code> returns
+True/False for one question, <code>drill(n)</code> runs <code>n</code>
+of them returning the score, and the top level is two lines. Same
+behaviour, new architecture — diff the feeling.</li>
+<li><strong>The greeting-card factory.</strong>
+<code>card(name, tune)</code> prints a framed card (chapter 5’s
+<code>=</code> borders as a <code>frame(text)</code> helper) and plays
+one of several tunes by name — a dictionary of tunes, chapter 10 style,
+where each <em>value</em> is a function. (Yes, functions can live in
+collections. Sit with that one.)</li>
+<li><strong>The scene.</strong> <code>house(t, x, y, size)</code> —
+walls, roof, door, all polygons, everything scaled from
+<code>size</code>. Then a street of houses in a loop, sizes from
+<code>random.randint</code>. Composition all the way down: scene calls
+house calls polygon calls forward.</li>
+<li><strong>Guess-the-number, the library.</strong> Extract chapter 8’s
+game into <code>play(low, high)</code> returning the number of tries,
+then write a tournament program: three rounds,
+<code>hiscore.py</code>-style table of results. Two of your programs,
+meeting through an import.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="10-chapter-10-collections-lists-tuples-and-dictionaries.html" rel="prev">←&nbsp;Chapter 10 — Collections: lists, tuples and dictionaries</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="12-chapter-12-strings-and-files.html" rel="next">Chapter 12 — Strings and files&nbsp;→</a>
+</nav>
+</body>
+</html>

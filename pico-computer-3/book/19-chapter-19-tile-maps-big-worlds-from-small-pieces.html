@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 19 — Tile maps: big worlds from small
+pieces – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="18-chapter-18-sprites.html" rel="prev" accesskey="p">←&nbsp;Chapter 18 — Sprites</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="20-chapter-20-sound-and-music.html" rel="next" accesskey="n">Chapter 20 — Sound and music&nbsp;→</a>
+</nav>
+<h1 data-number="19"
+id="chapter-19-tile-maps-big-worlds-from-small-pieces">Chapter 19 — Tile
+maps: big worlds from small pieces</h1>
+<p>Every large game world you have ever wandered — dungeon, kingdom,
+galaxy — was almost certainly a <strong>tile map</strong>: a small set
+of square pictures, reused thousands of times according to a grid of
+numbers. The economy is glorious: six 16×16 tiles plus a 64×48 grid of
+indices is a 1024×768-pixel <em>world</em> for about three kilobytes.
+Chapter 10’s “turtle by data” challenge told you the drawing should live
+in the data; here that idea gets a C-speed engine, a camera, and
+collision. This is the last piece of world-building machinery before
+Part IV.</p>
+<p>Two ingredients, then:</p>
+<ul>
+<li>A <strong>tileset</strong> — one image holding equal-size tiles,
+side by side. Tile <strong>1</strong> is the leftmost, counting
+left-to-right (then row by row); index <strong>0 means empty</strong> —
+nothing drawn, background shows through.</li>
+<li>A <strong>map</strong> — a grid of those indices, as big as you
+please. The screen shows a <strong>viewport</strong> onto it, and moving
+the viewport is scrolling.</li>
+</ul>
+<figure>
+<img src="figs/19-tileset-map.png"
+alt="A tile map is a small tileset (tiles numbered from 1; index 0 is empty) plus a grid of indices. tm.draw() stamps the tile named by each index — here index 3 is the tree — so a few kilobytes of numbers become a whole world." />
+<figcaption aria-hidden="true">A tile map is a small
+<strong>tileset</strong> (tiles numbered from 1; index 0 is empty) plus
+a <strong>grid of indices</strong>. <code>tm.draw()</code> stamps the
+tile named by each index — here index 3 is the tree — so a few kilobytes
+of numbers become a whole world.</figcaption>
+</figure>
+<h2 data-number="19.1" id="forging-the-tileset">Forging the tileset</h2>
+<p>Per house rules, we owe no one any artwork. This program draws six
+tiles — grass, water, tree, rock, flower, and our explorer — and banks
+them as a file, chapter 16’s pipeline exactly.
+<code>edit("maketiles.py")</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d.fill(d.colour(BLACK))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>GRASS <span class="op">=</span> d.colour(<span class="bn">0x1E7A1E</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>DARK <span class="op">=</span> d.colour(<span class="bn">0x156015</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 1: grass (x 0-15), speckled</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    d.pixel(<span class="dv">2</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">2</span>, (i <span class="op">*</span> <span class="dv">5</span>) <span class="op">%</span> <span class="dv">16</span>, DARK)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 2: water</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, d.colour(<span class="bn">0x1040A0</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>d.hline(<span class="dv">18</span>, <span class="dv">5</span>, <span class="dv">10</span>, d.colour(<span class="bn">0x3070D0</span>))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>d.hline(<span class="dv">20</span>, <span class="dv">11</span>, <span class="dv">10</span>, d.colour(<span class="bn">0x3070D0</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 3: tree (on grass)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">32</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">39</span>, <span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">5</span>, d.colour(BROWN))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>d.ellipse(<span class="dv">40</span>, <span class="dv">6</span>, <span class="dv">6</span>, <span class="dv">6</span>, d.colour(MYRTLE), <span class="va">True</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 4: rock (on grass)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">48</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>d.rbox(<span class="dv">50</span>, <span class="dv">4</span>, <span class="dv">12</span>, <span class="dv">10</span>, <span class="dv">3</span>, d.colour(GRAY), d.colour(GRAY))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 5: flowers (on grass)</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">64</span>, <span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">16</span>, GRASS)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> fx, fy <span class="kw">in</span> ((<span class="dv">68</span>, <span class="dv">4</span>), (<span class="dv">74</span>, <span class="dv">9</span>), (<span class="dv">69</span>, <span class="dv">12</span>)):</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx, fy <span class="op">-</span> <span class="dv">1</span>, d.colour(MAGENTA))</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx <span class="op">-</span> <span class="dv">1</span>, fy, d.colour(MAGENTA))</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx <span class="op">+</span> <span class="dv">1</span>, fy, d.colour(MAGENTA))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx, fy <span class="op">+</span> <span class="dv">1</span>, d.colour(MAGENTA))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    d.pixel(fx, fy, d.colour(YELLOW))</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># tile 6: the explorer (on black -- black becomes the cut-out)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">84</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">7</span>, d.colour(GOLD))          <span class="co"># body</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">85</span>, <span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">5</span>, d.colour(LITEGRAY))      <span class="co"># head</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">84</span>, <span class="dv">13</span>, <span class="dv">3</span>, <span class="dv">3</span>, d.colour(RED))          <span class="co"># boots</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">89</span>, <span class="dv">13</span>, <span class="dv">3</span>, <span class="dv">3</span>, d.colour(RED))</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>save_image(<span class="st">&quot;tiles.bmp&quot;</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;tileset saved&quot;</span>)</span></code></pre></div>
+<p>Run it, admire the six squares, move on. (A tip for later: this file
+<em>is</em> your art studio — better trees are an edit away, and every
+world you build inherits them.)</p>
+<h2 data-number="19.2" id="a-first-map">A first map</h2>
+<p><code>edit("meadow.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pcimage <span class="im">import</span> load_image</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the maps below are sized for 640x480</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>sheet <span class="op">=</span> load_image(<span class="st">&quot;tiles.bmp&quot;</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># exactly one 640x480 screen</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>tm <span class="op">=</span> TileMap(sheet, <span class="dv">16</span>, <span class="dv">16</span>, cols<span class="op">=</span><span class="dv">40</span>, rows<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>tm.fill(<span class="dv">1</span>)                                      <span class="co"># grass everywhere</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># a tree at column 5, row 3</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>tm.<span class="bu">set</span>(<span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>tm.<span class="bu">set</span>(<span class="dv">6</span>, <span class="dv">3</span>, <span class="dv">3</span>)                                 <span class="co"># and a neighbour</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># flowers mid-meadow</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>tm.<span class="bu">set</span>(<span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">5</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># a river along row 20</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">40</span>):</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(col, <span class="dv">20</span>, <span class="dv">2</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>tm.view(<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>tm.draw()</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">8</span>)</span></code></pre></div>
+<p><code>TileMap(sheet, tile_w, tile_h, cols, rows)</code> makes the
+world — <code>tm.fill()</code> and <code>tm.set(col, row, tile)</code>
+paint by number, <code>tm.view()</code> aims the camera in <em>world
+pixels</em>, and <code>tm.draw()</code> renders the viewport in one
+C-speed call. A 1,200-cell screen, drawn faster than a single
+<code>draw_jpg</code>. (Note the map coordinates are
+<strong>cells</strong>, the view coordinates <strong>pixels</strong> —
+cell <code>(5, 3)</code> sits at world pixel <code>(80, 48)</code>.
+Keeping the two systems straight is half of tile-map programming;
+<code>// 16</code> and <code>* 16</code> are the bridge.)</p>
+<figure>
+<img src="figs/19-coordinates.png"
+alt="The three coordinate systems a tile map juggles. A cell (5, 3) becomes a world pixel (80, 48) by ×16 (the tile size); subtract the camera’s view (vx, vy) to get the screen position you draw at. Going back the other way, // 16 turns a world pixel into a cell." />
+<figcaption aria-hidden="true">The three coordinate systems a tile map
+juggles. A <strong>cell</strong> <code>(5, 3)</code> becomes a
+<strong>world pixel</strong> <code>(80, 48)</code> by ×16 (the tile
+size); subtract the camera’s <strong>view</strong> <code>(vx, vy)</code>
+to get the <strong>screen</strong> position you draw at. Going back the
+other way, <code>// 16</code> turns a world pixel into a
+cell.</figcaption>
+</figure>
+<p>Maps can also arrive as <em>data</em> —
+<code>TileMap(..., data=rows)</code> takes a list of row-lists (chapter
+10 nesting, professionally employed), and
+<code>TileMap.load("world.csv")</code> reads one from a comma-separated
+file: a whole level, editable in <code>pye</code>, shareable on the SD
+card, designed by someone who has never seen your code. The
+machinery/data separation of chapter 10, now with landscapes.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this is <code>TILEMAP</code> —
+the same 0-is-empty rule, 1-based tile numbering, attributes and
+collision test, with the map wrapped in an object.</p>
+</blockquote>
+<h2 data-number="19.3" id="the-camera-worlds-beyond-the-screen">The
+camera: worlds beyond the screen</h2>
+<p>Now the real thing: a world four times the screen, and a camera that
+glides over it. <code>edit("glide.py")</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pcimage <span class="im">import</span> load_image</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>sheet <span class="op">=</span> load_image(<span class="st">&quot;tiles.bmp&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>tm <span class="op">=</span> TileMap(sheet, <span class="dv">16</span>, <span class="dv">16</span>, cols<span class="op">=</span><span class="dv">80</span>, rows<span class="op">=</span><span class="dv">60</span>)     <span class="co"># 1280x960 world</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>tm.fill(<span class="dv">1</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">7</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># scatter scenery</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">120</span>):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">0</span>, <span class="dv">79</span>), random.randint(<span class="dv">0</span>, <span class="dv">59</span>),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>           random.randint(<span class="dv">2</span>, <span class="dv">5</span>))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># camera stays on the map</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>tm.clamp(hdmi.width(), hdmi.height())</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    vx <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># a slow southward drift</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> vy <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">960</span> <span class="op">-</span> <span class="dv">480</span> <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span>):</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        vx <span class="op">=</span> <span class="bu">min</span>(vx <span class="op">+</span> <span class="dv">1</span>, <span class="dv">1280</span> <span class="op">-</span> <span class="dv">640</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        tm.view(vx, vy)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        tm.draw()</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        hdmi.vsync()</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>The frame recipe is chapter 17’s flip, with <code>tm.draw()</code> as
+the entire scene: compose on F, flip on vsync. Two lines deserve
+attention. <code>tm.clamp(vw, vh)</code> — told the viewport’s size once
+— stops <code>view</code> and <code>scroll</code> ever showing the void
+past the map’s edges. And the drift maths caps <code>vx</code> at
+<code>1280 - 640</code>: world width minus screen width, the camera’s
+last legal position — the clamp would catch it anyway, but knowing
+<em>why</em> that number is the limit is the skill.</p>
+<h2 data-number="19.4" id="walking-on-the-world">Walking on the
+world</h2>
+<p>A camera is not a game; a <em>character</em> is. Three tools make the
+world solid underfoot:</p>
+<ul>
+<li><strong><code>tm.blit_tile(tile, sx, sy, skip)</code></strong>
+stamps one tile at a <em>screen</em> position — drawn after
+<code>tm.draw()</code>, it is the cheapest possible player graphic (our
+tile 6, with black as the <code>skip</code> cut-out). Sprites (chapter
+18) work here too; for one hero, this is lighter.</li>
+<li><strong><code>tm.set_attr(tile, value)</code></strong> tags a tile
+<em>kind</em> with a number — conventionally a bitmask,
+<code>SOLID = 1</code> — and
+<strong><code>tm.collide(wx, wy, w, h, mask=SOLID)</code></strong>
+answers: does this world rectangle overlap any tile tagged solid? That
+one call is walls, water, and locked doors.</li>
+<li><strong><code>tm.tile_at(wx, wy)</code></strong> names the tile
+under a world pixel — “am I standing in flowers?”</li>
+</ul>
+<p>And the movement idiom that goes with them, worth learning as a
+sentence: <strong>try the move, and only keep it if the world says
+yes.</strong></p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>nx <span class="op">=</span> px <span class="op">+</span> dx</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> tm.collide(nx, py, <span class="dv">14</span>, <span class="dv">14</span>, mask<span class="op">=</span>SOLID):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    px <span class="op">=</span> nx</span></code></pre></div>
+<p>(That fragment is part of the project below, not a program — the one
+exception the house style allows itself, because you are about to paste
+its home.)</p>
+<h2 data-number="19.5" id="project-the-island">Project: the island</h2>
+<p>A generated island, a camera that follows you, trees and water that
+stop you, flowers that want picking. <code>edit("island.py")</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pcimage <span class="im">import</span> load_image</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB640)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>GRASS, WATER, TREE, ROCK, FLOWER, HERO <span class="op">=</span> <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>SOLID <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>sheet <span class="op">=</span> load_image(<span class="st">&quot;tiles.bmp&quot;</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>tm <span class="op">=</span> TileMap(sheet, <span class="dv">16</span>, <span class="dv">16</span>, cols<span class="op">=</span><span class="dv">64</span>, rows<span class="op">=</span><span class="dv">48</span>)     <span class="co"># 1024x768 world</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># --- generate the island</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co"># the book&#39;s island; change me</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">12</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>tm.fill(GRASS)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co"># ocean border, two deep</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">64</span>):</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">46</span>, <span class="dv">47</span>):</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        tm.<span class="bu">set</span>(col, row, WATER)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">48</span>):</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">62</span>, <span class="dv">63</span>):</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>        tm.<span class="bu">set</span>(col, row, WATER)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">90</span>):                               <span class="co"># forest</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">2</span>, <span class="dv">61</span>), random.randint(<span class="dv">2</span>, <span class="dv">45</span>), TREE)</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">25</span>):                               <span class="co"># boulders</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">2</span>, <span class="dv">61</span>), random.randint(<span class="dv">2</span>, <span class="dv">45</span>), ROCK)</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">40</span>):                               <span class="co"># flowers</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    tm.<span class="bu">set</span>(random.randint(<span class="dv">2</span>, <span class="dv">61</span>), random.randint(<span class="dv">2</span>, <span class="dv">45</span>), FLOWER)</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="co"># clear ground at the start</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> (<span class="dv">31</span>, <span class="dv">32</span>, <span class="dv">33</span>):</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row <span class="kw">in</span> (<span class="dv">23</span>, <span class="dv">24</span>, <span class="dv">25</span>):</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        tm.<span class="bu">set</span>(col, row, GRASS)</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>tm.set_attr(WATER, SOLID)</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>tm.set_attr(TREE, SOLID)</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>tm.set_attr(ROCK, SOLID)</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>tm.clamp(W, H)</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="co"># start mid-island</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>px, py <span class="op">=</span> <span class="dv">32</span> <span class="op">*</span> <span class="dv">16</span>, <span class="dv">24</span> <span class="op">*</span> <span class="dv">16</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>picked <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>BLACK_C <span class="op">=</span> d.colour(BLACK)</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>hdmi.close(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>hdmi.create()</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        <span class="co"># try the move; keep it if the world allows</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        nx, ny <span class="op">=</span> px, py</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.LEFT):</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>            nx <span class="op">-=</span> <span class="dv">2</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.RIGHT):</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>            nx <span class="op">+=</span> <span class="dv">2</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.UP):</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>            ny <span class="op">-=</span> <span class="dv">2</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.DOWN):</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>            ny <span class="op">+=</span> <span class="dv">2</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> tm.collide(nx, py, <span class="dv">14</span>, <span class="dv">14</span>, mask<span class="op">=</span>SOLID):</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>            px <span class="op">=</span> nx</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> tm.collide(px, ny, <span class="dv">14</span>, <span class="dv">14</span>, mask<span class="op">=</span>SOLID):</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>            py <span class="op">=</span> ny</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>        <span class="co"># standing in flowers? pick them</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> tm.tile_at(px <span class="op">+</span> <span class="dv">7</span>, py <span class="op">+</span> <span class="dv">7</span>) <span class="op">==</span> FLOWER:</span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>            tm.<span class="bu">set</span>((px <span class="op">+</span> <span class="dv">7</span>) <span class="op">//</span> <span class="dv">16</span>, (py <span class="op">+</span> <span class="dv">7</span>) <span class="op">//</span> <span class="dv">16</span>, GRASS)</span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>            picked <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">880</span>, <span class="dv">15</span>)</span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>        <span class="co"># camera follows, map-clamped</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>        vx <span class="op">=</span> px <span class="op">+</span> <span class="dv">7</span> <span class="op">-</span> W <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>        vy <span class="op">=</span> py <span class="op">+</span> <span class="dv">7</span> <span class="op">-</span> H <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>        tm.view(vx, vy)</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compose and flip</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>        hdmi.write(<span class="st">&quot;F&quot;</span>)</span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>        tm.draw()</span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>        tm.blit_tile(HERO, px <span class="op">-</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(vx, <span class="dv">1024</span> <span class="op">-</span> W)),</span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>                     py <span class="op">-</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(vy, <span class="dv">768</span> <span class="op">-</span> H)), skip<span class="op">=</span>BLACK_C)</span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>        hdmi.text(<span class="ss">f&quot;flowers: </span><span class="sc">{</span>picked<span class="sc">}</span><span class="ss">&quot;</span>, <span class="dv">8</span>, <span class="dv">8</span>, d.colour(WHITE),</span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>                  BLACK_C)</span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>        hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>        hdmi.vsync()</span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>        hdmi.copy(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;N&quot;</span>)</span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    hdmi.write(<span class="st">&quot;N&quot;</span>)</span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Wander. Pick the meadows clean. Fail to walk through a tree. Then
+read the interesting parts back:</p>
+<ul>
+<li><strong>Axis-by-axis movement.</strong> The try-the-move test runs
+twice — x, then y — so sliding along a wall works: a diagonal into a
+tree still lets the legal half of the motion through. One of those
+details that separates games that <em>feel</em> right.</li>
+<li><strong>Cells versus pixels, everywhere.</strong> The player lives
+in world pixels; picking a flower converts to a cell
+(<code>// 16</code>) to edit the map; the camera subtracts view from
+world to get screen. Every line is one of the three coordinate systems —
+name them as you read and the program becomes transparent.</li>
+<li><strong>The world is mutable.</strong> <code>tm.set</code> mid-game
+turns flowers to grass — the map is a live data structure, not a
+backdrop. Doors that open, bridges that burn, crops that grow: all
+<code>tm.set</code>.</li>
+<li><strong>The camera clamp trick.</strong> <code>tm.view()</code>
+clamps itself, but the hero must be drawn relative to the
+<em>clamped</em> view — hence the <code>max(0, min(...))</code>
+mirroring it. (Stand at the island’s edge and watch yourself walk away
+from the screen centre: that’s the clamp, working.)</li>
+<li>And the collar: <code>console("none")</code>, F discipline,
+everything restored in <code>finally</code> — the chapter 17 manners,
+now habit.</li>
+</ul>
+<h2 data-number="19.6" id="experiments-18">Experiments</h2>
+<ol type="1">
+<li>Change the seed. Then change the <em>recipe</em> — more forest, a
+flower shortage, an inland lake (a <code>for</code> loop of
+<code>WATER</code> cells). The island is ten lines of generation; own
+them.</li>
+<li>Print your surroundings: once per second (a frame counter),
+<code>print(tm.tile_at(px + 7, py + 16))</code> — the tile under your
+<em>feet</em> rather than your middle. (Where does the print go while
+<code>console("none")</code> holds? Exactly. Route it to
+<code>"serial"</code> instead and watch from the USB-C terminal — the
+debugging rig for full-screen games.)</li>
+<li>Make water slow instead of solid: clear its <code>SOLID</code> attr,
+and when <code>tile_at</code> says you’re in it, move 1 pixel instead of
+2. Wading, in four lines.</li>
+<li>Remove <code>tm.clamp(...)</code> and walk to the shore. The void
+beyond the map is instructive to see once — then put the clamp
+back.</li>
+<li>Live map surgery at the prompt: run <code>meadow.py</code>, then
+<code>tm</code> is gone with the program — so re-create it at the REPL,
+<code>tm.draw()</code>, and
+<code>tm.set(...)</code>/<code>tm.draw()</code> by hand. Cell-by-cell
+world editing, interactively.</li>
+</ol>
+<h2 data-number="19.7" id="challenges-18">Challenges</h2>
+<ol type="1">
+<li><strong>The cartographer.</strong> Design a map in a text file —
+digits and commas, <code>pye</code> as your level editor — and load it
+with <code>TileMap.load("world.csv")</code>. A maze, a village, a
+dungeon floor: the file <em>is</em> the level, and your island program
+barely changes.</li>
+<li><strong>Mini-map.</strong> In a corner of the HUD, draw the whole
+world at one pixel per cell (a double loop over <code>tm.get</code>,
+<code>fill_rect</code> of size 1… or 2) with a blinking dot for the
+hero. Cells-to-pixels, the other direction.</li>
+<li><strong>Sokoban stone.</strong> One special rock the hero can
+<em>push</em>: walking into it moves it one cell onward — unless that
+cell is solid. <code>tm.get</code>/<code>tm.set</code> and the
+try-the-move idiom, applied to something other than yourself. (This is
+nine-tenths of a classic puzzle game; the last tenth is target squares
+and a win check.)</li>
+<li><strong>The scrolling stage.</strong> Auto-scroll the camera
+rightward at one pixel per frame over a long thin map (128×30) while the
+player dodges trees — chapter 18’s sprites over this chapter’s world is
+exactly how chapter 24’s shooter will fly. Falling behind the camera’s
+left edge costs a life; reaching cell 126 wins.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="18-chapter-18-sprites.html" rel="prev">←&nbsp;Chapter 18 — Sprites</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="20-chapter-20-sound-and-music.html" rel="next">Chapter 20 — Sound and music&nbsp;→</a>
+</nav>
+</body>
+</html>

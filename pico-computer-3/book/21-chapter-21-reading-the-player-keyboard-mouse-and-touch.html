@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 21 — Reading the player: keyboard, mouse and
+touch – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="20-chapter-20-sound-and-music.html" rel="prev" accesskey="p">←&nbsp;Chapter 20 — Sound and music</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="22-chapter-22-anatomy-of-a-game.html" rel="next" accesskey="n">Chapter 22 — Anatomy of a game&nbsp;→</a>
+</nav>
+<h1 data-number="21"
+id="chapter-21-reading-the-player-keyboard-mouse-and-touch">Chapter 21 —
+Reading the player: keyboard, mouse and touch</h1>
+<p>Part III has taught the machine to show and to sing; this last
+chapter teaches it to <em>listen properly</em>. You have three ways to
+hear a human, and choosing between them is a genuine design decision —
+most input bugs in beginner games are really a philosophy chosen
+wrong:</p>
+<ul>
+<li><strong>Blocking</strong> — <code>input()</code>. Stop the world and
+wait for a whole line. Perfect for questions, menus, names for the
+high-score table. (Chapter 6; you know it cold.)</li>
+<li><strong>Polling</strong> — <code>keydown()</code>. Ask, every frame:
+<em>what is held right now?</em> No history, no waiting — pure present
+tense. This is the games answer, and chapters 18–19 borrowed it; today
+the loan is repaid with the full story.</li>
+<li><strong>Events</strong> — <code>keyboard.on_key()</code>. Ask to be
+<em>told</em> when something happens, and get on with your life
+meanwhile. The applications answer — chapter 27’s GUI lives on it (and
+chapter 34 explains the machinery underneath).</li>
+</ul>
+<p>The mouse and the touch panel are both polling-style, with a garnish
+of latched events. All of it, MMBasic users will find, is home
+ground.</p>
+<h2 data-number="21.1"
+id="keydown-the-whole-truth"><code>keydown()</code>, the whole
+truth</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>keydown()      <span class="co"># or keydown(0): how many keys are held (0-6)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>keydown(<span class="dv">1</span>)     <span class="co"># code of the most recent key held (0 = none)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>keydown(<span class="dv">2</span>)     <span class="co"># ...the one before it, up to keydown(6)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># modifier bitmap: Shift/Ctrl/Alt/GUI, left and right</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>keydown(<span class="dv">7</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>keydown(<span class="dv">8</span>)     <span class="co"># lock bitmap: Caps=1, Num=2, Scroll=4</span></span></code></pre></div>
+<p>Printing keys report their <strong>character</strong> code — layout-,
+Shift- and Caps-aware — so <code>keydown(1) == ord("a")</code> reads
+naturally. Non-printing keys have named constants in the
+<code>keyboard</code> module: <code>UP</code>, <code>DOWN</code>,
+<code>LEFT</code>, <code>RIGHT</code>, <code>ENTER</code>,
+<code>ESC</code>, <code>TAB</code>, <code>BKSP</code>,
+<code>HOME</code>, <code>END</code>, <code>PGUP</code>,
+<code>PGDN</code>, <code>INS</code>, <code>DEL</code>, and
+<code>F1</code>–<code>F12</code>.</p>
+<p>Two facts complete the picture. Up to <strong>six keys</strong>
+register at once (a hardware truth of the USB keyboard protocol —
+experiment 5 makes it visible), which is why chapter 18’s
+<code>held()</code> helper walks the list; give that helper a permanent
+home in <code>handy.py</code> today — complete with its
+<code>from keyboard import keydown</code> line, which chapter 20’s rule
+makes essential the moment the helper lives in an imported file. And
+each <code>keydown()</code> call quietly <strong>drains pending console
+input</strong> — so the keys a game polls don’t pile up and spill onto
+the prompt as typed text when the game ends. (MMBasic does the same; now
+you know why your gallery session ended with a clean prompt.)</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>keydown(n)</code>
+<em>is</em> <code>KEYDOWN(n)</code>, argument for argument — count,
+keys, modifiers, locks, and the console-drain behaviour.</p>
+</blockquote>
+<h2 data-number="21.2"
+id="keyboard.on_key-the-doorbell"><code>keyboard.on_key()</code>: the
+doorbell</h2>
+<p>Polling asks; events <em>answer</em>. Hand <code>on_key</code> a
+function and it is called for every keypress (auto-repeat included),
+with the same codes <code>keydown</code> uses:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> spy(code):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;key:&quot;</span>, code)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ...type at the prompt and watch the report</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>keyboard.on_key(spy)</span></code></pre></div>
+<p>(And <code>keyboard.on_key()</code> — no argument — removes it. Do
+that before the novelty fades.) Notice the key still <em>works</em>
+normally — the event is a copy, not a theft, so the prompt keeps
+functioning under your spy. Your handler runs via the scheduler, between
+the machine’s other work: keep it short, set a variable, return —
+chapter 34 explains the rules in full, and chapter 27’s GUI is this
+mechanism wearing buttons.</p>
+<h2 data-number="21.3" id="the-mouse">The mouse</h2>
+<p>Plug one in (the hub has room — chapter 1) and the machine maintains
+a virtual cursor: clamped to the screen, starting centred.
+<code>mouse(code)</code> reads it:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"X"</code>, <code>"Y"</code></td>
+<td>cursor position, pixels</td>
+</tr>
+<tr>
+<td><code>"L"</code>, <code>"R"</code>, <code>"M"</code></td>
+<td>left / right / middle button held (1/0)</td>
+</tr>
+<tr>
+<td><code>"W"</code></td>
+<td>scroll-wheel accumulator</td>
+</tr>
+<tr>
+<td><code>"D"</code></td>
+<td>double-click just happened (clears on read)</td>
+</tr>
+<tr>
+<td><code>"PRESENT"</code></td>
+<td>is a mouse connected?</td>
+</tr>
+</tbody>
+</table>
+<p><code>mouse_speed(v)</code> tunes sensitivity (higher = slower). Note
+the model: the machine gives you <em>state</em> (where, and what’s
+pressed) — polling again, <code>keydown</code>’s philosophy with
+different fingers.</p>
+<h2 data-number="21.4" id="the-touch-panel">The touch panel</h2>
+<p>A USB touch panel reads the same way —
+<code>touch("X")</code>/<code>touch("Y")</code> for the first contact
+(<strong>−1 when nothing touches</strong>, a sentinel to check before
+you use the coordinates), <code>touch("DOWN")</code> for is-it-touched,
+<code>touch("X2")</code>/<code>"XN", n</code> for more fingers. On top
+of the raw state sit <strong>gestures</strong>, each <em>latched</em>:
+the panel remembers a swipe, tap, pinch or rotate until you read it,
+then clears it —</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> touch(<span class="st">&quot;SWL&quot;</span>):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;swiped left&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> touch(<span class="st">&quot;TAP&quot;</span>):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;tap at&quot;</span>, touch(<span class="st">&quot;X&quot;</span>), touch(<span class="st">&quot;Y&quot;</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    time.sleep_ms(<span class="dv">20</span>)</span></code></pre></div>
+<p>— so a slow game loop still catches a fast flick. (The full gesture
+table — swipes, taps, holds, pinches, rotations — is in the User Manual,
+section 8. And <code>time.sleep_ms(20)</code>, new in passing, is
+<code>sleep</code> for milliseconds — politer than
+<code>time.sleep(0.02)</code> in tight loops.)</p>
+<h2 data-number="21.5" id="project-paint">Project: paint</h2>
+<p>A canvas, a floating cursor, both pointing devices, and a cameo from
+every chapter since 15. The trick worth studying: the <em>strokes</em>
+are ordinary drawing on the screen, while the <em>cursor</em> rides
+chapter 18’s sprite engine — in <code>RGB320</code> the engine
+composites on the overlay layer, so the cursor glides
+<strong>over</strong> the painting without ever touching a pixel of it.
+<code>edit("paint.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcsprite <span class="im">as</span> sp</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>screen(hdmi.RGB320)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># let the monitor lock the mode</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>time.sleep(<span class="dv">3</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>PALETTE <span class="op">=</span> [WHITE, RED, ORANGE, YELLOW, GREEN, CYAN, COBALT,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>           MAGENTA]</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>BG <span class="op">=</span> d.colour(<span class="bn">0x101010</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>d.fill(BG)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>hdmi.text(<span class="st">&quot;1-8 colour  [ ] size  c clear  s save  Esc quit&quot;</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>          <span class="dv">4</span>, H <span class="op">-</span> <span class="dv">12</span>, d.colour(GRAY))</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># crosshair cursor: draw, grab, wipe (chapter 18&#39;s move)</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>d.line(<span class="dv">8</span>, <span class="dv">0</span>, <span class="dv">8</span>, <span class="dv">16</span>, d.colour(WHITE), <span class="dv">1</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>d.line(<span class="dv">0</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">8</span>, d.colour(WHITE), <span class="dv">1</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>cursor <span class="op">=</span> sp.grab(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">17</span>, <span class="dv">17</span>, transparent<span class="op">=</span>BG)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">17</span>, <span class="dv">17</span>, BG)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>cursor.show(W <span class="op">//</span> <span class="dv">2</span>, H <span class="op">//</span> <span class="dv">2</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>colour <span class="op">=</span> d.colour(WHITE)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>size <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> keydown(<span class="dv">1</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> k <span class="op">==</span> keyboard.ESC:</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">ord</span>(<span class="st">&quot;1&quot;</span>) <span class="op">&lt;=</span> k <span class="op">&lt;=</span> <span class="bu">ord</span>(<span class="st">&quot;8&quot;</span>):</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            colour <span class="op">=</span> d.colour(PALETTE[k <span class="op">-</span> <span class="bu">ord</span>(<span class="st">&quot;1&quot;</span>)])</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;[&quot;</span>):</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="bu">max</span>(<span class="dv">1</span>, size <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;]&quot;</span>):</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>            size <span class="op">=</span> <span class="bu">min</span>(<span class="dv">20</span>, size <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;c&quot;</span>):</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>            d.fill(BG)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;s&quot;</span>):</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>            save_image(<span class="st">&quot;painting.bmp&quot;</span>)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        mx <span class="op">=</span> mouse(<span class="st">&quot;X&quot;</span>)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        my <span class="op">=</span> mouse(<span class="st">&quot;Y&quot;</span>)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        <span class="co"># centre the crosshair</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        cursor.x <span class="op">=</span> mx <span class="op">-</span> <span class="dv">8</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        cursor.y <span class="op">=</span> my <span class="op">-</span> <span class="dv">8</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mouse(<span class="st">&quot;L&quot;</span>):</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>            d.ellipse(mx, my, size, size, colour, <span class="va">True</span>)</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        tx <span class="op">=</span> touch(<span class="st">&quot;X&quot;</span>)                      <span class="co"># fingers paint too</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> touch(<span class="st">&quot;DOWN&quot;</span>) <span class="kw">and</span> tx <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>            d.ellipse(tx, touch(<span class="st">&quot;Y&quot;</span>), size, size, colour, <span class="va">True</span>)</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        sp.update(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    sp.reset()</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    console()</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># back to the roomy default</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    screen(hdmi.RGB640)</span></code></pre></div>
+<p>Painting with a <em>held</em> button is polling at its most natural —
+state, sampled sixty times a second, leaves a trail. Note the touch
+sentinel check (<code>tx &gt;= 0</code>) doing quiet duty, the palette
+as a chapter-10 list indexed by key arithmetic, and the
+<code>finally</code> restoring <em>three</em> things now: engine,
+console, screen mode. Paint something; press <code>s</code>; chapter 16
+taught you where it goes and chapter 4’s <code>fm</code> will show it
+off.</p>
+<p>(A confession for later: chapter 27 hands you a ready-made pointer —
+<code>pccursor</code>, MMBasic’s <code>GUI CURSOR</code> — that saves
+and restores the pixels beneath itself, no sprite engine required.
+Building one here, by hand, is how you earn the right to enjoy it.)</p>
+<h2 data-number="21.6"
+id="interlude-a-stopwatch-for-the-machine">Interlude: a stopwatch for
+the machine</h2>
+<p>The second project needs to measure <em>reaction times</em>, and
+<code>gettime()</code> only ticks in seconds. Meet the millisecond clock
+you’ll use in every game from now on:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> time.ticks_ms()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ... something happens ...</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>elapsed <span class="op">=</span> time.ticks_diff(time.ticks_ms(), t0)</span></code></pre></div>
+<p><code>ticks_ms()</code> is a runner’s stopwatch, not a wall clock —
+its absolute value means nothing (and wraps around!), but the
+<strong>difference</strong> between two readings, taken through
+<code>ticks_diff</code> (which handles the wrap), is elapsed
+milliseconds, precisely. Chapter 22 builds its whole frame-rate theory
+on this pair.</p>
+<h2 data-number="21.7" id="project-the-reaction-duel">Project: the
+reaction duel</h2>
+<p>Two players, one keyboard — legal, because six keys register at once.
+Player 1 owns <strong>A</strong>, player 2 owns <strong>L</strong>; jump
+the gun and the point goes to your rival.
+<code>edit("duel2.py")</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flush():</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> keydown(<span class="dv">1</span>):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.01</span>)          <span class="co"># wait for all fingers off</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;REACTION DUEL -- player 1: A    player 2: L&quot;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Wait for the GO beep. Too early loses the round. Five &quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;rounds.&quot;</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> {<span class="dv">1</span>: <span class="dv">0</span>, <span class="dv">2</span>: <span class="dv">0</span>}</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> rnd <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>):</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">Round </span><span class="sc">{</span>rnd<span class="sc">}</span><span class="ss">: hands ready...&quot;</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    flush()</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    wait_ms <span class="op">=</span> random.randint(<span class="dv">1500</span>, <span class="dv">4000</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.ticks_ms()</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    early <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> time.ticks_diff(time.ticks_ms(), t0) <span class="op">&lt;</span> wait_ms:</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> keydown(<span class="dv">1</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;a&quot;</span>):</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>            early <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;l&quot;</span>):</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>            early <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> early:</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        winner <span class="op">=</span> <span class="dv">2</span> <span class="cf">if</span> early <span class="op">==</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">1</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Player </span><span class="sc">{</span>early<span class="sc">}</span><span class="ss"> jumped the gun! Point to player &quot;</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f&quot;</span><span class="sc">{</span>winner<span class="sc">}</span><span class="ss">.&quot;</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        scores[winner] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    beep(<span class="dv">1200</span>, <span class="dv">60</span>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;GO!&quot;</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.ticks_ms()</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    winner <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> winner:</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> keydown(<span class="dv">1</span>)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;a&quot;</span>):</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>            winner <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> k <span class="op">==</span> <span class="bu">ord</span>(<span class="st">&quot;l&quot;</span>):</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>            winner <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    ms <span class="op">=</span> time.ticks_diff(time.ticks_ms(), t0)</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Player </span><span class="sc">{</span>winner<span class="sc">}</span><span class="ss"> takes it -- </span><span class="sc">{</span>ms<span class="sc">}</span><span class="ss"> ms!&quot;</span>)</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    scores[winner] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">Final score  P1: </span><span class="sc">{</span>scores[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">   P2: </span><span class="sc">{</span>scores[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>champ <span class="op">=</span> <span class="dv">1</span> <span class="cf">if</span> scores[<span class="dv">1</span>] <span class="op">&gt;</span> scores[<span class="dv">2</span>] <span class="cf">else</span> <span class="dv">2</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;CHAMPION: player </span><span class="sc">{</span>champ<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>beep()</span></code></pre></div>
+<p>Five rounds means no ties; the false-start rule is one
+<code>while</code> loop doing double duty (waiting <em>and</em>
+watching); and the reaction times it prints are real — 180 ms is sharp,
+250 ms is human, anything under 120 ms is a cat. Note
+<code>flush()</code> at each round’s start: polling code must often
+<em>wait for silence</em> before it waits for signal, or a held key from
+the last round decides this one. That tiny function is a whole class of
+bug, pre-squashed.</p>
+<p>Part III closes here. The machine now draws, sings and listens —
+everything a game needs except the game. Part IV is next, and it starts
+by naming the shape all games share.</p>
+<h2 data-number="21.8" id="experiments-20">Experiments</h2>
+<ol type="1">
+<li>The six-key ceiling: hold down keys one at a time while a loop
+prints <code>keydown(0)</code>. Where does it stop counting? (Some
+keyboards manage fewer on certain combinations — “ghosting” — and now
+you can <em>measure</em> your hardware’s honesty.)</li>
+<li>Modifier spy: <code>keydown(7)</code> is a bitmap. Print it while
+holding Shift, then Ctrl+Shift. Which bit is which? (Chapter 7’s
+<code>and</code> — bitwise cousin <code>&amp;</code> — checks a single
+bit: <code>keydown(7) &amp; 8</code>.)</li>
+<li>Event vs poll, felt: with the <code>spy</code> handler installed,
+hold a key. The stream of repeats is the <em>event</em> view. Now print
+<code>keydown(1)</code> in a loop and hold the same key: one steady
+value — the <em>state</em> view. Same finger, two philosophies.</li>
+<li>Give paint a double-click feature: <code>mouse("D")</code>
+flood-fills (<code>d.flood</code>) at the cursor with the current
+colour. One latched event, one chapter-15 tool, enormous
+satisfaction.</li>
+<li>Gesture logger: loop over
+<code>("SWL", "SWR", "SWU", "SWD", "TAP", "HOLD", "DTAP")</code> (a
+tuple — chapter 10) printing any that fire. Then wave at your machine
+like it’s 2030.</li>
+</ol>
+<h2 data-number="21.9" id="challenges-20">Challenges</h2>
+<ol type="1">
+<li><strong>Whack-a-mole.</strong> A 3×3 grid of squares; one lights up
+at a random moment; click it (cursor inside the square — a bounding-box
+test, chapter 18 taught you the shape) before it dims.
+<code>ticks_diff</code> scores speed, <code>scorelib</code> keeps
+legends.</li>
+<li><strong>The photo frame, gestured.</strong> Chapter 16’s
+<code>frame.py</code> plus this chapter: swipe left/right to change
+photo, tap to pause the slideshow, hold to delete (with an on-screen
+“really?” — <code>input()</code> has no place here; poll for
+<code>y</code>/<code>n</code> keys). Three philosophies, one
+gadget.</li>
+<li><strong>Typing tutor.</strong> <code>on_key</code> collects what’s
+typed while <code>ticks_ms</code> times it: show a sentence, measure
+words-per-minute and accuracy. The event handler just appends codes to a
+list; the main loop does the thinking — that division of labour is the
+whole art of event-driven code.</li>
+<li><strong>One keyboard, two heroes.</strong> Rebuild chapter 18’s
+gallery for two players: WASD moves one crosshair, arrows the other,
+<code>held()</code> consulted for both. First to ten ducks. (Six keys at
+once — you now know exactly why this works, and when it won’t.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="20-chapter-20-sound-and-music.html" rel="prev">←&nbsp;Chapter 20 — Sound and music</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="22-chapter-22-anatomy-of-a-game.html" rel="next">Chapter 22 — Anatomy of a game&nbsp;→</a>
+</nav>
+</body>
+</html>

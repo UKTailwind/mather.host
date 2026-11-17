@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 8 — Repeating yourself:
+loops – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="7-chapter-7-making-decisions-if.html" rel="prev" accesskey="p">←&nbsp;Chapter 7 — Making decisions: <code>if</code></a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="9-chapter-9-turtle-graphics-loops-you-can-see.html" rel="next" accesskey="n">Chapter 9 — Turtle graphics: loops you can see&nbsp;→</a>
+</nav>
+<h1 data-number="8" id="chapter-8-repeating-yourself-loops">Chapter 8 —
+Repeating yourself: loops</h1>
+<p>Here is an unflattering truth about your machine: it has no
+imagination whatsoever, but it will repeat anything you tell it two
+hundred and fifty-two million times a second without complaint, without
+boredom and without error. Every impressive thing a computer does —
+animating a game, searching a library, drawing a photograph pixel by
+pixel — is a tiny act repeated preposterously often. The
+<strong>loop</strong> is how you command repetition, and it is the last
+big piece of machinery you need before programs become genuinely
+powerful.</p>
+<p>Two promises fall due in this chapter: chapter 2 owes you an LED that
+blinks itself, and chapter 7’s guessing game is waiting for its
+rematch.</p>
+<h2 data-number="8.1"
+id="while-repeat-as-long-as-this-is-true"><code>while</code>: repeat as
+long as this is true</h2>
+<p><code>edit("countdown.py")</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> n <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(n)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    n <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;LIFT OFF!&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>beep(<span class="dv">220</span>, <span class="dv">400</span>)</span></code></pre></div>
+<p>Read it aloud: <em>while n is greater than zero, print it and knock
+one off.</em> The shape is pure chapter 7 — a condition, a colon, an
+indented block — but where <code>if</code> runs its block at most once,
+<code>while</code> runs it, checks the condition again, runs it again…
+and only walks past when the condition finally answers False. The
+unindented lines then get their turn: lift off.</p>
+<p>The loop works because line 4 <em>changes something the condition
+looks at</em>. That is the anatomy of every honest <code>while</code>
+loop: set up (line 1), test (line 2), do work (line 3), <strong>make
+progress</strong> (line 4). Delete the <code>n -= 1</code> line and you
+get the famous <strong>infinite loop</strong> — ten printed forever, or
+at least until Ctrl-C. Try it; you need to see one on purpose. When you
+interrupt it you’ll be shown:</p>
+<pre><code>Traceback (most recent call last):
+  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;pcshell.py&quot;, line 101, in run
+  File &quot;countdown.py&quot;, line 3, in &lt;module&gt;
+KeyboardInterrupt:</code></pre>
+<p>A <code>KeyboardInterrupt</code> is not the machine complaining — it
+is the machine confirming <em>you</em> stopped it. Read it with chapter
+5’s rule (deepest line naming <em>your</em> file): the program was on
+<code>countdown.py</code> line 3 when you pulled the cord — which is
+diagnostic gold, because that’s where a stuck program is spending its
+time.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>DO WHILE ... LOOP</code>
+is <code>while ...:</code> plus indentation. <code>EXIT DO</code> is
+<code>break</code>, coming up shortly.</p>
+</blockquote>
+<h2 data-number="8.2" id="the-forever-loop-on-purpose">The forever loop,
+on purpose</h2>
+<p>Sometimes “repeat forever” is exactly the specification. The promised
+blinker, <code>edit("blink.py")</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>led <span class="op">=</span> Pin(<span class="st">&quot;LED&quot;</span>, Pin.OUT)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    led.toggle()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.5</span>)</span></code></pre></div>
+<p><code>True</code> is never False, so the loop never ends: toggle,
+wait half a second, forever — a heartbeat for your machine, and your
+finger (chapter 2, experiment 2) is relieved of duty. Stop it with
+<strong>Ctrl-C</strong>, exactly as chapter 5 taught for a runaway
+<code>main.py</code> — and notice that <code>while True:</code> is not a
+beginner’s blunder but a professional idiom: every game, every server,
+every device you own runs one. The skill is not avoiding forever-loops;
+it is <em>owning the exit</em>.</p>
+<h2 data-number="8.3" id="the-rematch-finishing-the-guessing-game">The
+rematch: finishing the guessing game</h2>
+<p>Chapter 7’s game could taunt but not duel. What it lacked was exactly
+a <code>while</code>. <code>edit("guess.py")</code> and rebuild it:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>secret <span class="op">=</span> random.randint(<span class="dv">1</span>, <span class="dv">100</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>tries <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>guess <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;I have chosen a number from 1 to 100.&quot;</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> guess <span class="op">!=</span> secret:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    guess <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="st">&quot;Your guess: &quot;</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    tries <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> guess <span class="op">&lt;</span> secret:</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Higher...&quot;</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> guess <span class="op">&gt;</span> secret:</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Lower...&quot;</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>beep()</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Got it in </span><span class="sc">{</span>tries<span class="sc">}</span><span class="ss"> tries!&quot;</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> tries <span class="op">&lt;=</span> <span class="dv">7</span>:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Seven or fewer. Champion form.&quot;</span>)</span></code></pre></div>
+<p>One to a hundred now, because the clues make big ranges beatable.
+Note the small ceremony on line 5: <code>guess = 0</code> exists so the
+<code>while</code> has something to compare on its very first look (0
+can never be the secret, so the loop always starts). Setting up a
+variable <em>so that</em> a loop can begin is called priming, and you
+will do it often.</p>
+<p>Play it properly. Then reflect on what seven lines of loop bought:
+state (<code>tries</code>), interaction, adaptive feedback, and an
+ending the player <em>earns</em>. This is a complete game, and — chapter
+7’s challenge 1 notwithstanding — your first with real strategy in it.
+(Always guess the middle of what remains. That instinct has a name,
+<em>binary search</em>, and it is one of the great algorithms; a
+challenge below turns the tables on it.)</p>
+<h2 data-number="8.4"
+id="for-and-range-when-you-know-how-many"><code>for</code> and
+<code>range()</code>: when you know how many</h2>
+<p><code>while</code> repeats <em>until something happens</em>. Just as
+often you want <em>exactly ten of these</em>, and that is
+<code>for</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>...     <span class="bu">print</span>(<span class="st">&quot;I will not overheat the toaster.&quot;</span>)</span></code></pre></div>
+<p><code>range(5)</code> deals out 0, 1, 2, 3, 4 — five numbers,
+starting at 0 — and <code>for i in</code> runs the block once per
+number, with <code>i</code> holding the current one.</p>
+<h3 data-number="8.4.1"
+id="typing-a-block-at-the-prompt-read-this-before-it-bites">Typing a
+block at the prompt — read this before it bites</h3>
+<p>Something new happened in that transcript: after the <code>:</code>
+line the prompt changed to <code>...</code> and indented for you. You
+are <em>inside the block</em>, and knowing how to get out again is a
+handy skill every Python user learns once. Here it is, keystroke by
+keystroke:</p>
+<pre><code>&gt;&gt;&gt; for i in range(5):          you type the for line, press Enter
+...     print(&quot;I will not...&quot;)  indent is automatic; then Enter
+...                             Backspace clears it, then Enter
+(the loop runs, five lines print)
+&gt;&gt;&gt;                             fresh prompt for the next command</code></pre>
+<p>Two rules, worth committing to memory:</p>
+<ol type="1">
+<li><strong>A block ends with Enter on a line with <em>no</em>
+indentation.</strong> The prompt keeps helpfully re-indenting blank
+lines, so pressing Enter on a line that <em>looks</em> empty may not end
+anything — it still contains invisible spaces. <strong>Backspace
+swallows a whole indent level in one press</strong>, so the reliable
+sign-off is always: <em>Backspace until the cursor sits right after the
+<code>...</code>, then Enter.</em> (Hammering Enter does get there
+eventually — it just takes more presses than you expect.)</li>
+<li><strong>One entry, one statement.</strong> Each
+<code>&gt;&gt;&gt;</code> accepts a single statement <em>or</em> a
+single block. Do not type your next command at the <code>...</code>
+prompt after the loop body — it becomes an illegal second statement
+inside the same entry, and the whole thing is refused with a
+<code>SyntaxError</code>. Finish the loop, let it run, and type the next
+command at the fresh <code>&gt;&gt;&gt;</code>.</li>
+</ol>
+<p>None of this applies inside a file — the editor has no
+<code>...</code> prompt, and programs hold as many statements as you
+like. That is one more reason blocks of any real size live in files; the
+prompt’s block support is for quick experiments. When the count itself
+matters, give range a start and stop:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>...     <span class="bu">print</span>(n, <span class="st">&quot;squared is&quot;</span>, n <span class="op">*</span> n)</span></code></pre></div>
+<p>That prints the 1-to-10 story — and exposes the rule that ambushes
+everyone: <strong>the stop value is not included.</strong>
+<code>range(1, 11)</code> is 1 through 10. Think of it as “from 1,
+<em>up to</em> 11”. A third number sets the step:
+<code>range(10, 0, -1)</code> counts 10 down to 1 (our countdown,
+re-invented), <code>range(0, 101, 5)</code> counts by fives.</p>
+<p><code>for</code> happily walks along a string too —
+<code>for letter in "PICO":</code> visits <code>P</code>,
+<code>I</code>, <code>C</code>, <code>O</code> — a first hint that
+<code>for</code> is really about <em>walking along collections</em>,
+which is chapter 10’s big idea.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> <code>FOR n = 1 TO 10</code> is
+<code>for n in range(1, 11)</code> — mind that 11 — and there is no
+<code>NEXT</code>; the indentation ends the block, as ever.
+<code>STEP -1</code> is range’s third argument.</p>
+</blockquote>
+<h2 data-number="8.5" id="loops-you-can-see">Loops you can see</h2>
+<p>The screen makes repetition visible. Ten rows of stars, growing:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>...     <span class="bu">print</span>(<span class="st">&quot;*&quot;</span> <span class="op">*</span> i)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">**</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="op">***</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>(<span class="kw">and</span> so on, to ten)</span></code></pre></div>
+<p>Chapter 3’s string-repeat, promoted from party trick to graphics
+engine. And for something genuinely beautiful, let a loop <em>make
+data</em> and hand it to the plotter:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> []</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">21</span>):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    values.append(n <span class="op">*</span> n)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>plot(values)</span></code></pre></div>
+<p>Two lines are on advance loan from chapter 10 —
+<code>values = []</code> makes an empty <strong>list</strong>, and
+<code>.append(...)</code> adds each result to it (you saw this borrowing
+style with <code>open()</code> in chapter 4). Save it as a program and
+<code>run</code> it — or, at the prompt, remember the sign-off drill:
+after the <code>append</code> line it’s <em>Backspace, Enter</em> to run
+the loop, and only then, at the fresh <code>&gt;&gt;&gt;</code>, type
+<code>plot(values)</code>. Either way: <code>plot()</code> draws the
+list on the HDMI screen, autoscaled, with axes — and there is the
+graceful upward sweep of the squares, <em>as a picture</em>. Try
+<code>n * n * n</code>, or <code>n % 7</code>. Any key scrolls you back
+to the console; <code>plot()</code> has a whole toolbox (functions,
+styles, colours) waiting in the User Manual when you want it.</p>
+<h2 data-number="8.6"
+id="break-and-continue-steering-mid-loop"><code>break</code> and
+<code>continue</code>: steering mid-loop</h2>
+<p><code>break</code> abandons a loop from inside — the professional
+exit for a <code>while True</code>:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    word <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;A word, or &#39;stop&#39; to finish: &quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> word <span class="op">==</span> <span class="st">&quot;stop&quot;</span>:</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;&#39;</span><span class="sc">{</span>word<span class="sc">}</span><span class="ss">&#39; has </span><span class="sc">{</span><span class="bu">len</span>(word)<span class="sc">}</span><span class="ss"> letters.&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Nice words. Goodbye.&quot;</span>)</span></code></pre></div>
+<p>This ask-until-done shape is everywhere: menus, games (“play
+again?”), and half the projects in Part IV and V. Its rarer sibling
+<code>continue</code> skips the rest of <em>this</em> lap and starts the
+next one:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">%</span> <span class="dv">3</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span>        <span class="co"># not a fan of multiples of three</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(n)</span></code></pre></div>
+<p>You will write <code>break</code> weekly and <code>continue</code>
+monthly — but recognise both on sight.</p>
+<h2 data-number="8.7" id="project-the-times-table-dojo">Project: the
+times-table dojo</h2>
+<p>The chapter’s machinery, drilling <em>you</em> for a change.
+<code>edit("times.py")</code>:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;TIMES-TABLE DOJO -- 5 questions. Begin!&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> random.randint(<span class="dv">2</span>, <span class="dv">12</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> random.randint(<span class="dv">2</span>, <span class="dv">12</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    answer <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="ss">f&quot;Q</span><span class="sc">{</span>q <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">: what is </span><span class="sc">{</span>a<span class="sc">}</span><span class="ss"> x </span><span class="sc">{</span>b<span class="sc">}</span><span class="ss">? &quot;</span>))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> answer <span class="op">==</span> a <span class="op">*</span> b:</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        score <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Correct!&quot;</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;No -- </span><span class="sc">{</span>a<span class="sc">}</span><span class="ss"> x </span><span class="sc">{</span>b<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>a <span class="op">*</span> b<span class="sc">}</span><span class="ss">.&quot;</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Final score: </span><span class="sc">{</span>score<span class="sc">}</span><span class="ss"> out of 5.&quot;</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> score <span class="op">==</span> <span class="dv">5</span>:</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    beep()</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Flawless. The dojo bows to you.&quot;</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> score <span class="op">&gt;=</span> <span class="dv">3</span>:</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Solid. Return tomorrow.&quot;</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;The dojo suggests... practice.&quot;</span>)</span></code></pre></div>
+<p>A <code>for</code> for the fixed drill, <code>random</code> setting
+the questions, an <code>if</code> marking each answer, a primed
+<code>score</code> keeping the tally, and a verdict ladder to finish —
+chapters 6, 7 and 8 in one small, useful, slightly stern program. Hand
+the keyboard to a child of your acquaintance and watch a loop you wrote
+teach a human being.</p>
+<h2 data-number="8.8" id="experiments-7">Experiments</h2>
+<ol type="1">
+<li>Make the countdown go 10, 8, 6, … two ways: once by editing the
+<code>-=</code> line, once with <code>range</code> and its step. Which
+reads better?</li>
+<li>Predict, then print: <code>list(range(4))</code>,
+<code>list(range(2, 8))</code>, <code>list(range(20, 0, -5))</code>.
+(Wrapping a range in <code>list(...)</code> shows its numbers all at
+once.)</li>
+<li>Reshape the star triangle: right-aligned (print spaces <em>then</em>
+stars — <code>" " * (10 - i) + "*" * i</code>), then a hollow square.
+Graph paper helps.</li>
+<li>Blink SOS: three short flashes, three long, three short, using three
+<code>for</code> loops. Then wrap the whole signal in
+<code>while True</code> and you have built a distress beacon.</li>
+<li>In the dojo, count the <em>misses</em> too, and report both. Then
+make the questions harder with each correct answer (a growing
+<code>randint</code> upper limit — a variable, not a number).</li>
+</ol>
+<h2 data-number="8.9" id="challenges-7">Challenges</h2>
+<ol type="1">
+<li><strong>The ancient sum.</strong> Add up every number from 1 to 100
+with a loop and a running total. Legend says Gauss did it aged seven,
+without a loop — once your loop agrees with
+<code>(100 * 101) // 2</code>, you’ll know his trick.</li>
+<li><strong>Ninety-nine bottles.</strong> Sing it, correctly, including
+the awkward final verses (“1 bottle”, not “1 bottles” — an
+<code>if</code> inside the loop). Bonus: a descending <code>beep</code>
+per verse.</li>
+<li><strong>The tables turn.</strong> <em>You</em> think of a number
+from 1 to 100; the machine guesses. It offers its guess; you answer
+<code>h</code> (higher), <code>l</code> (lower) or <code>y</code> (got
+it). Make it guess the middle of what remains — it will never need more
+than seven tries, and you will have taught a machine binary search.
+(Stuck? Appendix F.)</li>
+<li><strong>Dojo deluxe.</strong> Replace the fixed five questions with
+“play until the student types stop” — a <code>while True</code>, a
+<code>break</code>, and a final report card.</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="7-chapter-7-making-decisions-if.html" rel="prev">←&nbsp;Chapter 7 — Making decisions: <code>if</code></a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="9-chapter-9-turtle-graphics-loops-you-can-see.html" rel="next">Chapter 9 — Turtle graphics: loops you can see&nbsp;→</a>
+</nav>
+</body>
+</html>

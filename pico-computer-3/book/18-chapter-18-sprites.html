@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Peter Mather, with the assistance of Claude AI" />
+  <title>Chapter 18 — Sprites – Programming the Pico Computer 3</title>
+  <style>
+    html {
+      font-family: DejaVu Serif;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: blue;
+    }
+    a:visited {
+      color: blue;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: DejaVu Sans Mono;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    /* Hide Pandoc's generated title block -- the cover image carries the
+       title, subtitle and author. */
+    #title-block-header { display: none; }
+    .book-cover { text-align: center; margin: 0 auto 2.5rem; }
+    .book-cover img { max-width: 100%; height: auto; }
+  </style>
+  <style>
+    /* Fonts for the two HTML editions (html and web). metadata.yaml names the
+       DejaVu fonts for the PDF, and pandoc copies those names into the HTML
+       with no fallback. A reader without DejaVu installed (most Windows and
+       macOS machines) then got the browser's default serif for everything,
+       code included, which breaks the line-up of Python's indentation.
+       These rules come after pandoc's own, so they win. */
+    html {
+      font-family: "DejaVu Serif", Georgia, "Times New Roman", serif;
+    }
+    code, pre, kbd, samp {
+      font-family: "DejaVu Sans Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    /* Chapter navigation, at the top and bottom of each page of the web
+       edition (web-template.html). Unused by the single-page edition. */
+    nav.booknav {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4em 1em;
+      align-items: baseline;
+      padding: 0.6em 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "DejaVu Sans", sans-serif;
+      font-size: 0.9em;
+    }
+    nav.booknav.top { border-bottom: 1px solid #d8d8d8; margin-bottom: 2em; }
+    nav.booknav.bottom { border-top: 1px solid #d8d8d8; margin-top: 3em; }
+    nav.booknav a { text-decoration: none; }
+    nav.booknav a:hover { text-decoration: underline; }
+    nav.booknav .prev { grid-column: 1; justify-self: start; }
+    nav.booknav .contents { grid-column: 2; }
+    nav.booknav .next { grid-column: 3; justify-self: end; text-align: right; }
+    @media (max-width: 600px) {
+      nav.booknav { grid-template-columns: 1fr 1fr; }
+      nav.booknav .contents { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      nav.booknav .prev { grid-column: 1; grid-row: 2; }
+      nav.booknav .next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+<nav class="booknav top" aria-label="Chapters">
+<a class="prev" href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html" rel="prev" accesskey="p">←&nbsp;Chapter 17 — Smooth motion: buffers and the overlay</a>
+<a class="contents" href="index.html" rel="top" accesskey="t">Contents</a>
+<a class="next" href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html" rel="next" accesskey="n">Chapter 19 — Tile maps: big worlds from small pieces&nbsp;→</a>
+</nav>
+<h1 data-number="18" id="chapter-18-sprites">Chapter 18 — Sprites</h1>
+<p>Chapter 17 taught you what smooth motion costs: remember what’s under
+each moving thing, erase in the right order, redraw in the right order,
+never let the scanout catch you. Honest work — and nobody wants to do it
+for <em>twelve</em> things at once. A <strong>sprite engine</strong> is
+that labour, hired: you say <em>what</em> exists and <em>where it wants
+to be</em>; the engine does the erasing, restoring, layering and
+redrawing — and, the part that makes games suddenly easy, <strong>tells
+you what bumped into what</strong>. The machine’s engine is
+<code>pcsprite</code>, it speaks MMBasic’s game dialect fluently, and
+its sprites are objects — chapter 14 told you exactly what you’d be
+holding.</p>
+<h2 data-number="18.1" id="a-small-loan-from-chapter-21">A small loan
+from chapter 21</h2>
+<p>Games need input, and input is chapter 21’s subject. We borrow two
+facts, book-style — copy today, master later:</p>
+<ul>
+<li><strong><code>keydown(1)</code></strong> returns the code of the key
+held <em>right now</em> (0 if none) — not typed-and-entered,
+<em>held</em>, which is what games want. Letter keys report
+<code>ord("a")</code>-style codes; special keys have names in the
+<code>keyboard</code> module: <code>keyboard.UP</code>,
+<code>keyboard.LEFT</code>, <code>keyboard.ESC</code>, and friends.</li>
+<li>Up to six keys can be held at once; <code>keydown(0)</code> says how
+many, and <code>keydown(2)</code>, <code>keydown(3)</code>… report the
+others. This helper — worth a place in <code>handy.py</code> — answers
+“is <em>this</em> key down?” regardless of what else is:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keyboard <span class="im">import</span> keydown</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span></code></pre></div>
+<p>(The <code>from keyboard import keydown</code> line simply names
+where <code>keydown</code> really lives. It costs nothing in a program —
+and it is what lets this helper work from inside <code>handy.py</code>
+the day it moves there. Chapter 20 tells that story.)</p>
+<p>That is the whole loan. Now, sprites.</p>
+<h2 data-number="18.2" id="sprites-from-nowhere-grab">Sprites from
+nowhere: <code>grab</code></h2>
+<p>A sprite needs a picture. Chapter 16 loaded sheets from files
+(<code>sp.sheet(path, w, h, count)</code> does exactly that,
+engine-ready); but in the spirit of owing nobody any artwork, there is a
+lovelier way: <strong>draw the picture, then grab it off the
+screen</strong>. <code>edit("duck1.py")</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcsprite <span class="im">as</span> sp</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>SKY <span class="op">=</span> d.colour(<span class="bn">0x203050</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>d.fill(SKY)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># draw a duck in the corner, grab it, erase the master</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>d.ellipse(<span class="dv">10</span>, <span class="dv">9</span>, <span class="dv">9</span>, <span class="dv">7</span>, d.colour(YELLOW), <span class="va">True</span>)       <span class="co"># body</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>d.ellipse(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>, d.colour(YELLOW), <span class="va">True</span>)       <span class="co"># head</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">24</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, d.colour(ORANGE))           <span class="co"># beak</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>duck <span class="op">=</span> sp.grab(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">28</span>, <span class="dv">18</span>, transparent<span class="op">=</span>SKY)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># erase the master</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">28</span>, <span class="dv">18</span>, SKY)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>duck.show(<span class="dv">50</span>, <span class="dv">120</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># no cursor over the show</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        duck.x <span class="op">+=</span> <span class="dv">2</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> duck.x <span class="op">&gt;</span> W:</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>            duck.x <span class="op">=</span> <span class="op">-</span><span class="dv">28</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        sp.update(vsync<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    sp.reset()</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># chapter 17&#39;s manners</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Run it: a duck crosses the sky, forever, <em>without smearing and
+without you erasing anything</em>. Read the pieces:</p>
+<ul>
+<li><code>sp.grab(x, y, w, h, transparent=SKY)</code> copies a rectangle
+of pixels into a new <strong>Sprite</strong> object. The
+<code>transparent</code> colour becomes the cut-out (chapter 16’s skip
+colour, pre-arranged) — which is why the duck was drawn <em>on</em> sky
+colour, and why the grab is followed by erasing the master: the engine
+photographs the scenery on first <code>update()</code>, and the master
+duck shouldn’t be in the photo.</li>
+<li><code>duck.show(x, y)</code> declares it visible;
+<code>duck.x += 2</code> moves it — but <strong>nothing happens at
+either line</strong>. Position and visibility are
+<em>requests</em>.</li>
+<li><strong><code>sp.update()</code> commits everything in one
+pass</strong> — every erase, restore and redraw, in the right order, at
+the right moment (<code>vsync=True</code> adds chapter 17’s timing, and
+paces the loop at 60 frames a second for free). One call per frame,
+always last. This deferred style should feel familiar: it is the
+F-buffer philosophy — <em>compose in private, reveal at once</em> —
+reborn as an API.</li>
+<li><code>sp.reset()</code> in the <code>finally</code> collar hides
+everything and forgets the engine’s furniture on the way out, however
+you leave.</li>
+</ul>
+<p>Under the hood the engine picks chapter 17’s best tool for the mode —
+the overlay layer in <code>RGB320</code>, an F-buffer scenery snapshot
+elsewhere (if you repaint the scenery, tell it:
+<code>sp.snapshot()</code>). You built both by hand last chapter
+precisely so this paragraph would be information, not magic.</p>
+<h2 data-number="18.3" id="collisions-the-engine-speaks">Collisions: the
+engine speaks</h2>
+<p>Here is the feature that turns motion into <em>games</em>.
+<code>sp.update()</code> returns a list of <strong>collision
+events</strong> — <code>(sprite, other)</code> tuples, freshly begun
+contacts only:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, b <span class="kw">in</span> sp.update(vsync<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div>
+<p><code>other</code> can be another Sprite, a <strong>Wall</strong>
+(<code>sp.wall(x, y, w, h)</code> — an invisible collision rectangle,
+for floors and fences), or one of the strings <code>"left"</code>,
+<code>"right"</code>, <code>"top"</code>, <code>"bottom"</code> — the
+screen edges report themselves. Three details, each a design gift:</p>
+<ul>
+<li><strong>Edge-triggered</strong>: an event fires when contact
+<em>begins</em>, once — not sixty times a second while things overlap.
+Scoring, bouncing and damage all want exactly this.</li>
+<li><strong>Bounding-box</strong>: collisions use each sprite’s
+rectangle. Honest approximation, industry standard, and why sprite
+artwork tends to fill its box.</li>
+<li><strong>Layers</strong>: every sprite lives on a layer
+(<code>show(x, y, layer=2)</code>, or <code>s.layer = ...</code>).
+Sprites collide with <em>their own layer</em> and with layer 0 — so
+things that should ignore each other (bullets and the score display; two
+clouds) simply live on different layers, and the events list stays
+meaningful. Layer 0 is special twice over: it collides with everyone and
+it travels with <code>sp.scroll</code>’s scenery (chapter 19
+territory).</li>
+</ul>
+<figure>
+<img src="figs/18-collision.png"
+alt="Sprites collide when their bounding boxes overlap on both axes; a gap on either axis means no contact. The report is edge-triggered — the pair (a, b) arrives the moment they first touch." />
+<figcaption aria-hidden="true">Sprites collide when their bounding boxes
+overlap on <em>both</em> axes; a gap on either axis means no contact.
+The report is edge-triggered — the pair <code>(a, b)</code> arrives the
+moment they first touch.</figcaption>
+</figure>
+<p>Sprites also carry small talents you will use immediately:
+<code>s.hide()</code>, <code>s.top()</code> (raise in the pile),
+<code>s.flip("h")</code> (a mirrored copy — one duck artwork, both
+directions), and — for sheet-backed sprites from chapter 16’s
+<code>Image.sprites()</code> — <code>s.frame(i)</code> to flip animation
+frames.</p>
+<blockquote>
+<p><strong>Coming from MMBasic:</strong> this is <code>SPRITE</code>
+wholesale — SHOW/HIDE, layers with the same collide-with-own-and-zero
+rule, walls, edge names, scroll-with-scenery on layer 0, and
+edge-triggered collision reporting. The difference is ergonomic: sprites
+are objects, and collisions arrive as a list of pairs from
+<code>update()</code> instead of interrupt-and-interrogate.</p>
+</blockquote>
+<p>One honest note on scale, straight from the manual: the engine
+composites <em>live</em>, which is quick for a modest cast (a dozen
+small sprites is comfortable). Crowds of large sprites are better served
+by chapter 17’s flip-everything loop — chapter 24 will do exactly that.
+Right tool, right job.</p>
+<h2 data-number="18.4" id="project-the-shooting-gallery">Project: the
+shooting gallery</h2>
+<p>Fairground rules: ducks cross, you aim, you fire, the machine keeps
+score and never lets you argue with it. Ducks on layer 1, crosshair on
+layer 2 (so it never “collides” with a duck — only <em>shots</em> do),
+<code>held()</code> steering, a fire cooldown, and every pixel of
+artwork drawn by the program itself.
+<code>edit("gallery.py")</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pcsprite <span class="im">as</span> sp</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> keyboard</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> held(code):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, keydown(<span class="dv">0</span>) <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> keydown(i) <span class="op">==</span> code:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> hdmi.fb()</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> hdmi.width()</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> hdmi.height()</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>SKY <span class="op">=</span> d.colour(<span class="bn">0x203050</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>d.fill(SKY)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># grassy bank</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>d.fill_rect(<span class="dv">0</span>, H <span class="op">-</span> <span class="dv">60</span>, W, <span class="dv">60</span>, d.colour(MIDGREEN))</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>hdmi.text(<span class="st">&quot;SHOOTING GALLERY&quot;</span>, <span class="dv">192</span>, H <span class="op">-</span> <span class="dv">40</span>, d.colour(GOLD), <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>          <span class="dv">3</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grab_and_wipe(w, h):</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> sp.grab(<span class="dv">0</span>, <span class="dv">0</span>, w, h, transparent<span class="op">=</span>SKY)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, w, h, SKY)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> s</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_duck():</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">28</span>, <span class="dv">18</span>, SKY)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    d.ellipse(<span class="dv">10</span>, <span class="dv">9</span>, <span class="dv">9</span>, <span class="dv">7</span>, d.colour(YELLOW), <span class="va">True</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    d.ellipse(<span class="dv">20</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>, d.colour(YELLOW), <span class="va">True</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(<span class="dv">24</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, d.colour(ORANGE))</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> grab_and_wipe(<span class="dv">28</span>, <span class="dv">18</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_cross():</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">17</span>, <span class="dv">17</span>, SKY)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    d.ellipse(<span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">7</span>, d.colour(RED))</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    d.line(<span class="dv">8</span>, <span class="dv">0</span>, <span class="dv">8</span>, <span class="dv">16</span>, d.colour(RED), <span class="dv">1</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    d.line(<span class="dv">0</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">8</span>, d.colour(RED), <span class="dv">1</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> grab_and_wipe(<span class="dv">17</span>, <span class="dv">17</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_shot():</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    d.fill_rect(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">5</span>, d.colour(WHITE))</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> grab_and_wipe(<span class="dv">5</span>, <span class="dv">5</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>ducks <span class="op">=</span> []</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    duck <span class="op">=</span> make_duck()</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># objects accept new attributes!</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    duck.speed <span class="op">=</span> <span class="dv">2</span> <span class="op">+</span> i</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    duck.show(i <span class="op">*</span> <span class="dv">200</span>, <span class="dv">70</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">80</span>, layer<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    ducks.append(duck)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>cross <span class="op">=</span> make_cross()</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>cross.show(W <span class="op">//</span> <span class="dv">2</span>, H <span class="op">//</span> <span class="dv">2</span>, layer<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>shot <span class="op">=</span> make_shot()                         <span class="co"># made, not shown</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>score <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>cooldown <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> hud():</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    hdmi.text(<span class="ss">f&quot;SCORE </span><span class="sc">{</span>score<span class="sc">:3}</span><span class="ss">&quot;</span>, <span class="dv">8</span>, <span class="dv">8</span>, d.colour(WHITE), SKY, <span class="dv">1</span>,</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>              <span class="dv">3</span>)</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>hud()</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>console(<span class="st">&quot;none&quot;</span>)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> held(keyboard.ESC):</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.LEFT):</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>            cross.x <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, cross.x <span class="op">-</span> <span class="dv">4</span>)</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.RIGHT):</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>            cross.x <span class="op">=</span> <span class="bu">min</span>(W <span class="op">-</span> <span class="dv">17</span>, cross.x <span class="op">+</span> <span class="dv">4</span>)</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.UP):</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>            cross.y <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, cross.y <span class="op">-</span> <span class="dv">4</span>)</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(keyboard.DOWN):</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>            cross.y <span class="op">=</span> <span class="bu">min</span>(H <span class="op">-</span> <span class="dv">17</span>, cross.y <span class="op">+</span> <span class="dv">4</span>)</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> cooldown:</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>            cooldown <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> held(<span class="bu">ord</span>(<span class="st">&quot; &quot;</span>)) <span class="kw">and</span> cooldown <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>            shot.x <span class="op">=</span> cross.x <span class="op">+</span> <span class="dv">6</span>           <span class="co"># centre the 5x5 shot</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>            shot.y <span class="op">=</span> cross.y <span class="op">+</span> <span class="dv">6</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>            shot.show(shot.x, shot.y, layer<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>            <span class="co"># quarter-second between shots</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>            cooldown <span class="op">=</span> <span class="dv">15</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>            beep(<span class="dv">220</span>, <span class="dv">20</span>)</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> duck <span class="kw">in</span> ducks:</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>            duck.x <span class="op">+=</span> duck.speed</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> duck.x <span class="op">&gt;</span> W:</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>                duck.x <span class="op">=</span> <span class="op">-</span><span class="dv">28</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> a, b <span class="kw">in</span> sp.update(vsync<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> a <span class="kw">is</span> shot <span class="kw">or</span> b <span class="kw">is</span> shot:</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>                target <span class="op">=</span> b <span class="cf">if</span> a <span class="kw">is</span> shot <span class="cf">else</span> a</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> target <span class="kw">in</span> ducks:</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>                    score <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>                    beep(<span class="dv">880</span>, <span class="dv">30</span>)</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>                    target.x <span class="op">=</span> <span class="op">-</span><span class="dv">28</span>         <span class="co"># respawn at the left</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>                    hud()</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the shot exists for one frame</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>        shot.hide()</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    sp.reset()</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>    console()</span></code></pre></div>
+<p>Play it. Then read it back with a designer’s eye, because five small
+decisions carry the whole game:</p>
+<ul>
+<li><strong>The layer trick.</strong> The crosshair shares screen space
+with ducks constantly and collides with nothing — layer 2, alone. The
+<em>shot</em> drops onto layer 1 for exactly one frame; edge-triggered
+collision means that single frame is enough, and
+<code>shot.hide()</code> after <code>update</code> makes firing a
+<em>pulse</em>. This shown-for-one-frame pattern is worth stealing for
+muzzle flashes, hit sparks, anything instantaneous.</li>
+<li><strong>The cooldown.</strong> Fifteen frames at sixty a second is a
+quarter-second fire rate — held space obeys it because the counter, not
+the key, grants permission. Every action game you write will have three
+of these.</li>
+<li><strong><code>duck.speed</code>.</strong> Sprites are Python
+objects, so your game data rides on them — no parallel lists (chapter
+10’s warning), the duck <em>carries</em> its speed. Chapter 14, quietly
+compounding.</li>
+<li><strong>Clamping with <code>max</code>/<code>min</code></strong>
+keeps the crosshair aboard — chapter 17’s DVD-corner lesson as a
+one-liner idiom.</li>
+<li>And the HUD’s solid <code>bg=</code> (<code>SKY</code>) is chapter
+15’s eraser trick, still earning.</li>
+</ul>
+<h2 data-number="18.5" id="experiments-17">Experiments</h2>
+<ol type="1">
+<li>Watch the machinery: in <code>duck1.py</code>, catch the events —
+<code>events = sp.update(vsync=True)</code> — and print each one as it
+arrives. Add a wall in the duck’s path and watch
+<code>(duck, wall)</code> fire exactly <em>once</em> per crossing,
+however long the overlap lasts: edge-triggering, seen live.</li>
+<li>Put the crosshair on layer 1 and watch the events list fill with
+nonsense contacts as it sweeps past ducks. Feel <em>why</em> layers
+exist; put it back.</li>
+<li>Give ducks a bad day: <code>duck.flip("h")</code> returns a mirrored
+copy — when a duck is hit, respawn it flying the <em>other</em> way
+(flip it, negate <code>speed</code>, start from the right). One duck
+artwork, two directions.</li>
+<li>A fence: <code>sp.wall(W // 2 - 4, 0, 8, H - 60)</code> down the
+middle, and make ducks <em>bounce</em> off it (a
+<code>(duck, wall)</code> event negates that duck’s speed) instead of
+wrapping. Invisible geometry, visible behaviour.</li>
+<li>Feathers: on a hit, show a fourth sprite (a little grey puff you
+drew and grabbed) at the duck’s last position for one frame — the
+muzzle-flash pattern, reused as a hit marker.</li>
+</ol>
+<h2 data-number="18.6" id="challenges-17">Challenges</h2>
+<ol type="1">
+<li><strong>Duck Hunt proper.</strong> Rounds of ten shots (count them
+down in the HUD), ducks speeding up each round, a <code>GAME OVER</code>
+card (font 3, centred — chapter 15 maths) showing accuracy percentage,
+and <code>scorelib</code> (chapter 12!) keeping the all-time board.
+<code>handy.ask_int</code> for “play again?” — your whole toolkit, one
+fairground.</li>
+<li><strong>The aquarium, promoted.</strong> Chapter 17’s fish
+challenge, rebuilt on the engine: sheet-based fish (chapter 16’s
+<code>Image.sprites</code> + <code>s.frame()</code> to flap), drifting
+at layered depths, a crab on layer 0 patrolling a wall-bounded seabed.
+No collisions needed — this one is about <em>composition</em>.</li>
+<li><strong>Sheepdog.</strong> One sheep sprite that wanders randomly;
+your dog (the crosshair, rebranded) repels it — each frame, if the dog
+is within 40 pixels, the sheep flees away (compare
+<code>.x</code>/<code>.y</code>, move opposite). Pen it: walls forming
+three sides of a square, and a win when the sheep’s inside. No shots
+fired; entirely position arithmetic — the quiet half of game
+design.</li>
+<li><strong>Two ducks, one stone.</strong> Make the shot
+<em>persist</em> — shown once, then flying upward 8 pixels a frame until
+it hits something or the <code>"top"</code> edge. Suddenly leading the
+target matters and the game is twice as hard: one changed sprite, a
+redesigned game. (Keep the one-frame version too; let players choose
+“arcade” or “carnival”.)</li>
+</ol>
+<nav class="booknav bottom" aria-label="Chapters">
+<a class="prev" href="17-chapter-17-smooth-motion-buffers-and-the-overlay.html" rel="prev">←&nbsp;Chapter 17 — Smooth motion: buffers and the overlay</a>
+<a class="contents" href="index.html" rel="top">Contents</a>
+<a class="next" href="19-chapter-19-tile-maps-big-worlds-from-small-pieces.html" rel="next">Chapter 19 — Tile maps: big worlds from small pieces&nbsp;→</a>
+</nav>
+</body>
+</html>
