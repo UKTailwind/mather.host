@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pico Computer 3 or Colour Maximite 2 G3? — mather.host</title>
+  <meta name="description" content="Two home computers that switch on into MMBasic and plug into an HDMI screen: the RP2350B Pico Computer 3 and the STM32H743 Colour Maximite 2 G3. Which is better for playing, for learning and for making new things.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /blog/pc3-or-cmm2-g3</p>
+        <h1>Pico Computer&nbsp;3 or Colour Maximite&nbsp;2&nbsp;G3?</h1>
+        <p class="lede">Both switch on into BASIC, plug into an HDMI screen and run the same MMBasic, the same MicroPython and the same book. One is built around the low-cost RP2350B, the other around a 480&nbsp;MHz STM32H743 with 32&nbsp;MB of SDRAM. Which is better for playing, for learning and for making new things? The answer is different for each.</p>
+        <p class="post-meta"><time datetime="2026-11-18">18 November 2026</time><span>PicoMite V7.00.00</span><span>CMM2 MMBasic 8.00.00b2</span></p>
+      </div>
+    </section>
+
+    <section class="section" id="summary">
+      <div class="wrap">
+        <div class="article">
+          <h2>In short</h2>
+          <ul class="findings">
+            <li><b>For playing: the G3.</b> Doom, Quake, ScummVM and a shelf of classic-computer emulators load from its SD card, and on the G3 they play on a 1080p TV with the sound coming out of it.</li>
+            <li><b>For making things: the PC3.</b> WiFi, Bluetooth, the RP2350's programmable I/O and a Qwiic socket come on a small, low-cost board, and a program finished on it runs on a Pico&nbsp;2&nbsp;W.</li>
+            <li><b>For learning: either.</b> The same MicroPython and the same book run on both. The PC3 adds a Unix-like operating system and the CMM2 adds a Forth.</li>
+            <li><b>For speed: the CMM2.</b> Its 480&nbsp;MHz Cortex-M7 and SDRAM run Python about twice as fast as the PC3, and big BASIC programs have far more room.</li>
+          </ul>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#glance">The two machines</a></li>
+            <li><a href="#play">For playing</a></li>
+            <li><a href="#learn">For learning</a></li>
+            <li><a href="#make">For making things</a></li>
+            <li><a href="#know">Before you choose</a></li>
+            <li><a href="#which">Which one?</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="glance">
+      <div class="wrap">
+        <div class="split">
+          <figure class="photo">
+            <a href="/pico-computer-3/"><img src="https://raw.githubusercontent.com/UKTailwind/FUZIX/pc3/Kernel/platform/platform-rpipico/brochure/board.jpg" alt="The assembled Pico Computer 3 circuit board" width="820" height="763" loading="lazy"></a>
+            <figcaption>The <a href="/pico-computer-3/">Pico Computer&nbsp;3</a>.</figcaption>
+          </figure>
+          <figure class="photo">
+            <a href="/cmm2/g3/"><img src="/assets/img/cmm2-g3.jpg" alt="An assembled Colour Maximite 2 G3 board, with the HDMI socket at the top right" width="1100" height="972" loading="lazy"></a>
+            <figcaption>The <a href="/cmm2/g3/">Colour Maximite&nbsp;2&nbsp;G3</a>.</figcaption>
+          </figure>
+        </div>
+        <div class="article" style="margin-top:32px">
+          <h2>The two machines</h2>
+          <p>The <a href="/pico-computer-3/">Pico Computer&nbsp;3</a> is an RP2350B home computer that runs MMBasic, MicroPython or FUZIX. The <a href="/cmm2/g3/">G3</a> is the newest Colour Maximite&nbsp;2: a Generation&nbsp;2 board whose picture and sound go out through HDMI instead of VGA. Since MMBasic V7 the two run the same interpreter, so most of what follows is about the hardware around it.</p>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col"></th><th scope="col">Pico Computer&nbsp;3</th><th scope="col">Colour Maximite&nbsp;2&nbsp;G3</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Processor</th><td>RP2350B: two Arm Cortex-M33 cores, overclocked for HDMI (378&nbsp;MHz in the timings below)</td><td>STM32H743: one Arm Cortex-M7 core at 480&nbsp;MHz, with double-precision floating point</td></tr>
+                <tr><th scope="row">Memory</th><td>520&nbsp;KB on the chip, 8&nbsp;MB of PSRAM, 16&nbsp;MB of flash</td><td>1&nbsp;MB on the chip, 32&nbsp;MB of SDRAM, 2&nbsp;MB of flash</td></tr>
+                <tr><th scope="row">Room for BASIC</th><td>Programs up to 256&nbsp;KB</td><td>Programs up to 512&nbsp;KB, about 15&nbsp;MB for variables</td></tr>
+                <tr><th scope="row">Picture</th><td>HDMI/DVI made by the RP2350 itself. Screen timings up to 1280&nbsp;×&nbsp;720, up to 32,768 colours in the lower-resolution modes</td><td>HDMI from an MS7210 transmitter. 19 modes up to 1920&nbsp;×&nbsp;1080 with up to 16-bit colour, pages and layers</td></tr>
+                <tr><th scope="row">Sound</th><td>PCM5102 32-bit stereo DAC, Bluetooth speakers and headphones</td><td>HDMI (16-bit) and a 12-bit DAC at the same time; Bluetooth speakers with the WiFi module</td></tr>
+                <tr><th scope="row">Wireless</th><td>WiFi and Bluetooth on the board (Raspberry Pi RM2)</td><td>WiFi and Bluetooth with the plug-on <a href="/cmm2/wifi/">WiFi module</a>, the same radio</td></tr>
+                <tr><th scope="row">USB</th><td>Four host ports through an on-board hub</td><td>One host port; low-speed devices must be plugged in directly</td></tr>
+                <tr><th scope="row">I/O</th><td>30-pin header with 24 I/O pins, 7 of them analogue; programmable I/O (PIO); a Qwiic/STEMMA&nbsp;QT socket</td><td>40-pin header; Wii controller socket, IR receiver, PS/2 mouse, CAN, a DS18B20 temperature sensor</td></tr>
+                <tr><th scope="row">Software</th><td>MMBasic (PicoMite V7.00.00), MicroPython or FUZIX, one at a time</td><td>MMBasic 8.00.00b2 (beta), with MicroPython, a C compiler, zeptoforth and 18 more apps run from the SD card</td></tr>
+                <tr><th scope="row">Design files</th><td colspan="2">Both open, in EasyEDA Pro, with Gerbers, BOM and placement files with LCSC part numbers, in the <a href="https://github.com/UKTailwind/Pico-Computer-3">Pico-Computer-3 repository</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="play">
+      <div class="wrap">
+        <div class="article">
+          <h2>For playing</h2>
+          <h3>The G3 is the games machine</h3>
+          <p>The CMM2's <a href="/cmm2/#apps">programs zip</a> holds 21 loadable programs, and most of them are for fun:</p>
+          <ul>
+            <li><strong>Games:</strong> Doom with the free Freedoom data and its music on the FM synthesiser, Heretic, Quake, ScummVM for LucasArts and Sierra adventures, and a NES emulator.</li>
+            <li><strong>Classic computers:</strong> the ZX Spectrum, Amstrad CPC, Commodore&nbsp;64 with its 1541, Atari 8-bit machines, Apple&nbsp;//e, BBC Micro and Master, TRS-80, an Amiga&nbsp;500 at its own 50 frames a second, and a 386 PC that runs DOS, Windows&nbsp;3.1 and Windows&nbsp;95.</li>
+          </ul>
+          <p>The G3 adds the part that was missing. A G1 or G2 needs a VGA monitor and speakers; a G3 takes one HDMI cable to a TV, shows every video mode from the moment it's switched on, and plays the sound through the TV's speakers and the audio socket at once. MMBasic itself has sprites, tile maps, a 3D engine, the PicoMite's raycaster and an FM synthesiser that plays MIDI, with 32&nbsp;MB of SDRAM behind them.</p>
+
+          <h3>The PC3's fun is the kind you make</h3>
+          <p>The PC3 has no shelf of ported games, but MMBasic games written for it run well. With the compiler on at 378&nbsp;MHz, an Elite game draws a frame in 11.0&nbsp;ms and a Prince of Persia port in 6.7&nbsp;ms (<a href="/blog/picomite-v7/#speed">the V7 timings</a>). It has four USB ports for a keyboard, mouse, gamepad and flash drive, Bluetooth keyboards and mice, MOD, MP3 and FLAC playback and the BBC Micro's sound. Its headphone socket is driven by a 32-bit DAC, cleaner than the CMM2's 12-bit one.</p>
+          <p>The book <a href="/pico-computer-3/book/"><em>Programming the Pico Computer&nbsp;3</em></a> builds Breakout, Asteroids and a tile-map adventure in Python, and those run on either machine.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="learn">
+      <div class="wrap">
+        <div class="article">
+          <h2>For learning</h2>
+          <p>Both machines start in MMBasic with a full-screen editor and a file manager, so a beginner types a line and sees it run. Both run the PC3's MicroPython, and the CMM2's MicroPython app <a href="/blog/micropython-book-cmm2/">runs every example in the book</a>. After that they part ways:</p>
+          <ul>
+            <li><strong>The PC3</strong> can become a small Unix machine. <a href="https://github.com/UKTailwind/FUZIX/tree/pc3">FUZIX</a> gives it a shell, a C compiler that runs on the board, <code>mmb2c</code> to turn MMBasic programs into C, BBC BASIC, awk and man pages. <a href="https://github.com/UKTailwind/pc3host">pc3host</a> runs the same toolchain on a Windows or Linux PC.</li>
+            <li><strong>The CMM2</strong> keeps everything on one SD card, with no reflashing to change language. It has a C compiler that runs on the machine and also compiles MMBasic programs, <a href="https://github.com/zeptoforth/zeptoforth">zeptoforth</a>, and an SDK for writing loadable programs and new BASIC commands in C or C++.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="make">
+      <div class="wrap">
+        <div class="article">
+          <h2>For making things</h2>
+          <h3>The PC3</h3>
+          <ul>
+            <li><strong>Wireless as standard.</strong> Every PC3 can serve web pages, talk MQTT, set its clock by NTP, fetch from HTTPS services and be edited over Telnet, with nothing added.</li>
+            <li><strong>Programmable I/O.</strong> The RP2350's PIO state machines run your own serial protocols and timing at full speed. Nothing on the STM32 does that.</li>
+            <li><strong>Plug-in sensors.</strong> The Qwiic/STEMMA&nbsp;QT socket takes hundreds of sensor and display boards from SparkFun, Adafruit, Pimoroni and others with no soldering. The PicoMite's camera support works too.</li>
+            <li><strong>A way to finish.</strong> Try an idea on the PC3 with a screen and keyboard, then run the same program on a Pico&nbsp;2&nbsp;W in the finished gadget. The <a href="/picomite/">PicoMite's builds</a> share one MMBasic.</li>
+            <li><strong>Cheap to dedicate.</strong> A board this small and inexpensive can be given to a single project and left there.</li>
+          </ul>
+          <h3>The CMM2</h3>
+          <ul>
+            <li><strong>Room and precision.</strong> About 15&nbsp;MB for variables and double-precision maths in hardware suit big arrays, data logging, image work and calculation.</li>
+            <li><strong>Control.</strong> CAN bus, stepper motors, a DAC, the Wii controllers, infrared remotes, WS2812 LEDs, and with the WiFi module the PicoMite's networking unchanged.</li>
+            <li><strong>Data.</strong> SQLite databases from BASIC with the SQL command.</li>
+            <li><strong>Extending the language.</strong> USER modules add your own commands and functions, written in C, that BASIC calls like built-in ones.</li>
+            <li><strong>A workstation for PicoMite code.</strong> With <code>OPTION PICOMITE</code> it runs PicoMite programs unaltered, so it's a comfortable place to write code that ends up on a Pico.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="know">
+      <div class="wrap">
+        <div class="article">
+          <h2>Before you choose</h2>
+          <h3>The G3</h3>
+          <ul>
+            <li>Its firmware is a beta. G3 support began with MMBasic V8, which is at <a href="https://github.com/UKTailwind/CMM2V1.5/releases">8.00.00b2</a>, so there's no full release to fall back on yet.</li>
+            <li>It's a new design, so you have it made from the published files. The STM32H743 costs several times what the RP2350B does.</li>
+            <li>It can't reach a low-speed keyboard, mouse or gamepad through a hub. <a href="/blog/cmm2-usb-full-speed/">How to choose full-speed devices</a>.</li>
+          </ul>
+          <h3>The PC3</h3>
+          <ul>
+            <li>Its 8&nbsp;MB of PSRAM is on a serial bus, so a program working through large arrays runs slower than it would in the CMM2's SDRAM.</li>
+            <li>Its picture tops out at 1280&nbsp;×&nbsp;720, and the many-colour modes are at lower resolutions.</li>
+            <li>It runs one system at a time: changing between MMBasic, MicroPython and FUZIX means loading different firmware.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="which">
+      <div class="wrap">
+        <div class="article">
+          <h2>Which one?</h2>
+          <ul>
+            <li><strong>A games and retro-computing machine for the TV</strong>, or the most room for a big BASIC program: the <a href="/cmm2/g3/">G3</a>.</li>
+            <li><strong>Gadgets, sensors and connected devices</strong>, a low-cost machine for a class, or a project that will end up on a Pico: the <a href="/pico-computer-3/">PC3</a>.</li>
+          </ul>
+          <p>Or both. They share MMBasic, MicroPython and the book, so programs move between them: a PicoMite program runs on the CMM2 with <code>OPTION PICOMITE</code>, and Python written from the book runs on either.</p>
+          <p>Questions and corrections are welcome on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum.</p>
+          <p class="back"><a href="/blog/">← All articles</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>
