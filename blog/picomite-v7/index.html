@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PicoMite MMBasic V7.00.00 is released — mather.host</title>
+  <meta name="description" content="PicoMite MMBasic V7.00.00, the first full release since V6.03.01: faster on every board, more memory for programs, a compiler on the RP2350, a new USB host, more Bluetooth, and two new builds, among them the PicoMitePC3. What's new, and how to upgrade.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /blog/picomite-v7</p>
+        <h1>PicoMite MMBasic V7.00.00 is released</h1>
+        <p class="lede">Version 7 of MMBasic for the RP2040 and the RP2350 is out, the first full release since V6.03.01 in August. It runs programs faster on every board and gives them more memory. On the RP2350 it adds a compiler that runs most of a program as native code without changing a line of it. It also has a new USB host, more Bluetooth, and two new builds, one of them for the Pico Computer&nbsp;3.</p>
+        <p class="post-meta"><time datetime="2026-11-18">18 November 2026</time><span>18 builds</span><span>RP2040 and RP2350</span></p>
+      </div>
+    </section>
+
+    <section class="section" id="summary">
+      <div class="wrap">
+        <div class="article">
+          <h2>In short</h2>
+          <ul class="findings">
+            <li><b>Faster on every board.</b> Names are looked up as symbols instead of searched for, local variables live on a stack, and an armed interrupt costs almost nothing until it fires. A <code>DO</code> loop on an RP2040 PicoMiteVGA went from 1.50&nbsp;s to 0.60&nbsp;s.</li>
+            <li><b>A compiler on the RP2350.</b> Type <code>OPTION COMPILE ON</code>, then <code>RUN</code>. Whatever the compiler can take runs as native code, from 1.4 to 5.2 times faster in the tests below, and the program stays exactly as you wrote it.</li>
+            <li><b>More memory.</b> Variables now take memory only when they're made, so the old fixed block is heap: 364&nbsp;KB on the RP2350 PicoMite and 120&nbsp;KB on the RP2040 PicoMiteVGA.</li>
+            <li><b>Back up before you upgrade.</b> The first boot of V7.00.00 resets the board: options, flash slots, program memory and the A: drive. <a href="#upgrade">Save them first</a>.</li>
+          </ul>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#speed">Speed and the compiler</a></li>
+            <li><a href="#language">The language</a></li>
+            <li><a href="#screen">Graphics, sound, files and the console</a></li>
+            <li><a href="#devices">USB and Bluetooth</a></li>
+            <li><a href="#builds">The builds</a></li>
+            <li><a href="#upgrade">Upgrading from V6</a></li>
+            <li><a href="#download">Downloads and manuals</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="speed">
+      <div class="wrap">
+        <div class="article">
+          <h2>Speed and the compiler</h2>
+          <p>Every build runs the same programs faster. When a program is saved, each variable, SUB, FUNCTION and label name becomes a short symbol that the interpreter follows directly, and LIST and EDIT still show the names as you typed them. A SUB's parameters and LOCAL variables are made on a stack and dropped on return, so loops of calls are 12% to 39% quicker on a Pico Computer&nbsp;3 and 17% to 55% on an RP2040. Interrupt sources now signal when they're ready instead of being checked after every statement, which takes about 30% off a loop that has SETTICK armed. <code>MATH FFT</code> is about 20% faster.</p>
+
+          <h3>The compiler (RP2350)</h3>
+          <p>With <code>OPTION COMPILE ON</code>, MMBasic compiles the program, and its library, when you type RUN. It compiles again only after an edit, which costs about 0.3&nbsp;s for a 110&nbsp;KB program. Statements it can't compile stay in place and run on the interpreter between the compiled ones, so a program doesn't have to be entirely compilable to gain. LIST, EDIT, error messages, line numbers, TRACE, ON ERROR, interrupts and CHAIN all behave as before. Afterwards, <code>PRINT MM.INFO(COMPILE)</code> shows how much ran compiled, and <code>OPTION COMPILE SHADOW</code> checks every compiled value against the interpreter, to find the line if a program ever behaves differently.</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th scope="col">Program, on a Pico Computer&nbsp;3 at 378&nbsp;MHz</th><th scope="col" class="num">Interpreted</th><th scope="col" class="num">Compiled</th><th scope="col" class="num">Faster</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">torus (nested loops, IF and PIXEL)</th><td class="num">40.5&nbsp;s</td><td class="num">7.8&nbsp;s</td><td class="num">5.2×</td></tr>
+                <tr><th scope="row">landscape (a FUNCTION in the inner loop)</th><td class="num">78.5&nbsp;s</td><td class="num">21&nbsp;s</td><td class="num">3.7×</td></tr>
+                <tr><th scope="row">galaxy (SIN and COS per point), per point</th><td class="num">255&nbsp;µs</td><td class="num">80&nbsp;µs</td><td class="num">3.2×</td></tr>
+                <tr><th scope="row">reference benchmark</th><td class="num">15.4&nbsp;s</td><td class="num">7.1&nbsp;s</td><td class="num">2.2×</td></tr>
+                <tr><th scope="row">Elite, per frame</th><td class="num">22.6&nbsp;ms</td><td class="num">11.0&nbsp;ms</td><td class="num">2.1×</td></tr>
+                <tr><th scope="row">PETSCII Robots, frame update</th><td class="num">36.0&nbsp;ms</td><td class="num">23.4&nbsp;ms</td><td class="num">1.5×</td></tr>
+                <tr><th scope="row">Prince of Persia port, per frame</th><td class="num">9.7&nbsp;ms</td><td class="num">6.7&nbsp;ms</td><td class="num">1.4×</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Where the gain is smaller, the time goes on work no compiler can speed up: the maths library, the drawing itself, and statements that stay interpreted.</p>
+
+          <h3>mmb2csub: one routine as machine code, on either chip</h3>
+          <p>For the routine that matters most, a new tool, mmb2csub, takes one SUB or FUNCTION out of your program, compiles it to machine code and puts it back as a CSUB. Your calls don't change. Loops, arithmetic and array work run 10 to 35 times faster: the Julia set demo renders in 5.9&nbsp;s instead of 119&nbsp;s on an RP2040. The same converted program runs on the RP2040 and the RP2350, on every build.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="language">
+      <div class="wrap">
+        <div class="article">
+          <h2>The language</h2>
+          <ul>
+            <li><strong>Whole arrays at once.</strong> <code>b%() = a%()</code> copies one array into another in a single move, and a FUNCTION can return an array: <code>m%() = f(3)</code>. An array dimension can hold a single element, so row vectors, column vectors and 1×1 results can be declared.</li>
+            <li><strong>A program can bring its own library.</strong> <code>LIBRARY LOAD</code> as a program's first statement installs a library from up to eight files, and touches nothing if the same library is already there. On an RP2350 with PSRAM, the <code>RAM</code> keyword loads it into RAM for that run only, leaving the flash library alone. READ goes on into the library's DATA when the program's runs out.</li>
+            <li><strong>Old programs keep their names.</strong> A variable can now have a command's name, so <code>fm% = 0</code> in a program written before the FM command came along still runs.</li>
+            <li><strong>Errors say more.</strong> <code>MM.ERRLINE</code> gives the line of the last error, and "Not enough memory" names the size that was asked for.</li>
+            <li><strong>New functions</strong>, such as <code>MATH CLAMP</code> to limit an array to a range and <code>BASE$</code> for numbers in any base from 2 to 36.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="screen">
+      <div class="wrap">
+        <div class="article">
+          <h2>Graphics, sound, files and the console</h2>
+          <ul>
+            <li><strong>Pictures.</strong> SAVE IMAGE now picks the smallest exact BMP for the picture. On the RP2350, <code>SAVE PNG</code> saves the screen as a compressed PNG, typically ten to fifty times smaller than a BMP, PNGs of any size load and crop, <code>FRAMEBUFFER MERGE</code> puts a second framebuffer over the main one on VGA and HDMI in one pass without tearing, and image slots can be kept in PSRAM. <code>TILEMAP LOAD</code> reads a tile map from a file, and a DRAW3D scene holds 32 objects instead of 8.</li>
+            <li><strong>Print Screen.</strong> The Print Screen key, or Ctrl-\ on any keyboard or terminal, saves the display at the prompt, in the editor and in the file manager, to a file named from the date and time.</li>
+            <li><strong>Sound.</strong> <code>PLAY BBC SOUND</code> and <code>PLAY BBC ENVELOPE</code> bring back the BBC Micro's sound commands. The file manager plays a list of marked tracks, and an album may mix WAV, FLAC, MP3 and MIDI files.</li>
+            <li><strong>Files.</strong> ZMODEM, in every build, moves files and batches of files to and from a PC, and recovers from errors instead of failing. The A: drive moves to littlefs 2.11.3, with three years of its fixes: a write cut short by a power failure is now caught instead of read back as good data.</li>
+            <li><strong>Help at the prompt.</strong> <code>HELP</code> looks a command up in a help file on the A: drive. The release comes with three, of different sizes, to suit the space you have.</li>
+            <li><strong>Listings anywhere.</strong> <code>LIST ALL</code>, <code>LIST PINS</code>, <code>FILES</code>, <code>OPTION LIST</code> and others take <code>#n</code>, as PRINT does, to send their output to a printer, a serial port or a file.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="devices">
+      <div class="wrap">
+        <div class="article">
+          <h2>USB and Bluetooth</h2>
+          <p>The USB host builds have a new USB stack, based on TinyUSB's current version, which makes hubs, flash drives and serial adapters faster and more reliable:</p>
+          <ul>
+            <li>A USB flash drive reads at several hundred KB/s instead of about 64&nbsp;KB/s, faster than the SD card.</li>
+            <li>More USB serial adapters work, Prolific PL2303 ones among them, and one can feed the GPS parser.</li>
+            <li>More gamepads, the Nintendo Switch Pro Controller among them, and every mouse button is reported.</li>
+            <li>A hub has room for more devices at once, and USB faults are recovered from and reported.</li>
+          </ul>
+          <p>The Bluetooth host builds go well beyond BLE keyboards:</p>
+          <ul>
+            <li><strong>Speakers and headphones.</strong> <code>OPTION AUDIO BLUETOOTH</code> sends everything PLAY makes to a Bluetooth speaker, and the board reconnects to it by itself after a reset.</li>
+            <li><strong>Bluetooth Classic keyboards</strong>, the cheap tablet keyboards among them, and BLE keyboards that pair and reconnect more easily.</li>
+            <li><strong>Serial devices on COM7.</strong> A Bluetooth GPS receiver, or a BLE serial module such as an HM-10, opens as a serial port, with a buffer and an interrupt like any other.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="builds">
+      <div class="wrap">
+        <div class="article">
+          <h2>The builds</h2>
+          <p>There are two new builds:</p>
+          <ul>
+            <li><strong>PicoMitePC3</strong>: everything the <a href="/pico-computer-3/">Pico Computer&nbsp;3</a> can do in one firmware. It has the HDMI PicoMite's video and USB, the WebMite's WiFi and the Bluetooth host's keyboards, speakers and serial devices, with room for a 256&nbsp;KB program. It also runs the Pico Computer&nbsp;2 and Olimex's RP2350pc, and sets itself up for whichever of the three it finds itself on.</li>
+            <li><strong>PicoMiteHDMIBTH</strong>: the HDMI PicoMite with USB, plus Bluetooth keyboards, mice and speakers.</li>
+          </ul>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col">Kind</th><th scope="col">RP2040</th><th scope="col">RP2350</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">PicoMite</th><td>PicoMiteRP2040, PicoMiteRP2040USB, PicoMiteRP2040MIN</td><td>PicoMiteRP2350, PicoMiteRP2350USB</td></tr>
+                <tr><th scope="row">VGA</th><td>PicoMiteRP2040VGA, PicoMiteRP2040VGAUSB</td><td>PicoMiteRP2350VGA, PicoMiteRP2350VGAUSB</td></tr>
+                <tr><th scope="row">HDMI</th><td>—</td><td>PicoMiteHDMI, PicoMiteHDMIUSB, PicoMiteHDMIWEB, PicoMiteHDMIBTH <span class="muted">(new)</span></td></tr>
+                <tr><th scope="row">WiFi and Bluetooth</th><td>WebMiteRP2040</td><td>WebMiteRP2350, PicoMiteRP2350BT, PicoMiteRP2350BTH, PicoMitePC3 <span class="muted">(new)</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The <a href="/cmm2/#picomite">Colour Maximite&nbsp;2</a>'s MMBasic V8 is the same MMBasic, so PicoMite programs run on it too.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="upgrade">
+      <div class="wrap">
+        <div class="article">
+          <h2>Upgrading from V6</h2>
+          <p><strong>The first boot of V7.00.00 resets the board.</strong> The options go back to their defaults, saved variables and the three flash slots are erased, program memory is cleared and the A: drive is reformatted. So, while the board still runs V6.03.01:</p>
+          <ol>
+            <li>Copy everything on A: to the SD card or your PC.</li>
+            <li>Save your program to the SD card, B:, and your options too, since A: will be reformatted:</li>
+          </ol>
+<pre><code>OPTION DISK SAVE "B:/myoptions.txt"</code></pre>
+          <ol start="3">
+            <li>Flash V7.00.00, then put the options back with <code>OPTION DISK LOAD "B:/myoptions.txt"</code> and check them with <code>OPTION LIST</code>. A file saved by V6.03.01 can bring a mouse sensitivity or touch calibration back wrong, so set those again if they're off.</li>
+          </ol>
+          <p>This is the last time: from V7.00.00 on, a later firmware of the same build resets nothing unless its release notes say so. If you followed the release candidates, coming from RC9 every build keeps everything.</p>
+          <p>A few changes can make an existing program behave differently. Most are MMBasic now enforcing rules the manual has always given:</p>
+          <ul>
+            <li><code>-2^2</code> is now -4, as in mathematics. Write <code>(-2)^2</code> for the old answer.</li>
+            <li><code>/*</code> and <code>*/</code> must start their line and be followed by a space, so write a banner as <code>/* *****</code> rather than <code>/*****</code>.</li>
+            <li>Text after a SUB's bracketed arguments, as in <code>MySub (a), b</code>, is now an error instead of being silently dropped.</li>
+            <li>A label used twice, or a name longer than 31 characters, is now an error.</li>
+            <li><code>MATH RANDOMIZE</code> now seeds the standard Mersenne Twister, so a given seed gives different numbers.</li>
+          </ul>
+          <p>The <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V7.00.00/PicoMite_V7.00.00_Changes_since_V6.03.01.pdf">changes document</a> lists every one of them, with what to change. One limitation is known: on the RP2350, STEPPER arcs run faster than their feed rate away from the axes. Straight moves are not affected, and a fix will come in a later release.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="download">
+      <div class="wrap">
+        <div class="article">
+          <h2>Downloads and manuals</h2>
+          <p>Everything is on the <a href="https://github.com/UKTailwind/PicoMite/releases/tag/PicoMite-V7.00.00">V7.00.00 release page</a>:</p>
+          <ul>
+            <li><strong>The firmware</strong>: one <code>.uf2</code> file for each of the 18 builds. Hold BOOTSEL, plug the Pico in and drag the file onto the drive that appears, or type <code>UPDATE FIRMWARE</code>, which is now in every build.</li>
+            <li><strong><a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V7.00.00/PicoMite_User_ManualV7.00.00.pdf">The User Manual</a></strong>, which covers everything in this release.</li>
+            <li><strong><a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V7.00.00/PicoMite_V7.00.00_Changes_since_V6.03.01.pdf">What has changed since V6.03.01</a></strong>, the full list of what's new, what's changed and what's fixed.</li>
+            <li><strong><a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V7.00.00/PicoMite_Supplementary_Manuals-7.00.00.zip">The supplementary manuals</a></strong>: 26 guides, among them the new MMBasic Performance Guide, which answers "how do I make it faster" with measurements, and the guides to sprites, tile maps, game input, Bluetooth and mmb2csub.</li>
+            <li><strong>The help files</strong> for the HELP command, and <strong>mmb2csub</strong> in its own zip.</li>
+          </ul>
+          <p>Please report problems on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum or as an <a href="https://github.com/UKTailwind/PicoMite/issues">issue on GitHub</a>. The <a href="/picomite/">PicoMite page</a> has more on the firmware and its source.</p>
+          <p class="back"><a href="/blog/">← All articles</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>
