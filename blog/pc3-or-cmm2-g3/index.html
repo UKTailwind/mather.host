@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pico Computer 3 or Colour Maximite 2 G3? — mather.host</title>
-  <meta name="description" content="Two home computers that switch on into MMBasic and plug into an HDMI screen: the RP2350B Pico Computer 3 and the STM32H743 Colour Maximite 2 G3. Which is better for playing, for learning and for making new things.">
+  <meta name="description" content="Two home computers that switch on into MMBasic and plug into an HDMI screen: the RP2350B Pico Computer 3 and the STM32H743 Colour Maximite 2 G3. Which is better for playing, for learning and for making new things, with measured speeds.">
   <meta name="theme-color" content="#1f7a5c">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/site.css">
@@ -46,12 +46,13 @@
             <li><b>For playing: the G3.</b> Doom, Quake, ScummVM and a shelf of classic-computer emulators load from its SD card, and on the G3 they play on a 1080p TV with the sound coming out of it.</li>
             <li><b>For making things: the PC3.</b> WiFi, Bluetooth, the RP2350's programmable I/O and a Qwiic socket come on a small, low-cost board, and a program finished on it runs on a Pico&nbsp;2&nbsp;W.</li>
             <li><b>For learning: either.</b> The same MicroPython and the same book run on both. The PC3 adds a Unix-like operating system and the CMM2 adds a Forth.</li>
-            <li><b>For speed: the CMM2.</b> Its 480&nbsp;MHz Cortex-M7 and SDRAM run Python about twice as fast as the PC3, and big BASIC programs have far more room.</li>
+            <li><b>For speed: the CMM2.</b> It ran the same BASIC programs two to three and a half times as fast as the PC3, and Python twice as fast. The gap is smallest in code that spends its time drawing. <a href="#speed">The measurements</a>.</li>
           </ul>
 
           <h3>On this page</h3>
           <ol class="toc">
             <li><a href="#glance">The two machines</a></li>
+            <li><a href="#speed">Speed</a></li>
             <li><a href="#play">For playing</a></li>
             <li><a href="#learn">For learning</a></li>
             <li><a href="#make">For making things</a></li>
@@ -94,6 +95,33 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="speed">
+      <div class="wrap">
+        <div class="article">
+          <h2>Speed</h2>
+          <p>The CMM2 was faster in every comparison: two to three and a half times on BASIC and twice on Python. The same programs, with the same inputs, were run on both machines. The CMM2's figures come from a G2, which has the same processor, memory and firmware as the G3.</p>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col">Program</th><th scope="col">How it ran</th><th scope="col" class="num">PC3</th><th scope="col" class="num">CMM2</th><th scope="col" class="num">CMM2 faster by</th></tr></thead>
+              <tbody>
+                <tr><th scope="row" rowspan="2">Solar eclipse, a 3,200-line calculation</th><td>MMBasic</td><td class="num">15.6&nbsp;s</td><td class="num">6.0&nbsp;s</td><td class="num">2.6×</td></tr>
+                <tr><td>MMBasic, <code>OPTION COMPILE ON</code></td><td class="num">6.0&nbsp;s</td><td class="num">1.7&nbsp;s</td><td class="num">3.5×</td></tr>
+                <tr><th scope="row" rowspan="2">KnivD benchmark, grains (more is faster)</th><td>MMBasic</td><td class="num">8,868</td><td class="num">18,732</td><td class="num">2.1×</td></tr>
+                <tr><td>MMBasic, <code>OPTION COMPILE ON</code></td><td class="num">13,938</td><td class="num">42,070</td><td class="num">3.0×</td></tr>
+                <tr><th scope="row">Solar eclipse in Python</th><td>MicroPython</td><td class="num">8.8&nbsp;s*</td><td class="num">4.4&nbsp;s</td><td class="num">2.0×</td></tr>
+                <tr><th scope="row">Solar eclipse turned into C on the machine</th><td>PC3: mmb2c and cc under FUZIX; CMM2: CC</td><td class="num">2.17&nbsp;s*</td><td class="num">0.93&nbsp;s</td><td class="num">2.3×</td></tr>
+                <tr><th scope="row" rowspan="2">One row of a Life program, mostly <code>PIXEL</code></th><td>MMBasic</td><td class="num">29.0&nbsp;ms*</td><td class="num">20.2&nbsp;ms</td><td class="num">1.4×</td></tr>
+                <tr><td>MMBasic, <code>OPTION COMPILE ON</code></td><td class="num">9.6&nbsp;ms*</td><td class="num">7.8&nbsp;ms</td><td class="num">1.2×</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">PC3: the PicoMitePC3 build of MMBasic V7 at 315&nbsp;MHz; figures marked * are at 378&nbsp;MHz. CMM2: a G2 at 480&nbsp;MHz.</p>
+          <p>Most of the gap has two causes. MMBasic's numbers are double precision. The CMM2's Cortex-M7 does double-precision arithmetic in hardware, but the RP2350's Cortex-M33 has hardware only for single precision, so each double takes a software routine. The CMM2's 32&nbsp;MB of SDRAM is also quicker to reach than PSRAM on the RP2350's serial QSPI bus.</p>
+          <p>The gap is smallest where a program spends its time drawing. The Life program is mostly <code>PIXEL</code> commands, and there the CMM2 is only 1.2 to 1.4 times as fast. That's why the PC3 plays its MMBasic games well. Both machines' firmware is still getting faster, so treat these figures as a snapshot from November 2026.</p>
         </div>
       </div>
     </section>
