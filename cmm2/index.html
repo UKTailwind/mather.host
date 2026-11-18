@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Colour Maximite 2 — mather.host</title>
-  <meta name="description" content="MMBasic V8 for the Colour Maximite 2: WiFi and web pages from BASIC, PicoMite programs run unaltered, and twenty-one games, languages and utilities that load from the SD card.">
+  <meta name="description" content="MMBasic V8 for the Colour Maximite 2: WiFi, web pages and Bluetooth from BASIC, PicoMite programs run unaltered, and twenty-one games, languages and utilities that load from the SD card, MicroPython among them.">
   <meta name="theme-color" content="#1f7a5c">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/site.css">
@@ -34,13 +34,13 @@
         <div>
           <p class="eyebrow">// cd /cmm2</p>
           <h1>Colour Maximite 2</h1>
-          <p class="lede">A 480&nbsp;MHz STM32H743 computer that switches on straight into BASIC. MMBasic V8 puts it on your WiFi network serving web pages, runs PicoMite programs unaltered, and loads twenty-one games, languages and utilities from its SD card.</p>
+          <p class="lede">A 480&nbsp;MHz STM32H743 computer that switches on straight into BASIC. MMBasic V8 puts it on your WiFi network serving web pages, connects Bluetooth keyboards and speakers, runs PicoMite programs unaltered, and loads twenty-one games, languages and utilities from its SD card.</p>
           <div class="hero-actions">
-            <a class="btn primary" href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b1">Download 8.00.00b1</a>
+            <a class="btn primary" href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b2">Download 8.00.00b2</a>
             <a class="btn" href="#apps">See the apps</a>
           </div>
           <div class="stats">
-            <div class="stat"><b>8.00.00b1</b><span>beta, 16 Nov 2026</span></div>
+            <div class="stat"><b>8.00.00b2</b><span>beta, 18 Nov 2026</span></div>
             <div class="stat"><b>21</b><span>apps to load from the card</span></div>
             <div class="stat"><b>G1 · G2 · G3</b><span>one firmware file</span></div>
           </div>
@@ -52,7 +52,7 @@
 <span class="dim">&gt;</span> PRINT MM.INFO(IP ADDRESS)
 <span class="hl">192.168.1.106</span>
 <span class="dim">&gt;</span> PRINT MM.VER
-<span class="hl"> 8.000001</span>
+<span class="hl"> 8.000002</span>
 <span class="dim">&gt;</span> CHDIR "A:/Doom" : RUN "doom.app"
 <span class="dim">&gt;</span> _</pre>
         </div>
@@ -64,15 +64,15 @@
         <div class="section-head">
           <div>
             <h2>New in MMBasic V8</h2>
-            <p>The first beta, 8.00.00b1, was posted on 16 November 2026. The same firmware file runs on all three generations of the board.</p>
+            <p>The second beta, 8.00.00b2, was posted on 18 November 2026. It adds Bluetooth, and a MicroPython that runs every example of the book <a href="/blog/micropython-book-cmm2/"><em>Programming the Pico Computer&nbsp;3</em></a>. The same firmware file runs on all three generations of the board.</p>
           </div>
-          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/Release_Notes_8.00.00b1.md">Release notes →</a>
+          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/Release_Notes_8.00.00b2.md">Release notes →</a>
         </div>
         <div class="cards four">
           <div class="card">
             <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.5 12.5a9.5 9.5 0 0 1 13 0"/><path d="M8.7 16a5 5 0 0 1 6.6 0"/><circle cx="12" cy="19.5" r="1"/></svg></span>
-            <h3>WiFi and the Internet</h3>
-            <p>With the WiFi module on the rear I/O connector, the CMM2 runs the WebMite's networking unchanged: a web server, HTTP and HTTPS clients, UDP, MQTT, network time, a Telnet console and TFTP file transfer.</p>
+            <h3>WiFi, the Internet and Bluetooth</h3>
+            <p>With the WiFi module on the rear I/O connector, the CMM2 runs the WebMite's networking unchanged: a web server, HTTP and HTTPS clients, UDP, MQTT, network time, a Telnet console and TFTP file transfer. The same radio does Bluetooth: keyboards, mice, speakers and headphones, and serial devices.</p>
             <div class="links"><a href="#web">Web pages from BASIC ↓</a><a href="/cmm2/wifi/">The module →</a></div>
           </div>
           <div class="card">
@@ -142,7 +142,7 @@
           <p>The network code is the WebMite's, unchanged, so a WebMite program runs as it is apart from the I/O pins it uses. Geoff Graham's <a href="https://geoffg.net/retic.html">Garden Watering Controller</a> runs with only its pins changed.</p>
           <div class="links">
             <a href="/cmm2/wifi/">The WiFi module →</a>
-            <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual: WiFi and Internet Functions</a>
+            <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual: WiFi and Internet Functions</a>
           </div>
         </div>
       </div>
@@ -178,9 +178,9 @@
         <div class="section-head">
           <div>
             <h2>Games, languages and utilities</h2>
-            <p>Twenty-one loadable programs, in CMM2_Programs_8.00.00b1.zip. Copy the folders you want to the SD card and start one with RUN. When it ends, MMBasic puts the screen, sound and pins back as they were.</p>
+            <p>Twenty-one loadable programs, in CMM2_Programs_8.00.00b2.zip. Copy the folders you want to the SD card and start one with RUN. When it ends, MMBasic puts the screen, sound and pins back as they were.</p>
           </div>
-          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/releases/download/v8.00.00b1/CMM2_Programs_8.00.00b1.zip">Download the zip (40&nbsp;MB) →</a>
+          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/releases/download/v8.00.00b2/CMM2_Programs_8.00.00b2.zip">Download the zip (40&nbsp;MB) →</a>
         </div>
         <div class="cards two">
           <div class="card span">
@@ -213,7 +213,7 @@
             <h3>Languages</h3>
             <ul>
               <li><b>MMBasic V8</b>, built in, with a full-screen editor and a file manager</li>
-              <li><b>MicroPython</b>, the Pico Computer&nbsp;3's, with modules for the screen, sound, keyboard, mouse, SQLite, ulab and the I/O pins</li>
+              <li><b>MicroPython</b>, the Pico Computer&nbsp;3's, with modules for the screen, sound, keyboard, mouse, SQLite, ulab, the I/O pins and the network. It runs every example of the book <a href="/pico-computer-3/book/"><em>Programming the Pico Computer&nbsp;3</em></a>, so you can <a href="/blog/micropython-book-cmm2/">learn Python with it</a>.</li>
               <li><b>A C compiler</b> that runs on the machine, with no PC. It compiles MMBasic programs too, so one that spends its time calculating runs much faster.</li>
               <li><b>zeptoforth</b>, a Forth with preemptive tasks, double-precision arithmetic and a screen editor</li>
             </ul>
@@ -233,8 +233,8 @@
               <li><b>A VT100 terminal</b> that makes the CMM2 the screen and keyboard of a PicoMite or another computer, in colour, with the mouse, scrollback and XMODEM</li>
             </ul>
             <div class="links">
-              <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a>
-              <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC guide</a>
+              <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a>
+              <a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC guide</a>
             </div>
           </div>
         </div>
@@ -250,7 +250,7 @@
             <li><strong>19 video modes</strong> up to 1920&nbsp;x&nbsp;1080, with pages, sprites, tile maps, a 3D engine, turtle graphics and the PicoMite's raycaster for first-person views</li>
             <li><strong>Sound</strong>: WAV, FLAC, MP3 and MOD files, the BBC Micro's sound, and an FM synthesiser that plays MIDI</li>
             <li><strong>SQL databases</strong> (SQLite), long strings and regular expressions</li>
-            <li><strong>USB keyboards, mice, gamepads and touch screens</strong>, with an on-screen keyboard</li>
+            <li><strong>USB keyboards, mice, gamepads and touch screens</strong>, with an on-screen keyboard, and with the WiFi module, <strong>Bluetooth</strong> keyboards, mice and speakers</li>
             <li><strong>Control</strong>: stepper motors, CAN bus, WS2812 LEDs, infrared remotes and the PicoMite's astronomy commands, which can point a telescope</li>
           </ul>
           <p>The source is in the <a href="https://github.com/UKTailwind/CMM2V1.5">CMM2V1.5</a> repository. Version 8 is on its <a href="https://github.com/UKTailwind/CMM2V1.5/tree/v8-dev">v8-dev</a> branch, and main stays at version 7.</p>
@@ -266,25 +266,26 @@
     <section class="section" id="install">
       <div class="wrap split">
         <div class="prose">
-          <h2 style="margin-top:0">Installing 8.00.00b1</h2>
+          <h2 style="margin-top:0">Installing 8.00.00b2</h2>
           <ol class="steps">
-            <li>Download <code>CMM2_MMBasic_8.00.00b1.bin</code>, and the programs zip if you want the apps, from the <a href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b1">release</a>.</li>
-            <li>If you're coming from V7, save your program to the SD card and your options with <code>OPTION DISK SAVE "A:/myoptions"</code>.</li>
+            <li>Download <code>CMM2_MMBasic_8.00.00b2.bin</code>, and the programs zip if you want the apps, from the <a href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b2">release</a>.</li>
+            <li>Save your program to the SD card, and your options with <code>OPTION DISK SAVE "A:/myoptions"</code>. Writing the firmware erases the options, whichever version you're coming from.</li>
             <li>Type <code>UPDATE FIRMWARE</code>, or set the PGM jumper (the BOOT CONFIG switch on a Waveshare board) for a first install. Connect the CMM2's keyboard USB port to a PC with an A-to-A cable, and write the .bin with ST's free STM32CubeProgrammer over USB.</li>
-            <li>Put the jumper or switch back if you moved it, press reset, then <code>OPTION DISK LOAD "A:/myoptions"</code>, and LIBRARY LOAD your library's files again if you use one.</li>
-            <li>Unzip the programs on a PC and copy the folders you want to the root of the SD card.</li>
+            <li>Put the jumper or switch back if you moved it, press reset, then <code>OPTION DISK LOAD "A:/myoptions"</code>. Coming from V7, LIBRARY LOAD your library's files again too, if you use one; from 8.00.00b1 the library is kept.</li>
+            <li>Unzip the programs on a PC and copy the folders you want to the root of the SD card. Coming from 8.00.00b1, copy <code>micropython.app</code> again: it's new in this release, and needs 8.00.00b2.</li>
           </ol>
           <p style="margin-top:1em">Appendix K of the User Manual walks through STM32CubeProgrammer with screenshots. This is a beta, so please report problems on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum.</p>
         </div>
         <div class="prose">
           <h2 style="margin-top:0">Manuals</h2>
           <ul class="doclist" style="columns:1">
-            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual</a><span>MMBasic V8 on the Colour Maximite 2, now with WiFi and Internet Functions</span></li>
-            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a><span>Installing, starting and using every app</span></li>
-            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/loadable/Colour_Maximite_2_Loadable_Programs.pdf">Loadable Programs</a><span>Writing apps and USER modules in C and C++</span></li>
-            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/cc/Colour_Maximite_2_C_Compiler.pdf">C Compiler</a><span>Compiling C and MMBasic on the machine</span></li>
-            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC Emulator</a><span>Installing and running DOS and Windows</span></li>
-            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b1/docs/Stepper_Reference.pdf">Stepper Reference</a><span>Motor control commands</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/manual/Colour_Maximite_2_User_Manual.pdf">User Manual</a><span>MMBasic V8 on the Colour Maximite 2, now with WiFi, Internet Functions and Bluetooth</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/apps/Colour_Maximite_2_App_User_Guide.pdf">App User Guide</a><span>Installing, starting and using every app</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/loadable/Colour_Maximite_2_Loadable_Programs.pdf">Loadable Programs</a><span>Writing apps and USER modules in C and C++, now with the network</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/cc/Colour_Maximite_2_C_Compiler.pdf">C Compiler</a><span>Compiling C and MMBasic on the machine</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/pc386/Colour_Maximite_2_386_PC_Emulator.pdf">386 PC Emulator</a><span>Installing and running DOS and Windows</span></li>
+            <li><a href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/Stepper_Reference.pdf">Stepper Reference</a><span>Motor control commands</span></li>
+            <li><a href="/pico-computer-3/book/">Programming the Pico Computer&nbsp;3</a><span>A course in Python that runs on the CMM2's MicroPython; Appendix K is for the CMM2</span></li>
           </ul>
         </div>
       </div>
@@ -315,7 +316,7 @@
             <div class="body">
               <ul class="tags"><li class="green">WiFi</li><li>RM2</li><li>MMBasic V8</li></ul>
               <h3><a href="/cmm2/wifi/">CMM2 WiFi module</a></h3>
-              <p>A board that plugs onto the rear I/O header, passes it through, and adds WiFi with the same radio as the Pico&nbsp;W. MMBasic V8 gives it the PicoMite's networking: a web server, HTTPS client, UDP, MQTT, network time, telnet and TFTP.</p>
+              <p>A board that plugs onto the rear I/O header, passes it through, and adds WiFi with the same radio as the Pico&nbsp;W. MMBasic V8 gives it the PicoMite's networking: a web server, HTTPS client, UDP, MQTT, network time, telnet and TFTP. From 8.00.00b2 the radio does the PicoMite's Bluetooth too.</p>
               <div class="links">
                 <a href="/cmm2/wifi/">About the module →</a>
                 <a href="https://github.com/UKTailwind/Pico-Computer-3/blob/main/CMM2%20Wifi%20V1.1.pdf">Schematic</a>
