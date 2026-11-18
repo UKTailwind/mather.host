@@ -64,9 +64,9 @@
         <div class="section-head">
           <div>
             <h2>New in MMBasic V8</h2>
-            <p>The second beta, 8.00.00b2, was posted on 18 November 2026. It adds Bluetooth, and a MicroPython that runs every example of the book <a href="/blog/micropython-book-cmm2/"><em>Programming the Pico Computer&nbsp;3</em></a>. The same firmware file runs on all three generations of the board.</p>
+            <p>The second beta, 8.00.00b2, was posted on 18 November 2026. It adds Bluetooth, a MicroPython that runs every example of the book <a href="/blog/micropython-book-cmm2/"><em>Programming the Pico Computer&nbsp;3</em></a>, and zeptoforth 1.17.2.1. The same firmware file runs on all three generations of the board.</p>
           </div>
-          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/blob/v8.00.00b2/docs/Release_Notes_8.00.00b2.md">Release notes →</a>
+          <a class="more" href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b2">Release notes →</a>
         </div>
         <div class="cards four">
           <div class="card">
@@ -215,7 +215,7 @@
               <li><b>MMBasic V8</b>, built in, with a full-screen editor and a file manager</li>
               <li><b>MicroPython</b>, the Pico Computer&nbsp;3's, with modules for the screen, sound, keyboard, mouse, SQLite, ulab, the I/O pins and the network. It runs every example of the book <a href="/pico-computer-3/book/"><em>Programming the Pico Computer&nbsp;3</em></a>, so you can <a href="/blog/micropython-book-cmm2/">learn Python with it</a>.</li>
               <li><b>A C compiler</b> that runs on the machine, with no PC. It compiles MMBasic programs too, so one that spends its time calculating runs much faster.</li>
-              <li><b>zeptoforth</b>, a Forth with preemptive tasks, double-precision arithmetic and a screen editor</li>
+              <li><b>zeptoforth</b> 1.17.2.1, a Forth with preemptive tasks, double-precision arithmetic, Bezier curves and a screen editor</li>
             </ul>
             <h4>Write your own</h4>
             <ul>
@@ -272,7 +272,7 @@
             <li>Save your program to the SD card, and your options with <code>OPTION DISK SAVE "A:/myoptions"</code>. Writing the firmware erases the options, whichever version you're coming from.</li>
             <li>Type <code>UPDATE FIRMWARE</code>, or set the PGM jumper (the BOOT CONFIG switch on a Waveshare board) for a first install. Connect the CMM2's keyboard USB port to a PC with an A-to-A cable, and write the .bin with ST's free STM32CubeProgrammer over USB.</li>
             <li>Put the jumper or switch back if you moved it, press reset, then <code>OPTION DISK LOAD "A:/myoptions"</code>. Coming from V7, LIBRARY LOAD your library's files again too, if you use one; from 8.00.00b1 the library is kept.</li>
-            <li>Unzip the programs on a PC and copy the folders you want to the root of the SD card. Coming from 8.00.00b1, copy <code>micropython.app</code> again: it's new in this release, and needs 8.00.00b2.</li>
+            <li>Unzip the programs on a PC and copy the folders you want to the root of the SD card. Coming from 8.00.00b1, copy <code>micropython.app</code> and the <code>zeptoforth</code> folder again: both are new in this release.</li>
           </ol>
           <p style="margin-top:1em">Appendix K of the User Manual walks through STM32CubeProgrammer with screenshots. This is a beta, so please report problems on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum.</p>
         </div>
