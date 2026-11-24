@@ -43,16 +43,17 @@
         <div class="article">
           <h2>The commands</h2>
           <p>The latest V8 betas of both the PicoMite (V8.00.00b2) and the Colour Maximite&nbsp;2 (V8.00.00b4) add three things to <code>PLAY MODSAMPLE</code>: <code>LOOP</code>, <code>CHANGE</code> and <code>STOP</code>. Both betas have since been updated with a fourth, <a href="#pan">a pan</a>. The commands are the same on both machines, so every example here runs unchanged on either.</p>
-<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> sampleno, channel [, volume] [, samplerate] [, <span class="k">LOOP</span>]
-<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> channel [, volume] [, samplerate]
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> sampleno, channel [, volume] [, samplerate] [, pan] [, <span class="k">LOOP</span>]
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> channel [, volume] [, samplerate] [, pan]
 <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> [channel]</code></pre>
           <ul>
             <li><code>sampleno</code> is the sample's number in the MOD file, 1 to 31.</li>
             <li><code>channel</code> is 1 to 4: up to four effects play at once, over the top of the music.</li>
             <li><code>volume</code> is 0 to 64 (the default).</li>
             <li><code>samplerate</code> is 150 to 500000, default 16000. It is the speed at which the sample is played, so it sets the pitch and the length together, like a tape played faster or slower: twice the rate is an octave higher and half as long. The Colour Maximite&nbsp;2 has always had it; on the PicoMite it is new (every sample used to play at 16000).</li>
+            <li><code>pan</code> is -100 (the left speaker only) to 100 (the right only). 0, the default, plays the effect in both speakers at full volume. <a href="#pan">Left to right: the pan</a> shows it at work.</li>
             <li>With <code>LOOP</code> the sample plays until you stop it: to the end of its own loop in the MOD file and back to the loop's start, as the MOD player plays it, or the whole sample over and over if it has no loop. <code>LOOP</code> can end the list after any argument from the channel on, so <code>PLAY MODSAMPLE 5, 1, LOOP</code> is enough.</li>
-            <li><code>CHANGE</code> changes the volume, the rate or both of the sample playing on a channel, <em>where it is</em>, without starting it again. An argument that is left out or empty is kept, so <code>PLAY MODSAMPLE CHANGE 1, , 20000</code> changes just the rate.</li>
+            <li><code>CHANGE</code> changes any of the volume, the rate and the pan of the sample playing on a channel, <em>where it is</em>, without starting it again. An argument that is left out or empty is kept, so <code>PLAY MODSAMPLE CHANGE 1, , 20000</code> changes just the rate.</li>
             <li><code>STOP</code> stops one channel, or all four. The music carries on.</li>
           </ul>
           <p>Effects are heard sooner, too. The MOD file is now mixed 512 samples at a time, so an effect, or a change to one, is heard 12 to 23&nbsp;ms after the command where it used to take up to 93&nbsp;ms. (The PicoMite's RP2040 builds always worked this way; with Bluetooth audio or a VS1053 the PicoMite keeps its bigger buffers.)</p>
