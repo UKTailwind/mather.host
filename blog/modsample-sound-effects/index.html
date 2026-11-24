@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sound effects that move: PLAY MODSAMPLE — mather.host</title>
+  <meta name="description" content="PLAY MODSAMPLE gains LOOP, CHANGE and STOP on the PicoMite and the Colour Maximite 2: a MOD file's samples as continuous sound effects over its music. An engine that follows its revs, a car going by with the Doppler effect, a siren, wind and more, with the code.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /blog/modsample-sound-effects</p>
+        <h1>Sound effects that move: PLAY MODSAMPLE on the PicoMite and the Colour Maximite&nbsp;2</h1>
+        <p class="lede">MOD files have always been a good way to put music into an MMBasic game. They are small, they loop, and they have the right sound. Both the <a href="/picomite/">PicoMite</a> and the <a href="/cmm2/">Colour Maximite&nbsp;2</a> can also play the samples inside the MOD file as sound effects while the music carries on, with <code>PLAY MODSAMPLE</code>. Until now, though, an effect could only be played once from its start. It couldn't be stopped, and changing its rate started it again. That was fine for a laser or a coin, but no use for the sounds that make a game feel alive: an engine whose note rises with its revs, a car that roars past, the wind.</p>
+        <p class="post-meta"><time datetime="2026-11-24">24 November 2026</time><span>PicoMite V8.00.00b2</span><span>CMM2 V8.00.00b4</span></p>
+      </div>
+    </section>
+
+    <section class="section" id="commands">
+      <div class="wrap">
+        <div class="article">
+          <h2>The commands</h2>
+          <p>The latest V8 betas of both the PicoMite (V8.00.00b2) and the Colour Maximite&nbsp;2 (V8.00.00b4) add three things to <code>PLAY MODSAMPLE</code>: <code>LOOP</code>, <code>CHANGE</code> and <code>STOP</code>. The commands are the same on both machines, so every example here runs unchanged on either.</p>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> sampleno, channel [, volume] [, samplerate] [, <span class="k">LOOP</span>]
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> channel [, volume] [, samplerate]
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> [channel]</code></pre>
+          <ul>
+            <li><code>sampleno</code> is the sample's number in the MOD file, 1 to 31.</li>
+            <li><code>channel</code> is 1 to 4: up to four effects play at once, over the top of the music.</li>
+            <li><code>volume</code> is 0 to 64 (the default).</li>
+            <li><code>samplerate</code> is 150 to 500000, default 16000. It is the speed at which the sample is played, so it sets the pitch and the length together, like a tape played faster or slower: twice the rate is an octave higher and half as long. The Colour Maximite&nbsp;2 has always had it; on the PicoMite it is new (every sample used to play at 16000).</li>
+            <li>With <code>LOOP</code> the sample plays until you stop it: to the end of its own loop in the MOD file and back to the loop's start, as the MOD player plays it, or the whole sample over and over if it has no loop. <code>LOOP</code> can end the list after any argument from the channel on, so <code>PLAY MODSAMPLE 5, 1, LOOP</code> is enough.</li>
+            <li><code>CHANGE</code> changes the volume, the rate or both of the sample playing on a channel, <em>where it is</em>, without starting it again. An argument that is left out or empty is kept, so <code>PLAY MODSAMPLE CHANGE 1, , 20000</code> changes just the rate.</li>
+            <li><code>STOP</code> stops one channel, or all four. The music carries on.</li>
+          </ul>
+          <p>Effects are heard sooner, too. The MOD file is now mixed 512 samples at a time, so an effect, or a change to one, is heard 12 to 23&nbsp;ms after the command where it used to take up to 93&nbsp;ms. (The PicoMite's RP2040 builds always worked this way; with Bluetooth audio or a VS1053 the PicoMite keeps its bigger buffers.)</p>
+          <p>Every continuous sound follows the same pattern: start it with <code>LOOP</code>, change it each time round the game's main loop, and stop it when it's done. The examples below assume a MOD file is playing (<code>PLAY MODFILE "game.mod"</code>) and use made-up sample numbers: use the ones in your own file.</p>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#engine">An engine that follows its revs</a></li>
+            <li><a href="#doppler">A car going by: the Doppler effect</a></li>
+            <li><a href="#more">A siren, a bomb, wind, a heartbeat and a helicopter</a></li>
+            <li><a href="#modfile">Making the MOD file</a></li>
+            <li><a href="#good-to-know">Good to know</a></li>
+            <li><a href="#get">Getting it</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="engine">
+      <div class="wrap">
+        <div class="article">
+          <h2>An engine that follows its revs</h2>
+          <figure class="listing">
+            <figcaption><span class="file">The engine</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 10, 1, 30, 8000, <span class="k">LOOP</span>        <span class="c">' sample 10: a looped engine, ticking over</span>
+revs = 0
+<span class="k">DO</span>
+  k$ = INKEY$
+  <span class="k">IF</span> k$ = <span class="s">"a"</span> <span class="k">THEN</span> revs = MIN(revs + 100, 1000) <span class="k">ELSE</span> revs = MAX(revs - 10, 0)
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 1, 30 + revs / 30, 8000 + revs * 16
+  <span class="k">PAUSE</span> 20
+<span class="k">LOOP</span> <span class="k">UNTIL</span> k$ = <span class="s">"q"</span>
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> 1</code></pre>
+          </figure>
+          <p>Hold A to rev it and let go to let it fall back. Because the rate is the speed the sample is played at, a higher rate raises the pitch <em>and</em> makes the engine's beat faster, which is exactly what a real engine does. Here the rate goes from 8000 to 24000, a rise of an octave and a half, and the engine gets louder as it revs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="doppler">
+      <div class="wrap">
+        <div class="article">
+          <h2>A car going by: the Doppler effect</h2>
+          <p>A car, a train or a spaceship sounds higher as it comes towards you and lower as it goes away. If it is moving away from you at <code>away</code> metres a second (negative while it approaches), the pitch you hear is its own pitch multiplied by <code>c / (c + away)</code>, where <code>c</code> is the speed of sound, 343&nbsp;m/s. Its volume falls with its distance. <code>CHANGE</code> can apply both every frame:</p>
+          <figure class="listing">
+            <figcaption><span class="file">SUB CarPasses</span></figcaption>
+<pre><code><span class="k">CONST</span> sound = 343, closest = 10, rate = 16000
+
+<span class="c">' a car passes 10 m away at v m/s, from 4 s before its closest point to 4 s after it</span>
+<span class="k">SUB</span> CarPasses s, v
+  <span class="k">LOCAL</span> t, x, d, away
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> s, 1, 0, rate, <span class="k">LOOP</span>        <span class="c">' start it silent</span>
+  <span class="k">FOR</span> t = -4 <span class="k">TO</span> 4 <span class="k">STEP</span> 0.02
+    x = v * t : d = SQR(x * x + closest * closest)
+    away = v * x / d                        <span class="c">' its speed away from us</span>
+    <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 1, MIN(64, 640 / d), rate * sound / (sound + away)
+    <span class="k">PAUSE</span> 20
+  <span class="k">NEXT</span>
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> 1
+<span class="k">END</span> <span class="k">SUB</span></code></pre>
+          </figure>
+          <p><code>CarPasses 10, 40</code> sends sample 10 past at 40&nbsp;m/s (144&nbsp;km/h). Its pitch starts about 13% high, drops through its own pitch as it passes and ends about 10% low, while its volume swells to full at the closest point and dies away. It's the classic "neeeee-owwww". In a game, work <code>away</code> and <code>d</code> out from the positions each frame instead: with the player at (px, py) and the car at (cx, cy) moving at (vx, vy) metres a second,</p>
+<pre><code>dx = cx - px : dy = cy - py : d = SQR(dx * dx + dy * dy)
+away = (dx * vx + dy * vy) / d</code></pre>
+          <p>A sound with a steady pitch, such as an engine or a horn, makes the effect easiest to hear.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="more">
+      <div class="wrap">
+        <div class="article">
+          <h2>A siren, a bomb, wind, a heartbeat and a helicopter</h2>
+
+          <h3 id="siren">A siren</h3>
+          <figure class="listing">
+            <figcaption><span class="file">The siren</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 11, 2, 48, 16000, <span class="k">LOOP</span>       <span class="c">' a looped tone</span>
+<span class="k">FOR</span> i = 0 <span class="k">TO</span> 499                            <span class="c">' ten seconds</span>
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 2, , 16000 + 4000 * SIN(i / 20)
+  <span class="k">PAUSE</span> 20
+<span class="k">NEXT</span>
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> 2</code></pre>
+          </figure>
+          <p>The rate swings 25% either side of 16000 and back every two and a half seconds: a police car's wail. Put the siren through <code>CarPasses</code>' Doppler shift as well and the police car can drive by.</p>
+
+          <h3 id="bomb">A falling bomb</h3>
+          <figure class="listing">
+            <figcaption><span class="file">The falling bomb</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 11, 3, 40, 30000, <span class="k">LOOP</span>       <span class="c">' a high, steady tone</span>
+<span class="k">FOR</span> r = 30000 <span class="k">TO</span> 12000 <span class="k">STEP</span> -150            <span class="c">' falling for about 2.4 seconds</span>
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 3, , r
+  <span class="k">PAUSE</span> 20
+<span class="k">NEXT</span>
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 7, 3                         <span class="c">' the explosion replaces it</span></code></pre>
+          </figure>
+          <p>The whistle drops by more than an octave as the bomb falls. Starting a new sample on the same channel replaces the old one, so the explosion cuts the whistle off without a <code>STOP</code>.</p>
+
+          <h3 id="wind">Wind and gusts</h3>
+          <p>For wind, add a second or so of white noise to the MOD file in your tracker and loop it. Then let its strength wander:</p>
+          <figure class="listing">
+            <figcaption><span class="file">Wind</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 12, 4, 20, 12000, <span class="k">LOOP</span>       <span class="c">' looped noise</span>
+v = 20
+<span class="k">DO</span>
+  v = MIN(64, MAX(8, v + RND * 6 - 3))      <span class="c">' the strength drifts up and down...</span>
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 4, v, 10000 + v * 100   <span class="c">' ...and a gust is higher as well as louder</span>
+  <span class="k">PAUSE</span> 50
+<span class="k">LOOP</span> <span class="k">UNTIL</span> INKEY$ &lt;&gt; <span class="s">""</span>
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> 4</code></pre>
+          </figure>
+          <p>The same looped noise makes rain, the sea or a waterfall with a different rate, and steam escaping with a hiss that fades.</p>
+
+          <h3 id="heartbeat">A heartbeat that quickens</h3>
+          <figure class="listing">
+            <figcaption><span class="file">The heartbeat</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 13, 4, 50, 12000, <span class="k">LOOP</span>       <span class="c">' one beat, looped</span>
+<span class="c">' ... and each frame:</span>
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 4, , 12000 + (100 - health) * 120</code></pre>
+          </figure>
+          <p>As the player's health falls from 100 to 0 the heart beats twice as fast. Because the rate also raises the pitch, the beat gets higher as it quickens, which only adds to the tension.</p>
+
+          <h3 id="helicopter">A helicopter's rotor</h3>
+          <p>Changing the volume quickly instead of the rate gives a pulsing sound (tremolo):</p>
+          <figure class="listing">
+            <figcaption><span class="file">The helicopter</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 10, 1, 40, 9000, <span class="k">LOOP</span>        <span class="c">' the engine</span>
+<span class="k">FOR</span> i = 0 <span class="k">TO</span> 499
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 1, 34 + 30 * SIN(i * 0.6)
+  <span class="k">PAUSE</span> 20
+<span class="k">NEXT</span></code></pre>
+          </figure>
+          <p>The volume beats about five times a second: the whup-whup of a helicopter's blades. Wobble the rate a little instead (<code>9000 + 300 * SIN(i * 0.6)</code>) for a flying saucer's warble.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="modfile">
+      <div class="wrap">
+        <div class="article">
+          <h2>Making the MOD file</h2>
+          <ul>
+            <li>Use a tracker such as <a href="https://openmpt.org/">OpenMPT</a> or <a href="https://milkytracker.org/">MilkyTracker</a>, and put the effects in spare sample slots: the high numbers keep them out of the way of the music.</li>
+            <li>Give each continuous sound a loop in the tracker, and make the loop a whole number of cycles of the sound so that it repeats without a click.</li>
+            <li>A MOD file doesn't store a rate for its samples. 16574 plays a sample at the tracker's note C-3, and 8287 at C-2. The default of 16000 is a little below C-3.</li>
+            <li>Keep the music quieter than your effects. An effect at volume 64 is as loud as one of the music's four channels at full volume, so turn the music's samples down in the tracker to let the effects stand out.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="good-to-know">
+      <div class="wrap">
+        <div class="article">
+          <h2>Good to know</h2>
+          <ul>
+            <li>There are four effect channels, and a sample started on a busy channel replaces what is there. Give each continuous sound a channel of its own, and share the others between one-shot effects.</li>
+            <li>Effects are mixed equally into both speakers, so they can't be panned from side to side.</li>
+            <li>A change is heard at the MOD file's next buffer. Once a frame is plenty: changes made much faster than about 20 times a second won't all be heard.</li>
+            <li>A single command that takes longer than one buffer (about 12&nbsp;ms) to run, such as clearing a large screen, can make the music repeat a short piece.</li>
+            <li>The rate is close, not exact: about 1% low, in small steps that get coarser at high rates. That doesn't matter for effects, but don't tune a melody with it.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="get">
+      <div class="wrap">
+        <div class="article">
+          <h2>Getting it</h2>
+          <p><code>LOOP</code>, <code>CHANGE</code> and <code>STOP</code> are in these V8 betas and later:</p>
+          <ul>
+            <li><strong><a href="https://github.com/UKTailwind/PicoMite/releases/tag/PicoMite-V8.00.00b2">PicoMite V8.00.00b2</a></strong>, for every build with sound. Read the release notes before updating, as some builds reset their options at the first boot of a V8 beta, and programs saved by an earlier firmware need to be loaded again.</li>
+            <li><strong><a href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b4">Colour Maximite&nbsp;2 V8.00.00b4</a></strong>.</li>
+          </ul>
+          <p>These are betas, so reports of anything that doesn't sound right are very welcome, on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum. The PicoMite's <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V8.00.00b2/PicoMite_User_ManualV8.00.00b2.pdf">User Manual</a> and its Game Development Guide, in the <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V8.00.00b2/PicoMite_Supplementary_Manuals-8.00.00b2.zip">supplementary manuals</a>, describe the commands in full, and the guide has the engine and Doppler examples as well.</p>
+          <p class="back"><a href="/blog/">← All articles</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>
