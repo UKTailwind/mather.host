@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sound effects that move: PLAY MODSAMPLE — mather.host</title>
-  <meta name="description" content="PLAY MODSAMPLE gains LOOP, CHANGE and STOP on the PicoMite and the Colour Maximite 2: a MOD file's samples as continuous sound effects over its music. An engine that follows its revs, a car going by with the Doppler effect, a siren, wind and more, with the code.">
+  <meta name="description" content="PLAY MODSAMPLE gains LOOP, CHANGE, STOP and a pan on the PicoMite and the Colour Maximite 2: a MOD file's samples as continuous sound effects over its music. An engine that follows its revs, a car going by with the Doppler effect and from one speaker to the other, a siren, wind and more, with the code.">
   <meta name="theme-color" content="#1f7a5c">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/css/site.css">
@@ -42,7 +42,7 @@
       <div class="wrap">
         <div class="article">
           <h2>The commands</h2>
-          <p>The latest V8 betas of both the PicoMite (V8.00.00b2) and the Colour Maximite&nbsp;2 (V8.00.00b4) add three things to <code>PLAY MODSAMPLE</code>: <code>LOOP</code>, <code>CHANGE</code> and <code>STOP</code>. The commands are the same on both machines, so every example here runs unchanged on either.</p>
+          <p>The latest V8 betas of both the PicoMite (V8.00.00b2) and the Colour Maximite&nbsp;2 (V8.00.00b4) add three things to <code>PLAY MODSAMPLE</code>: <code>LOOP</code>, <code>CHANGE</code> and <code>STOP</code>. Both betas have since been updated with a fourth, <a href="#pan">a pan</a>. The commands are the same on both machines, so every example here runs unchanged on either.</p>
 <pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> sampleno, channel [, volume] [, samplerate] [, <span class="k">LOOP</span>]
 <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> channel [, volume] [, samplerate]
 <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> [channel]</code></pre>
@@ -62,6 +62,7 @@
           <ol class="toc">
             <li><a href="#engine">An engine that follows its revs</a></li>
             <li><a href="#doppler">A car going by: the Doppler effect</a></li>
+            <li><a href="#pan">Left to right: the pan</a></li>
             <li><a href="#more">A siren, a bomb, wind, a heartbeat and a helicopter</a></li>
             <li><a href="#modfile">Making the MOD file</a></li>
             <li><a href="#good-to-know">Good to know</a></li>
@@ -118,6 +119,49 @@ revs = 0
 <pre><code>dx = cx - px : dy = cy - py : d = SQR(dx * dx + dy * dy)
 away = (dx * vx + dy * vy) / d</code></pre>
           <p>A sound with a steady pitch, such as an engine or a horn, makes the effect easiest to hear.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pan">
+      <div class="wrap">
+        <div class="article">
+          <h2>Left to right: the pan</h2>
+          <p>The updated betas of both firmwares add one more argument, a pan, which places an effect between the speakers. It goes after the rate, and <code>CHANGE</code> can move it while the effect plays:</p>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> sampleno, channel [, volume] [, samplerate] [, pan] [, <span class="k">LOOP</span>]
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> channel [, volume] [, samplerate] [, pan]</code></pre>
+          <p><code>pan</code> is -100 for the left speaker only and 100 for the right only. 0, the default, plays the effect in both speakers at full volume, just as before. In between, the far speaker is turned down in proportion: at -50 the effect plays at full volume on the left and at half volume on the right. As with the volume and the rate, an empty argument to <code>CHANGE</code> keeps the pan the effect has.</p>
+          <figure class="listing">
+            <figcaption><span class="file">Left, centre and right</span></figcaption>
+<pre><code><span class="k">PLAY</span> <span class="k">MODSAMPLE</span> 10, 1, 40, 16000, -100, <span class="k">LOOP</span>    <span class="c">' the engine, on the left</span>
+<span class="k">PAUSE</span> 2000
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 1, , , 0                 <span class="c">' in the centre</span>
+<span class="k">PAUSE</span> 2000
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 1, , , 100               <span class="c">' on the right</span>
+<span class="k">PAUSE</span> 2000
+<span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> 1</code></pre>
+          </figure>
+          <p><code>CHANGE</code> moves the engine without starting it again, so it carries on without a break as it goes from one side to the other.</p>
+
+          <h3 id="crossing">The car crosses over</h3>
+          <p>Give <code>CarPasses</code> a direction, and the car goes from one speaker to the other as it passes, while its pitch drops. It uses the constants above:</p>
+          <figure class="listing">
+            <figcaption><span class="file">SUB CarPasses, panned</span></figcaption>
+<pre><code><span class="c">' dir is 1 for left to right, -1 for right to left</span>
+<span class="k">SUB</span> CarPasses s, v, dir
+  <span class="k">LOCAL</span> t, x, d, away
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> s, 1, 0, rate, -100 * dir, <span class="k">LOOP</span>   <span class="c">' silent, on the side it comes from</span>
+  <span class="k">FOR</span> t = -4 <span class="k">TO</span> 4 <span class="k">STEP</span> 0.02
+    x = v * t : d = SQR(x * x + closest * closest)
+    away = v * x / d                               <span class="c">' its speed away from us</span>
+    <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">CHANGE</span> 1, MIN(64, 640 / d), rate * sound / (sound + away), 100 * dir * x / d
+    <span class="k">PAUSE</span> 20
+  <span class="k">NEXT</span>
+  <span class="k">PLAY</span> <span class="k">MODSAMPLE</span> <span class="k">STOP</span> 1
+<span class="k">END</span> <span class="k">SUB</span></code></pre>
+          </figure>
+          <p><code>x / d</code> says which way the sound is coming from: close to -1 while the car is far off on one side, 0 as it passes in front of you and close to 1 once it is far off on the other. So the car stays on its side while it is far away and sweeps across quickly as it goes by, just when its pitch drops. <code>CarPasses 10, 40, 1</code> sends it from left to right, and <code>CarPasses 10, 40, -1</code> back again. In a game, <code>100 * dx / d</code>, from the positions above, does the same for anything on the screen.</p>
+          <p>The PicoMite's repository has a demo of all this, <a href="https://github.com/UKTailwind/PicoMite/tree/main/Bas/doppler">doppler</a>, with the MOD file it needs. Over a short tune it moves an engine between the speakers, then sends the engine and a car horn past at 20, 40 and 60&nbsp;m/s, in each direction in turn.</p>
         </div>
       </div>
     </section>
@@ -210,7 +254,7 @@ v = 20
           <h2>Good to know</h2>
           <ul>
             <li>There are four effect channels, and a sample started on a busy channel replaces what is there. Give each continuous sound a channel of its own, and share the others between one-shot effects.</li>
-            <li>Effects are mixed equally into both speakers, so they can't be panned from side to side.</li>
+            <li>The pan is a simple balance, so in the centre an effect plays at full volume in both speakers and sounds a little louder there than at either side.</li>
             <li>A change is heard at the MOD file's next buffer. Once a frame is plenty: changes made much faster than about 20 times a second won't all be heard.</li>
             <li>A single command that takes longer than one buffer (about 12&nbsp;ms) to run, such as clearing a large screen, can make the music repeat a short piece.</li>
             <li>The rate is close, not exact: about 1% low, in small steps that get coarser at high rates. That doesn't matter for effects, but don't tune a melody with it.</li>
@@ -228,6 +272,7 @@ v = 20
             <li><strong><a href="https://github.com/UKTailwind/PicoMite/releases/tag/PicoMite-V8.00.00b2">PicoMite V8.00.00b2</a></strong>, for every build with sound. Read the release notes before updating, as some builds reset their options at the first boot of a V8 beta, and programs saved by an earlier firmware need to be loaded again.</li>
             <li><strong><a href="https://github.com/UKTailwind/CMM2V1.5/releases/tag/v8.00.00b4">Colour Maximite&nbsp;2 V8.00.00b4</a></strong>.</li>
           </ul>
+          <p>The pan came in an update to both betas after they were first posted. If you downloaded either one before, download it again to get the pan.</p>
           <p>These are betas, so reports of anything that doesn't sound right are very welcome, on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum. The PicoMite's <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V8.00.00b2/PicoMite_User_ManualV8.00.00b2.pdf">User Manual</a> and its Game Development Guide, in the <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V8.00.00b2/PicoMite_Supplementary_Manuals-8.00.00b2.zip">supplementary manuals</a>, describe the commands in full, and the guide has the engine and Doppler examples as well.</p>
           <p class="back"><a href="/blog/">← All articles</a></p>
         </div>
