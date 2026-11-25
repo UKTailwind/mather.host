@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Raster effects on the Pico Computer 3: WARPH, WARPV, AFFINE and SPAN — mather.host</title>
+  <meta name="description" content="Parallax, a racing road with hills, a map turned and zoomed, Mode 7 ground and an iris: the raster tricks of the arcades and the Super NES, done in firmware by four FRAMEBUFFER commands in PicoMite V8.00.00b3 on the Pico Computer 3. What they do and how to use them, from the demo, scene by scene.">
+  <meta name="theme-color" content="#1f7a5c">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/article.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="mather.host home"><span class="prompt">&gt;</span><span>mather<span class="tld">.host</span></span><span class="cursor" aria-hidden="true"></span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/picomite/">PicoMite</a>
+        <a href="/pico-computer-3/">Pico Computer 3</a>
+        <a href="/cmm2/">CMM2</a>
+        <a href="/pcb/">PCB Designs</a>
+        <a href="/ai/">AI</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a class="ext" href="https://github.com/UKTailwind">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero compact">
+      <div class="wrap">
+        <p class="eyebrow">// cd /blog/pc3-warp-affine-span</p>
+        <h1>Raster effects on the Pico Computer&nbsp;3: WARPH, WARPV, AFFINE and SPAN</h1>
+        <p class="lede">Hills scrolling behind hills, a racing road that curves and climbs, a map that turns and zooms, the ground of a kart track rushing towards you, an iris closing on the hero. The arcade machines and consoles of the 1980s and 1990s made these with special video chips. PicoMite V8.00.00b3 gives the <a href="/pico-computer-3/">Pico Computer&nbsp;3</a> four <code>FRAMEBUFFER</code> commands that do the same jobs in firmware. Each copies a picture from one framebuffer to another, and moves, turns, scales or cuts every row or column of it by its own entry in a table. This article explains them, taking apart the demo that comes with them scene by scene.</p>
+        <p class="post-meta"><time datetime="2026-11-25">25 November 2026</time><span>PicoMite V8.00.00b3</span><span>Pico Computer 3</span></p>
+      </div>
+    </section>
+
+    <section class="section" id="history">
+      <div class="wrap">
+        <div class="article">
+          <h2>Where the ideas come from</h2>
+          <p>A television draws its picture one line at a time, top to bottom, 50 or 60 times a second. The home computers and consoles of the 1980s had too little memory and too slow a processor to build every frame from scratch, but their video chips read the scroll position again for each line. Change it between one line and the next, and each line moves on its own. The Atari 2600 had no frame buffer at all, so its programs drew each line as the beam went past, which programmers called racing the beam. The Commodore 64 had raster interrupts to split the screen, and the Amiga had the Copper, a co-processor whose job was to change the video registers at chosen places down the screen.</p>
+          <p>The arcades made the most of it. Irem's <em>Moon Patrol</em> (1982) is usually credited with bringing parallax scrolling to the arcades: hills behind hills, each moving more slowly than the one in front. Namco's <em>Pole Position</em> (1982) made a road curve away by moving each line of a straight road sideways. Sega's <em>Out Run</em> (1986) had its own hardware to draw the road, with its hills and its stripes of kerb. Sega's Mega Drive (1988) brought the same ideas home: its video chip could move every line sideways, and every 16-pixel column up or down.</p>
+          <p>Nintendo's Super NES (1990) went further. Its Mode&nbsp;7 turned and scaled a background through a 2&times;2 matrix, and its HDMA could load new values into the video registers on every line. Changing the matrix line by line made the background lie down as a floor in perspective: the tracks of <em>F-Zero</em> and <em>Super Mario Kart</em>, the ground of <em>Pilotwings</em>. HDMA also moved the edges of the SNES's windows on every line, which is how the circle closed at the end of a level in <em>Super Mario World</em>, and a mosaic register broke the screen into blocks. The Game Boy Advance (2001) could turn and scale sprites as well.</p>
+          <p>Not every trick needed a chip. In 1986 Alan Paeth showed that any rotation can be done as three shears: slide the rows, then the columns, then the rows again, never moving anything but whole rows and columns. And in 1993 <em>Doom</em> ended each level by melting the screen, every column sliding down at its own speed, using nothing but the PC's processor.</p>
+          <div class="table-wrap">
+            <table class="data wrap-first">
+              <thead><tr><th scope="col">Effect</th><th scope="col">Then</th><th scope="col">On the PC3</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Parallax scrolling</th><td>Irem's <em>Moon Patrol</em> (1982); the Amiga's Copper</td><td>WARPH, a band for each layer</td></tr>
+                <tr><th scope="row">A road with curves, hills and stripes</th><td>Namco's <em>Pole Position</em> (1982), Sega's <em>Out Run</em> (1986)</td><td>WARPH with <code>rows%()</code></td></tr>
+                <tr><th scope="row">Row and column scroll</th><td>Sega's Mega Drive (1988)</td><td>WARPH and WARPV</td></tr>
+                <tr><th scope="row">Turning and zooming, a floor in perspective</th><td>Mode 7 on the Super NES (1990): <em>F-Zero</em>, <em>Pilotwings</em>, <em>Super Mario Kart</em></td><td>AFFINE</td></tr>
+                <tr><th scope="row">Turned sprites</th><td>The Game Boy Advance (2001)</td><td>AFFINE with <code>left</code> and <code>width</code></td></tr>
+                <tr><th scope="row">An iris, a spotlight</th><td>The Super NES's windows, moved on every line by HDMA</td><td>SPAN</td></tr>
+                <tr><th scope="row">A mosaic</th><td>The Super NES's mosaic register</td><td>BLIT RESIZE and WARPH</td></tr>
+                <tr><th scope="row">Rotation by three shears</th><td>Alan Paeth (1986)</td><td>WARPH, WARPV, WARPH</td></tr>
+                <tr><th scope="row">The screen melt</th><td><em>Doom</em> (1993)</td><td>WARPV</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="firmware">Firmware instead of chips</h3>
+          <p>The Pico Computer&nbsp;3 has none of that hardware. Its RP2350 sends a framebuffer to the HDMI screen and that's all: no scroll registers, no Mode&nbsp;7, no windows. What it has instead is raw processor speed. The SNES's processor ran at 3.58&nbsp;MHz and the Mega Drive's at 7.67&nbsp;MHz. The PC3 runs 32-bit Arm cores at 315&nbsp;MHz, nearly 90 times the SNES's clock, and each clock does far more. That is enough to do in firmware, pixel by pixel, what those machines needed custom silicon for, in a fraction of a frame:</p>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th scope="col">Command</th><th scope="col" class="num">A whole 320&times;240 MODE&nbsp;2 screen</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">WARPH</th><td class="num">0.9&nbsp;ms</td></tr>
+                <tr><th scope="row">WARPV</th><td class="num">1.6 to 4.7&nbsp;ms</td></tr>
+                <tr><th scope="row">AFFINE, turned and zoomed</th><td class="num">4.8&nbsp;ms</td></tr>
+                <tr><th scope="row">AFFINE, a floor in perspective</th><td class="num">3.4&nbsp;ms</td></tr>
+                <tr><th scope="row">SPAN</th><td class="num">0.2 to 0.4&nbsp;ms</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">On a Pico Computer&nbsp;3 at 315&nbsp;MHz, from the V8.00.00b3 release notes. A frame at 60&nbsp;Hz lasts 16.7&nbsp;ms.</p>
+          <p>Doing it in firmware also makes the commands more general than the chips were. Any framebuffer can be copied to any other, so effects stack: a WARPH into a WARPV waves a picture both ways. A colour can be made transparent, so warped pictures lie over each other. And the tables are ordinary MMBasic arrays, made and animated with the <code>MATH</code> commands, so the demo has no BASIC loop over pixels anywhere in its frames.</p>
+
+          <h3>On this page</h3>
+          <ol class="toc">
+            <li><a href="#commands">The four commands</a></li>
+            <li><a href="#setup">Setting up the screen</a></li>
+            <li><a href="#warph">WARPH: stars, a lake and a road</a></li>
+            <li><a href="#warpv">WARPV: waves and the melt</a></li>
+            <li><a href="#shears">Turning with three shears</a></li>
+            <li><a href="#affine">AFFINE: turning, zooming and Mode&nbsp;7</a></li>
+            <li><a href="#span">SPAN: a torch and an iris</a></li>
+            <li><a href="#good-to-know">Good to know</a></li>
+            <li><a href="#get">Getting it</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="commands">
+      <div class="wrap">
+        <div class="article">
+          <h2>The four commands</h2>
+<pre><code>FRAMEBUFFER WARPH from, to, xoff%() [,step] [,first] [,phase] [,edge] [,transparent] [,rows%()]
+FRAMEBUFFER WARPV from, to, yoff%() [,step] [,first] [,phase] [,edge] [,transparent]
+FRAMEBUFFER AFFINE from, to, u%(), v%(), du%(), dv%() [,step] [,first] [,left] [,width] [,edge] [,transparent]
+FRAMEBUFFER SPAN from, to, left%(), right%() [,step] [,first] [,fill] [,transparent] [,outside]</code></pre>
+          <p>All four work the same way:</p>
+          <ul>
+            <li><code>from</code> and <code>to</code> are framebuffers: <code>N</code>, the screen; <code>F</code> and <code>2</code>, framebuffers to draw pictures into; and <code>L</code> and <code>T</code>, the two layers shown over the screen. Except for SPAN, they must be different.</li>
+            <li>The table is a one-dimensional integer array, with an element for each band of <code>step</code> rows (default 1), starting at row <code>first</code> (default 0). For WARPV it is bands of columns.</li>
+            <li><strong>WARPH</strong> moves each band of rows sideways by its offset, a positive one to the right: the arcades' row scroll. <code>rows%()</code> can say which row of the source each band shows.</li>
+            <li><strong>WARPV</strong> moves each band of columns up (a positive offset) or down: column scroll.</li>
+            <li><strong>AFFINE</strong> reads each row from the source along a straight line in any direction, which turns and zooms a picture, lays it down as a floor, or with <code>left</code> and <code>width</code> turns a sprite.</li>
+            <li><strong>SPAN</strong> copies each row only from its <code>left%()</code> column to its <code>right%()</code> column: a window of any shape. <code>fill</code> colours the rest of the row, and <code>outside</code> = 1 copies the outside instead.</li>
+            <li>A picture wraps round unless <code>edge</code> says otherwise: -1 leaves the pixels it uncovers as they were, and a colour fills them. Pixels of the <code>transparent</code> colour aren't copied.</li>
+            <li>For WARPH and WARPV, band b uses element (b + <code>phase</code>) MOD n, so counting <code>phase</code> up slides a table along without changing it.</li>
+          </ul>
+          <p>They work on the VGA and HDMI builds of the PicoMite, in MODE 2 to 5. Here is what each does to the same picture, the map from the demo:</p>
+          <div class="panels">
+            <figure class="photo pixel"><img src="/blog/pc3-warp-affine-span/map.png" alt="A top-down map: an oval grey race track with white kerbs and a chequered start line, round a blue pond, on a green chequered field" width="320" height="240" loading="lazy"><figcaption>The demo&#x27;s map, drawn once into F</figcaption></figure>
+            <figure class="photo pixel"><img src="/blog/pc3-warp-affine-span/warph.png" alt="The map with every row shifted sideways by a wave, so the track wriggles from side to side" width="320" height="240" loading="lazy"><figcaption>WARPH: every row moved sideways by a sine wave</figcaption></figure>
+            <figure class="photo pixel"><img src="/blog/pc3-warp-affine-span/warpv.png" alt="The map with every column shifted up or down by a wave, so the track&#x27;s top and bottom edges ripple" width="320" height="240" loading="lazy"><figcaption>WARPV: every column moved up or down</figcaption></figure>
+            <figure class="photo pixel"><img src="/blog/pc3-warp-affine-span/affine.png" alt="The map turned about 30 degrees and enlarged, the pond in the middle and the track running diagonally" width="320" height="240" loading="lazy"><figcaption>AFFINE, one element: the map turned and zoomed</figcaption></figure>
+            <figure class="photo pixel"><img src="/blog/pc3-warp-affine-span/floor.png" alt="The track seen from a car on it, stretching away to a horizon under a blue sky and mountains, with a compass in the top right corner" width="320" height="240" loading="lazy"><figcaption>AFFINE, an element a row: the map as the ground, with a WARPH sky and a compass in an AFFINE window</figcaption></figure>
+            <figure class="photo pixel"><img src="/blog/pc3-warp-affine-span/span.png" alt="The map in near darkness, with one circle of it lit as if by a torch" width="320" height="240" loading="lazy"><figcaption>SPAN: a torch over the map in the dark</figcaption></figure>
+          </div>
+          <p class="panels-note">These pictures were drawn by a model of the commands written from the User Manual's descriptions, not captured from a screen. On the PC3, each is one command.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="setup">
+      <div class="wrap">
+        <div class="article">
+          <h2>Setting up the screen</h2>
+          <p>The demo, <a href="https://github.com/UKTailwind/PicoMite/blob/PicoMite-V8.00.00b3/Bas/warp_demo.bas"><code>warp_demo.bas</code></a>, is eight scenes, one after the other. It starts like this:</p>
+          <figure class="listing">
+            <figcaption><span class="file">The start of warp_demo.bas</span></figcaption>
+<pre><code><span class="k">OPTION</span> <span class="k">EXPLICIT</span>
+<span class="k">OPTION</span> <span class="k">DEFAULT</span> <span class="k">INTEGER</span>
+<span class="k">MODE</span> 2
+<span class="k">IF</span> MM.HRES &lt;&gt; 320 <span class="k">OR</span> MM.VRES &lt;&gt; 240 <span class="k">THEN</span>
+  <span class="k">MODE</span> 1
+  <span class="k">PRINT</span> <span class="s">"This demo needs MODE 2 at 320x240 (OPTION RESOLUTION 640x480)"</span>
+  <span class="k">END</span>
+<span class="k">ENDIF</span>
+<span class="k">CONST</span> W = 320, H = 240, FP = 65536  <span class="c">' FP: AFFINE's places and steps are in 1/65536 of a pixel</span>
+<span class="k">DIM</span> cl(15), quit, i
+<span class="k">FOR</span> i = 0 <span class="k">TO</span> 15 : cl(i) = <span class="k">MAP</span>(i) : <span class="k">NEXT</span>  <span class="c">' the colour that draws in each of the 16 palette slots</span>
+<span class="c">' ...</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">CREATE</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">CREATE</span> 2
+<span class="k">FRAMEBUFFER</span> <span class="k">LAYER</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">LAYER</span> <span class="k">TOP</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> N</code></pre>
+          </figure>
+          <p>It runs in MODE&nbsp;2, 320&times;240 pixels in 16 colours, which needs <code>OPTION RESOLUTION 640x480</code>, and stops if it hasn't got it. <code>OPTION DEFAULT INTEGER</code> makes every variable and array without a suffix an integer. That suits the tables, which must be integer arrays; the demo's float arrays end in <code>!</code>. <code>cl()</code> records the colour that draws in each of the 16 palette slots, because the scenes change the palette with <code>MAP</code>, and <code>MAP SET</code> applies a change, waiting for the next frame as it does.</p>
+          <p>Then it makes everything it draws into: two framebuffers, <code>F</code> and <code>2</code>, and the two layers <code>L</code> and <code>T</code>, which show over the screen wherever they aren't colour 0. Every scene then works the same way. It draws its pictures once. In each frame it works out its tables with <code>MATH</code>, waits for the frame with <code>FRAMEBUFFER WAIT</code> (or <code>MAP SET</code>), and puts each picture on the screen with one command.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="warph">
+      <div class="wrap">
+        <div class="article">
+          <h2>WARPH: stars, a lake and a road</h2>
+          <h3 id="stars">240 stars, one command</h3>
+          <p>The demo opens with the starfield of a hundred shoot-'em-ups: every row of the screen has a star, and every row moves at its own speed.</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 1: the stars</span></figcaption>
+<pre><code><span class="k">FOR</span> y = 0 <span class="k">TO</span> 119
+  lay(y) = 1 + INT(RND * 3)
+  x = INT(RND * (W - 1))
+  <span class="k">PIXEL</span> x, y, cl(lay(y))
+  <span class="k">IF</span> lay(y) = 3 <span class="k">THEN</span> <span class="k">PIXEL</span> x + 1, y, cl(3)
+<span class="k">NEXT</span>
+<span class="k">FOR</span> y = 0 <span class="k">TO</span> H - 1
+  sr(y) = y <span class="k">MOD</span> 120
+  spd!(y) = lay(sr(y)) ^ 1.7 * 0.45 + RND * 0.2
+<span class="k">NEXT</span>
+<span class="c">' ...</span>
+<span class="k">DO</span>
+  fr = fr + 1
+  <span class="k">MATH</span> <span class="k">SCALE</span> spd!(), -fr, so()
+  <span class="c">' ...</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, N, so(), 1, 0, , , , sr()        <span class="c">' the stars</span></code></pre>
+          </figure>
+          <p>Only 120 rows of <code>F</code> have stars in them, one star a row, dim, middling or bright. <code>sr()</code>, the <code>rows%()</code> table, shows each of those rows twice down the screen (row y shows star row y MOD 120), and <code>spd!()</code> gives every screen row a speed, faster for the brighter stars, so that they seem nearer. In each frame one <code>MATH SCALE</code> multiplies all the speeds by the frame number, into the integer array <code>so()</code>, and one WARPH moves every row by its own offset. The rows wrap round, so the stars never run out.</p>
+
+          <h3 id="lake">Parallax, and a lake that reflects it</h3>
+          <p>The second scene is a lake from day to dusk. <code>drawland</code> draws the land twice, into <code>2</code> in its own colours and into <code>F</code> in the colours of the water. In both, rows 0 to 149 hold the sky and the far mountains, and rows 150 to 199 the near hills and trees, with colour 0 wherever there's no hill.</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 2: the lake</span></figcaption>
+<pre><code><span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> 2 : <span class="k">CLS</span> cl(0) : drawland tcn()     <span class="c">' the land in 2 (hills in rows 150-199)</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> F : <span class="k">CLS</span> cl(0) : drawland tcr()     <span class="c">' and in the water's colours in F</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> N
+hlr(0) = 150
+<span class="k">FOR</span> k = 0 <span class="k">TO</span> 89
+  rbr(k) = 149 - k                <span class="c">' the reflection is the land upside down</span>
+  amp! = 0.3 + k * 0.075          <span class="c">' ripples grow towards the viewer...</span>
+  ph! = 9 * SQR(k + 1)            <span class="c">' ...and spread out</span>
+  wsn!(k) = amp! * SIN(ph!) : wcs!(k) = amp! * COS(ph!)
+  <span class="k">IF</span> k &lt; 50 <span class="k">THEN</span> rhr(k) = 199 - k : hsn!(k) = wsn!(k) : hcs!(k) = wcs!(k)
+<span class="k">NEXT</span>
+<span class="k">DO</span>
+  fr = fr + 1
+  bgo(0) = -fr \ 4 : hlo(0) = -(fr * 7) \ 10
+  <span class="c">' amp*sin(ph + wt) = amp*sin(ph)*cos(wt) + amp*cos(ph)*sin(wt): two MATH SCALEs and a C_ADD</span>
+  <span class="k">MATH</span> <span class="k">SCALE</span> wsn!(), COS(fr * 0.12), wa!() : <span class="k">MATH</span> <span class="k">SCALE</span> wcs!(), SIN(fr * 0.12), wb!()
+  <span class="k">MATH</span> <span class="k">C_ADD</span> wa!(), wb!(), wc!() : <span class="k">MATH</span> <span class="k">ADD</span> wc!(), bgo(0), wa!() : <span class="k">MATH</span> <span class="k">SCALE</span> wa!(), 1, rwo()
+  <span class="k">MATH</span> <span class="k">SCALE</span> hsn!(), COS(fr * 0.12), ha!() : <span class="k">MATH</span> <span class="k">SCALE</span> hcs!(), SIN(fr * 0.12), hb!()
+  <span class="k">MATH</span> <span class="k">C_ADD</span> ha!(), hb!(), hc!() : <span class="k">MATH</span> <span class="k">ADD</span> hc!(), hlo(0), ha!() : <span class="k">MATH</span> <span class="k">SCALE</span> ha!(), 1, hwo()
+  <span class="c">' ...</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> 2, N, bgo(), 150                      <span class="c">' sky and mountains, slowly</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> 2, N, hlo(), 50, 100, , , 0, hlr()    <span class="c">' hills and trees, faster, over them</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, N, rwo(), 1, 150, , , , rbr()      <span class="c">' their reflection, rippling</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, N, hwo(), 1, 150, , , 0, rhr()</code></pre>
+          </figure>
+          <p>Each frame, four WARPHs paint the picture from the back to the front:</p>
+          <ol>
+            <li>One element with a step of 150 moves rows 0 to 149 as one band, slowly: the sky and the mountains.</li>
+            <li>The hills: 50 rows read from row 150 (<code>hlr(0)</code>) and shown from row 100 of the screen, moved faster, with colour 0 transparent so that the mountains show between them. That's <em>Moon Patrol</em>'s parallax in two commands.</li>
+            <li>The reflection: rows 150 to 239 of the screen, read upside down from <code>F</code> (<code>rbr(k) = 149 - k</code>), each moved by its own ripple as well as by the sky's scroll.</li>
+            <li>The hills' reflection, the same way, over it.</li>
+          </ol>
+          <p>The ripples are a sine wave down the water that grows towards you and moves. Moving a wave would normally take a <code>SIN</code> for every row in every frame, but amp&nbsp;&times;&nbsp;sin(ph&nbsp;+&nbsp;wt) = amp&nbsp;&times;&nbsp;sin(ph)&nbsp;&times;&nbsp;cos(wt) + amp&nbsp;&times;&nbsp;cos(ph)&nbsp;&times;&nbsp;sin(wt). So the demo works out amp&nbsp;&times;&nbsp;sin(ph) and amp&nbsp;&times;&nbsp;cos(ph) for each row once, and in each frame two <code>MATH SCALE</code>s and a <code>MATH C_ADD</code> (which adds two arrays) make the whole table.</p>
+
+          <h3 id="road">The road</h3>
+          <p>The road of the arcade racers is a straight road, drawn once in perspective, with each line moved sideways. The demo draws it into rows 0 to 119 of <code>F</code>, narrowing towards the horizon, and again into rows 120 to 239 with darker grass and tarmac, white kerbs instead of red, and no centre line. <code>zz(r)</code> records how far away each row of the road is.</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 3: the road, drawn once</span></figcaption>
+<pre><code><span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> F
+<span class="k">FOR</span> r = 0 <span class="k">TO</span> 119
+  hw! = 2 + r * 0.95 : kw! = 1 + r * 0.13 : lnw! = r * 0.025
+  zz(r) = 2400 \ (r + 6)          <span class="c">' how far away road row r is</span>
+  <span class="k">FOR</span> s = 0 <span class="k">TO</span> 1
+    yy = r + 120 * s
+    <span class="k">LINE</span> 0, yy, W - 1, yy, 1, cl(6 + s)
+    <span class="k">LINE</span> 160 - hw! - kw!, yy, 160 + hw! + kw!, yy, 1, cl(10 + s)
+    <span class="k">LINE</span> 160 - hw!, yy, 160 + hw!, yy, 1, cl(8 + s)
+    <span class="k">IF</span> s = 0 <span class="k">THEN</span> <span class="k">LINE</span> 160 - lnw!, yy, 160 + lnw!, yy, 1, cl(12)
+  <span class="k">NEXT</span>
+<span class="k">NEXT</span>
+<span class="c">' ...</span>
+<span class="k">FOR</span> k = 0 <span class="k">TO</span> 69
+  cp!(k) = (1 - k / 69) ^ 2 * 110     <span class="c">' a curve moves the far rows most</span>
+  sp!(k) = (k + 1) / 70               <span class="c">' the car's place across the road, the near rows most</span>
+<span class="k">NEXT</span></code></pre>
+          </figure>
+          <p>In each frame three things change:</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 3: each frame</span></figcaption>
+<pre><code>curve! = 1.3 * SIN(fr * 0.009) + 0.7 * SIN(fr * 0.023 + 1)
+camx! = curve! * 12 + 6 * SIN(fr * 0.041)
+hy = 120 + 16 * SIN(fr * 0.013)     <span class="c">' the horizon: hills</span>
+dist = dist + 5
+pan! = pan! - curve! * 1.4
+sko(0) = pan! : skr(0) = 140 - hy    <span class="c">' the sky as one band, moved with the horizon</span>
+<span class="k">MATH</span> <span class="k">SCALE</span> cp!(), curve!, t1!() : <span class="k">MATH</span> <span class="k">SCALE</span> sp!(), -camx!, t2!()
+<span class="k">MATH</span> <span class="k">C_ADD</span> t1!(), t2!(), t3!() : <span class="k">MATH</span> <span class="k">SCALE</span> t3!(), 1, ro()
+<span class="k">FOR</span> k = 0 <span class="k">TO</span> 69  <span class="c">' each 2-row band: its road row (squeezed by the hill) in the light or dark copy</span>
+  y = 100 + 2 * k
+  <span class="k">IF</span> y &lt; hy <span class="k">THEN</span>
+    rm(k) = -1
+  <span class="k">ELSE</span>
+    rr = MIN((y - hy) * 120 \ (240 - hy), 118)
+    rm(k) = rr + 120 * (((zz(rr) + dist) &gt;&gt; 4) <span class="k">AND</span> 1)
+  <span class="k">ENDIF</span>
+<span class="k">NEXT</span>
+<span class="c">' ...</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> 2, N, sko(), 140, 0, , , , skr()     <span class="c">' sky and mountains</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, N, ro(), 2, 100, , , , rm()       <span class="c">' the road</span></code></pre>
+          </figure>
+          <ul>
+            <li><strong>Curves.</strong> <code>cp!()</code> moves the far rows most and the near ones hardly at all, so scaling it by <code>curve!</code> bends the road away to one side. <code>sp!()</code> moves the near rows most, which is the car's own place across the road. Two <code>MATH SCALE</code>s and a <code>C_ADD</code> make <code>ro()</code>, an offset for each band of two rows.</li>
+            <li><strong>Hills.</strong> <code>rm()</code>, the <code>rows%()</code> table, picks the road row each band shows. Squeezing the road into the rows between the horizon <code>hy</code> and the bottom of the screen moves the horizon up and down, and the road seems to climb and dip. Bands above the horizon get -1, which leaves them alone to show the sky.</li>
+            <li><strong>Speed.</strong> Each road row is shown from the light copy or the dark one, chosen by its distance plus the distance travelled, in steps of 16 (<code>((zz(rr) + dist) &gt;&gt; 4) AND 1</code>). As <code>dist</code> grows the stripes rush towards you: the alternating kerbs and verges that <em>Pole Position</em> and <em>Out Run</em> used to show speed.</li>
+          </ul>
+          <p>The sky is one more WARPH: a single band of 140 rows that pans as the road curves, read from a row that follows the horizon up and down. The <code>FOR</code> loop is the only BASIC loop in the frame, and it runs once for each of the 70 bands, not once for each pixel.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="warpv">
+      <div class="wrap">
+        <div class="article">
+          <h2>WARPV: waves and the melt</h2>
+          <p>WARPV is WARPH on its side: each band of columns moves up (a positive offset) or down. In the first scene the logo is drawn once, low down in <code>F</code>, and a WARPV lifts it into the layer <code>L</code> with a wave running through it. The scrolling message is a WARPH that scrolls a strip of text into <code>2</code>, and a WARPV that waves it into the top layer <code>T</code>: the sine scroller of the demo scene.</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 1: the logo and the scroller</span></figcaption>
+<pre><code><span class="k">FOR</span> k = 0 <span class="k">TO</span> 159
+  sw(k) = -50 + 20 * SIN(2 * PI * k / 80)  <span class="c">' the scroller's wave: 2 periods, so the phase can turn it</span>
+  lw(k) = 156 + 4 * SIN(2 * PI * k / 80)   <span class="c">' the logo's</span>
+<span class="k">NEXT</span>
+<span class="c">' ...</span>
+  spos = spos + 2 : sco(0) = -spos
+  <span class="c">' ...</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, 2, sco(), 32, 100, , , , ssr()   <span class="c">' the strip, scrolled, to rows 100-131 of 2</span>
+  <span class="c">' ...</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPV</span> 2, T, sw(), 2, 0, fr * 2            <span class="c">' waved into the top layer</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPV</span> F, L, lw(), 2, 0, fr, -1            <span class="c">' the logo waved into the layer</span></code></pre>
+          </figure>
+          <p>Both wave tables hold exactly two periods of the wave in their 160 elements (bands of two columns), so the wave joins up as <code>phase</code> slides it along: <code>fr</code> and <code>fr * 2</code> move the waves at two speeds without a new table. The logo's <code>edge</code> of -1 stops it wrapping round from the top of the screen to the bottom.</p>
+          <p>The credits at the end are a WARPH followed by a WARPV, each with its own phase, which waves the text both ways at once:</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 8: the credits</span></figcaption>
+<pre><code><span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, 2, hx(), 1, 0, fr * 2      <span class="c">' each row sideways...</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">WARPV</span> 2, N, vy(), 2, 0, fr * 3      <span class="c">' ...then each column up and down</span></code></pre>
+          </figure>
+
+          <h3 id="melt">The melt</h3>
+          <p>Between scenes the picture melts away column by column, as <em>Doom</em>'s screens did:</p>
+          <figure class="listing">
+            <figcaption><span class="file">SUB melt</span></figcaption>
+<pre><code><span class="k">SUB</span> melt
+  <span class="k">LOCAL</span> st!(159), tm!(159), dr(159), z(0), k, fr
+  <span class="k">FRAMEBUFFER</span> <span class="k">COPY</span> N, F
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> L, F, z(), H, , , , 0  <span class="c">' the layers into the picture, so that they melt with it</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> T, F, z(), H, , , , 0
+  <span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> L : <span class="k">CLS</span> : <span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> T : <span class="k">CLS</span> : <span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> N
+  <span class="k">FOR</span> k = 0 <span class="k">TO</span> 159 : st!(k) = RND * 40 : <span class="k">NEXT</span>
+  <span class="k">FOR</span> fr = 1 <span class="k">TO</span> 80
+    <span class="k">MATH</span> <span class="k">ADD</span> st!(), -0.35 * fr * fr, tm!()
+    <span class="k">MATH</span> <span class="k">CLAMP</span> tm!(), -H, 0, dr()      <span class="c">' each column waits a little, then falls faster and faster</span>
+    <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+    <span class="k">CLS</span> cl(0)
+    <span class="k">FRAMEBUFFER</span> <span class="k">WARPV</span> F, N, dr(), 2, , , -1
+    <span class="k">IF</span> INKEY$ &lt;&gt; <span class="s">""</span> <span class="k">THEN</span> quit = 1
+    <span class="k">IF</span> quit <span class="k">OR</span> <span class="k">MATH</span>(MAX dr()) &lt;= -H <span class="k">THEN</span> <span class="k">EXIT</span> <span class="k">FOR</span>
+  <span class="k">NEXT</span>
+  <span class="k">CLS</span> cl(0)
+<span class="k">END</span> <span class="k">SUB</span></code></pre>
+          </figure>
+          <p>First the melt copies the screen into <code>F</code> and flattens the layers onto it, with a WARPH that moves nothing (one element of 0 for all 240 rows) and treats colour 0 as transparent: a handy way to merge a layer into a picture. Each pair of columns gets a random head start of up to 40 pixels. In each frame <code>MATH ADD</code> takes 0.35&nbsp;&times;&nbsp;fr&sup2; from all of them, and <code>MATH CLAMP</code> turns the results into offsets between 0 and -240, so each column waits a moment and then falls faster and faster. WARPV with an <code>edge</code> of -1 draws them over a cleared screen until every column has gone.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="shears">
+      <div class="wrap">
+        <div class="article">
+          <h2>Turning with three shears</h2>
+          <p>Scene four turns a playing card through any angle with nothing but WARPH and WARPV, using Paeth's three shears. To turn a picture by an angle a about the middle of the screen:</p>
+          <ol>
+            <li>move every row sideways by -tan(a/2) times its distance from the middle row;</li>
+            <li>move every column down by sin(a) times its distance from the middle column;</li>
+            <li>move the rows again, as the first time.</li>
+          </ol>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 4: three shears</span></figcaption>
+<pre><code><span class="k">FOR</span> y = 0 <span class="k">TO</span> H - 1 : ry!(y) = y - 120 : <span class="k">NEXT</span>
+<span class="k">FOR</span> x = 0 <span class="k">TO</span> W - 1 : rx!(x) = x - 160 : <span class="k">NEXT</span>
+<span class="c">' ...</span>
+    t! = TAN(RAD(a!) / 2)
+    <span class="k">MATH</span> <span class="k">SCALE</span> ry!(), -t!, ha() : <span class="k">MATH</span> <span class="k">ADD</span> ha(), dx + t! * dy, hb()    <span class="c">' the rows: first and third shears</span>
+    <span class="k">MATH</span> <span class="k">SCALE</span> rx!(), -SIN(RAD(a!)), va() : <span class="k">MATH</span> <span class="k">ADD</span> va(), -dy, va()  <span class="c">' the columns: the second</span>
+    <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> F, 2, ha()
+    <span class="k">FRAMEBUFFER</span> <span class="k">WARPV</span> 2, N, va()
+    <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+    <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> N, T, hb()</code></pre>
+          </figure>
+          <p><code>ry!()</code> and <code>rx!()</code> hold each row's and each column's distance from the middle, made once. In each frame <code>MATH SCALE</code> turns them into the shears, and <code>MATH ADD</code> adds a constant to each, which moves the card about as well as turning it. The three warps carry the picture from <code>F</code> to <code>2</code> to <code>N</code> to the top layer <code>T</code>; <code>N</code> is just a workspace here, hidden under the green table drawn in the layer <code>L</code>.</p>
+          <p>A shear moves pixels but never makes or loses one, so the card stays crisp at every angle. The catch is that a row that wraps round is sheared wrongly, so the picture has to stay well inside the screen: within 113 pixels of the middle, for angles up to 90 degrees either way. A playing card looks the same upside down, so that's every angle it needs.</p>
+
+          <h3 id="mosaic">A mosaic</h3>
+          <p>The card arrives and leaves as a mosaic, which the Super NES did with a register:</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 4: the mosaic</span></figcaption>
+<pre><code><span class="k">FOR</span> k = 0 <span class="k">TO</span> 7  <span class="c">' the mosaic's row map for each size of block: the rows from 120 on, each shown ms(k) times</span>
+  <span class="k">FOR</span> y = 0 <span class="k">TO</span> H - 1 : mt(y, k) = 120 + y \ ms(k) : <span class="k">NEXT</span>
+<span class="k">NEXT</span>
+<span class="c">' ...</span>
+    n = ms(k)
+    <span class="k">BLIT</span> <span class="k">RESIZE</span> F, 2, 0, 0, W, H, 0, 0, W \ n, H \ n
+    <span class="k">BLIT</span> <span class="k">RESIZE</span> 2, 2, 0, 0, W \ n, H \ n, 0, 120, W, H \ n
+    <span class="k">MATH</span> <span class="k">SLICE</span> mt(), , k, mr()
+    <span class="k">IF</span> fr &lt;= 25 <span class="k">THEN</span> <span class="k">MAP</span> <span class="k">SET</span> <span class="k">ELSE</span> <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+    <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> 2, T, z(), 1, 0, , , , mr()</code></pre>
+          </figure>
+          <p><code>BLIT RESIZE</code> shrinks the card to 1/n of its size, and a second <code>BLIT RESIZE</code> stretches that back to the full width, in the rows from 120 on, so each pixel becomes a block n pixels wide. Then a WARPH whose <code>rows%()</code> table shows each of those rows n times makes the blocks n pixels tall. The tables for the eight block sizes are made once, in the two-dimensional array <code>mt()</code>, and <code>MATH SLICE</code> takes out the one for this frame.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="affine">
+      <div class="wrap">
+        <div class="article">
+          <h2>AFFINE: turning, zooming and Mode&nbsp;7</h2>
+          <p>AFFINE is the Super NES's Mode&nbsp;7 as one command. It builds each row of the screen by walking through the source picture in a straight line. The first pixel of the row shows the source at (u, v), and each pixel to its right is a step of (du, dv) further on. Within a band of rows, each next row starts one step on at right angles to that. For pixel i of row j of a band:</p>
+<pre><code>x = (u - j * dv + i * du) / 65536
+y = (v + j * du + i * dv) / 65536</code></pre>
+          <p>Positions and steps are in 1/65536 of a pixel, so steps can be fractions. du = 65536 and dv = 0 copies the picture as it is, du = 32768 doubles its size, and a step that points diagonally turns it.</p>
+
+          <h3 id="turn">Turning and zooming the whole screen</h3>
+          <p>With one element and a step of 240 rows, four numbers turn and zoom the whole picture:</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 5: the map turned and zoomed</span></figcaption>
+<pre><code>a! = fr * 0.017 : z! = 1.5 + 1.1 * SIN(fr * 0.021)  <span class="c">' the angle, and the size</span>
+sx! = 160 + 70 * COS(fr * 0.011) : sy! = 120 + 50 * SIN(fr * 0.014)
+du(0) = FP * COS(a!) / z! : dv(0) = -FP * SIN(a!) / z!
+u(0) = FP * sx! - 160 * du(0) + 120 * dv(0)
+v(0) = FP * sy! - 160 * dv(0) - 120 * du(0)
+<span class="k">IF</span> fr &lt;= 25 <span class="k">THEN</span> <span class="k">MAP</span> <span class="k">SET</span> <span class="k">ELSE</span> <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+<span class="k">FRAMEBUFFER</span> <span class="k">AFFINE</span> F, N, u(), v(), du(), dv(), H</code></pre>
+          </figure>
+          <p>For an angle <code>a!</code> and a size <code>z!</code>, the step along a row is (cos a, -sin a) divided by the size. Then <code>u</code> and <code>v</code> are chosen so that the middle of the screen, pixel 160 of row 120, shows the point of the map being looked at, (<code>sx!</code>, <code>sy!</code>): that's what taking 160 steps along and 120 steps down does. As the angle, the size and the point change, the map spins, zooms and drifts.</p>
+
+          <h3 id="floor">The map as the ground</h3>
+          <p>Give AFFINE an element for each row and the map lies down as the ground, as <em>F-Zero</em>'s track did. Each row below the horizon is a line across the map. The higher up the screen, the further away the line, and the more map it covers. <code>zt!()</code> holds how many map pixels each screen pixel covers on each of the 149 rows below the horizon, 14/(k&nbsp;+&nbsp;1), and it is made once.</p>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 6: the ground, the sky and the compass</span></figcaption>
+<pre><code><span class="k">LOCAL</span> hz = 90, n = 149                       <span class="c">' the horizon's row, and the rows below it</span>
+<span class="c">' ...</span>
+<span class="k">FOR</span> k = 0 <span class="k">TO</span> n - 1 : zt!(k) = 14 / (k + 1) : <span class="k">NEXT</span>
+<span class="k">DO</span>
+  fr = fr + 1
+  <span class="c">' ...</span>
+  t! = fr * 0.011                              <span class="c">' round the track</span>
+  camx! = 160 + 118 * COS(t!) : camy! = 120 + 74 * SIN(t!)
+  a! = ATAN2(74 * COS(t!), -118 * SIN(t!)) + 0.25 * SIN(fr * 0.05)
+  ca! = COS(a!) : sa! = SIN(a!)
+  <span class="k">MATH</span> <span class="k">SCALE</span> zt!(), -FP * sa!, fdu() : <span class="k">MATH</span> <span class="k">SCALE</span> zt!(), FP * ca!, fdv()
+  <span class="k">MATH</span> <span class="k">SCALE</span> zt!(), FP * (d! * ca! + 160 * sa!), fu() : <span class="k">MATH</span> <span class="k">ADD</span> fu(), FP * camx!, fu()
+  <span class="k">MATH</span> <span class="k">SCALE</span> zt!(), FP * (d! * sa! - 160 * ca!), fv() : <span class="k">MATH</span> <span class="k">ADD</span> fv(), FP * camy!, fv()
+  so(0) = -a! * 4 * W / (2 * PI)               <span class="c">' the screen shows a quarter of the way round</span>
+  <span class="c">' the compass, turned as the camera is: a 69x69 window round the 48x48 picture at (124, 168) of 2</span>
+  du(0) = FP * COS(a! + PI / 2) : dv(0) = -FP * SIN(a! + PI / 2)
+  u(0) = FP * 124 - 34 * (du(0) - dv(0)) : v(0) = FP * 168 - 34 * (dv(0) + du(0))
+  <span class="k">IF</span> fr &lt;= 25 <span class="k">THEN</span> <span class="k">MAP</span> <span class="k">SET</span> <span class="k">ELSE</span> <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+  <span class="k">FRAMEBUFFER</span> <span class="k">WARPH</span> 2, N, so(), hz
+  <span class="k">FRAMEBUFFER</span> <span class="k">AFFINE</span> F, N, fu(), fv(), fdu(), fdv(), 1, hz + 1
+  <span class="k">FRAMEBUFFER</span> <span class="k">AFFINE</span> 2, N, u(), v(), du(), dv(), 69, 4, 247, 69, -1, 0</code></pre>
+          </figure>
+          <p>In each frame the camera's place (<code>camx!</code>, <code>camy!</code>) and its heading (<code>ca!</code>, <code>sa!</code>) turn <code>zt!()</code> into the four tables with six <code>MATH</code> statements. The step along each row points across the camera's view, scaled by <code>zt!</code>, and each row starts on its line <code>d!</code>&nbsp;&times;&nbsp;<code>zt!</code> map pixels ahead of the camera (<code>d!</code> is 160).</p>
+          <p>Above the horizon the sky is a WARPH of one band of 90 rows, which pans as the camera turns: a full turn moves it four screen widths, so the screen shows a quarter of the way round. The compass is a third trick. AFFINE's <code>left</code> and <code>width</code> limit it to a 69&times;69 window at the top right, turned with the camera, with an <code>edge</code> of -1 and colour 0 transparent so that only the compass is drawn. That's how to turn a sprite, as the Game Boy Advance did.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="span">
+      <div class="wrap">
+        <div class="article">
+          <h2>SPAN: a torch and an iris</h2>
+          <p>SPAN does the job of the Super NES's windows. On each row it copies only the pixels from that row's left column to its right one, and it leaves the rest alone, fills it with a colour, or, with <code>outside</code> = 1, copies the outside instead.</p>
+          <h3 id="torch">A torch in the dark</h3>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 7: the torch</span></figcaption>
+<pre><code><span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> F : drawmap mlit()
+<span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> 2 : drawmap mdark()
+<span class="k">FRAMEBUFFER</span> <span class="k">WRITE</span> N
+<span class="k">FOR</span> k = 0 <span class="k">TO</span> 2 * r : hw!(k) = SQR(r * r - (k - r) * (k - r)) : <span class="k">NEXT</span>
+<span class="c">' ...</span>
+    cx = 160 + 150 * SIN(fr * 0.021) : cy = 120 + 130 * SIN(fr * 0.033)
+    <span class="k">MATH</span> <span class="k">SCALE</span> hw!(), -1, q!() : <span class="k">MATH</span> <span class="k">ADD</span> q!(), cx, lf() : <span class="k">MATH</span> <span class="k">ADD</span> hw!(), cx - 1, rt()
+    <span class="k">IF</span> fr &lt;= 25 <span class="k">THEN</span> <span class="k">MAP</span> <span class="k">SET</span> <span class="k">ELSE</span> <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+    <span class="k">FRAMEBUFFER</span> <span class="k">COPY</span> 2, N
+    <span class="k">FRAMEBUFFER</span> <span class="k">SPAN</span> F, N, lf(), rt(), 1, cy - r</code></pre>
+          </figure>
+          <p>The map is drawn twice, lit into <code>F</code> and in the dark into <code>2</code>. In each frame the dark map is copied to the screen, and SPAN copies the lit map over it in a circle. The circle's half-width on each of its 93 rows is worked out once, with <code>SQR</code>. In each frame <code>MATH</code> turns the half-widths into left and right columns about the torch's centre, and SPAN's <code>first</code>, <code>cy - r</code>, puts the circle's top row in place, even when it's off the top of the screen.</p>
+
+          <h3 id="iris">An iris</h3>
+          <figure class="listing">
+            <figcaption><span class="file">Scene 7: the iris</span></figcaption>
+<pre><code><span class="k">FOR</span> k = 0 <span class="k">TO</span> H - 1 : d2!(k) = (k - 120) * (k - 120) : <span class="k">NEXT</span>
+<span class="c">' ...</span>
+    ri = ABS(fr - 850) * 1.4
+    <span class="k">MATH</span> <span class="k">SCALE</span> d2!(), -1, wk!() : <span class="k">MATH</span> <span class="k">ADD</span> wk!(), ri * ri, wk!() : <span class="k">MATH</span> <span class="k">CLAMP</span> wk!(), 0, 1000000, wk!()
+    <span class="k">MATH</span> <span class="k">POWER</span> wk!(), 0.5, ih!()
+    <span class="k">MATH</span> <span class="k">SCALE</span> ih!(), -1, iq!() : <span class="k">MATH</span> <span class="k">ADD</span> iq!(), 160, il() : <span class="k">MATH</span> <span class="k">ADD</span> ih!(), 159, ir()
+    <span class="k">FRAMEBUFFER</span> <span class="k">WAIT</span>
+    <span class="k">FRAMEBUFFER</span> <span class="k">SPAN</span> F, N, il(), ir(), 1, 0, cl(0)</code></pre>
+          </figure>
+          <p>The iris changes size in every frame, so its half-widths are made in every frame, for all 240 rows: ri&sup2; - (y - 120)&sup2;, clamped at 0 for the rows the circle doesn't reach, then <code>MATH POWER</code> 0.5 for the square root. A row whose half-width is 0 has its left column (160) beyond its right one (159), which SPAN takes as an empty span. The <code>fill</code> colour paints everything outside the circle black, so the iris closes to a point and opens again, as at the end of a level in <em>Super Mario World</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="good-to-know">
+      <div class="wrap">
+        <div class="article">
+          <h2>Good to know</h2>
+          <ul>
+            <li>The commands are in the VGA and HDMI builds, in MODE 2 to 5. The demo needs an RP2350, such as the PC3, because it uses <code>F</code>, <code>2</code> and both layers, in MODE&nbsp;2 at 320&times;240.</li>
+            <li>Make the tables once, and change them in each frame with <code>MATH SCALE</code>, <code>MATH ADD</code>, <code>MATH C_ADD</code>, <code>MATH CLAMP</code> and <code>MATH POWER</code>, or slide them with <code>phase</code>. Work in float arrays, and <code>MATH SCALE a!(), 1, b()</code> copies the result into the integer array a command needs.</li>
+            <li>A picture that wraps round should join up with itself: the demo's mountains and hills are sums of sine waves that repeat every 320 pixels, so a scrolled row never shows a seam.</li>
+            <li>Wait for the frame (<code>FRAMEBUFFER WAIT</code>) before drawing onto the screen, so that the picture doesn't tear.</li>
+            <li>In MODE 3, 4 and 5 the PC3's framebuffers are in its PSRAM, and an AFFINE that shrinks a picture or turns it a long way is several times slower than in MODE&nbsp;2.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="get">
+      <div class="wrap">
+        <div class="article">
+          <h2>Getting it</h2>
+          <ul>
+            <li><strong><a href="https://github.com/UKTailwind/PicoMite/releases/tag/PicoMite-V8.00.00b3">PicoMite V8.00.00b3</a></strong> has all four commands. The Pico Computer&nbsp;3's firmware is <code>PicoMitePC3V8.00.00b3.uf2</code>. Read the release notes before updating. Coming from beta&nbsp;2 or from V7, the PicoMitePC3 resets its options at its first boot (save them first with <code>OPTION DISK SAVE</code> and load them again with <code>OPTION DISK LOAD</code>) and clears its flash slots, but keeps its A: drive. Coming from V7 or beta&nbsp;1, programs saved by the old firmware must be loaded again from their <code>.bas</code> files.</li>
+            <li><strong>The demo</strong> is <a href="https://github.com/UKTailwind/PicoMite/blob/PicoMite-V8.00.00b3/Bas/warp_demo.bas"><code>Bas/warp_demo.bas</code></a> in the PicoMite repository. Run it on a PC3, or any RP2350 VGA or HDMI build, with <code>OPTION RESOLUTION 640x480</code>; any key ends it.</li>
+            <li><strong>The manuals</strong>: the <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V8.00.00b3/PicoMite_User_ManualV8.00.00b3.pdf">User Manual</a> describes the commands under <code>FRAMEBUFFER</code>, and the Game Development Guide, in the <a href="https://github.com/UKTailwind/PicoMite/releases/download/PicoMite-V8.00.00b3/PicoMite_Supplementary_Manuals-8.00.00b3.zip">supplementary manuals</a>, has three sections of worked examples: <em>Raster Effects</em>, <em>Turning, Scaling and Floors</em> and <em>Windows of Any Shape</em>.</li>
+            <li><strong>The <a href="/cmm2/">Colour Maximite&nbsp;2</a></strong> has had <code>FRAMEBUFFER WARPH</code> and <code>WARPV</code> since 8.00.00b3 (also as <code>PAGE WARPH</code> and <code>PAGE WARPV</code>), and <code>AFFINE</code> and <code>SPAN</code> will follow in 8.00.00b5.</li>
+          </ul>
+          <p>These are betas, so reports of anything that doesn't look right are very welcome, on <a href="https://www.thebackshed.com/forum/">The Back Shed</a> forum.</p>
+          <p class="back"><a href="/blog/">← All articles</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Peter Mather · mather.host</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/UKTailwind">GitHub</a>
+        <a href="https://github.com/UKTailwind/mather.host">Site source</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js" defer></script>
+</body>
+</html>

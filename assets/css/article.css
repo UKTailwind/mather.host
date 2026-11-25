@@ -75,3 +75,7 @@ table.data td code { white-space: nowrap; }
 .listing .s { color: #f2c48f; }
 .listing .k { color: #e8fff0; font-weight: 600; }
 .article .back { margin-top: 1.6em; font-weight: 600; }
+/* a grid of small pictures, each a .photo figure, with a note under them */
+.panels { display: grid; gap: 14px; align-items: start; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin: 1.4em 0 0.6em; }
+.panels .photo figcaption { font-size: 0.82rem; }
+.article .panels-note { font-size: 0.84rem; color: var(--fg-muted); margin-top: 0; }
